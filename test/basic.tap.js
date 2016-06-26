@@ -67,7 +67,7 @@ test("promises + CLS with shim = success", function (t) {
   var Promise = require('bluebird');
 
   // load shim
-  var patchPromise = require('../shim.js');
+  var patchPromise = require('../lib');
   patchPromise(ns);
 
   var redis = require('redis');
