@@ -3,6 +3,7 @@
 ## Next
 
 * Re-implement patch to support bluebird v3.x and fix bugs
+* Tests and other excess files excluded from npm package
 
 ## 1.1.3
 
