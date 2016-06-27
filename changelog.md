@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+
+* Re-implement patch to support bluebird v3.x and fix bugs
+
 ## 1.1.3
 
 * Improved validation that `ns` argument is a namespace
