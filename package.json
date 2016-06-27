@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "npm run jshint && npm run test-main",
-    "test-main": "tap test/*.tap.js",
+    "test-main": "mocha test/**/*.test.js",
     "jshint": "jshint lib test"
   },
   "repository": {
@@ -37,10 +37,10 @@
     "is-bluebird": "^1.0.1"
   },
   "devDependencies": {
-    "tap": "~0.4.4",
-    "redis": "~0.9.0",
+    "mocha": "^2.5.3",
+    "chai": "^3.5.0",
+    "jshint": "^2.9.2",
     "continuation-local-storage": "^3.1.7",
-    "bluebird": "^2.10.2",
-    "jshint": "^2.9.2"
+    "bluebird": "^2.10.2"
   }
 }

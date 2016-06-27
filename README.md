@@ -71,10 +71,6 @@ function print() {
 
 Use `npm test` to run the tests.
 
-The tests require a Redis server to be up and running on localhost on the standard port.
-
-Work is underway to expand the tests and remove the dependence on Redis.
-
 ## Changelog
 
 See [changelog.md](https://github.com/TimBeyer/cls-bluebird/blob/master/changelog.md)
