@@ -22,9 +22,25 @@ clsBluebird(ns, PatchedBluebird3);
 
 // Run tests for bluebird v2 and v3
 describe('Bluebird v2.x', function() {
-    test(PatchedBluebird2, ns);
+    var altPromises = [
+        {name: 'self', Promise: PatchedBluebird2},
+        {name: 'bluebird v2 unpatched', Promise: Bluebird2},
+        //{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
+        {name: 'bluebird v3 unpatched', Promise: Bluebird3},
+        {name: 'native promise', Promise: global.Promise}
+    ];
+
+    test(PatchedBluebird2, altPromises, ns);
 });
 
 describe('Bluebird v3.x', function() {
-    test(PatchedBluebird3, ns);
+    var altPromises = [
+        {name: 'self', Promise: PatchedBluebird3},
+        {name: 'bluebird v3 unpatched', Promise: Bluebird3},
+        //{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
+        {name: 'bluebird v2 unpatched', Promise: Bluebird2},
+        {name: 'native promise', Promise: global.Promise}
+    ];
+
+    test(PatchedBluebird3, altPromises, ns);
 });

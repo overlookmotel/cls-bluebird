@@ -4,9 +4,11 @@
  */
 
 // Imports
-var patched = require('./patched');
+var patched = require('./patched'),
+    methods = require('./methods');
 
 // Exports
-module.exports = function(Promise, ns) { // jshint ignore:line
+module.exports = function(Promise, AltPromises, ns) {
     patched(Promise);
+    methods(Promise, AltPromises, ns);
 };
