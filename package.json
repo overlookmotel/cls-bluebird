@@ -6,7 +6,10 @@
   "scripts": {
     "test": "npm run jshint && npm run test-main",
     "test-main": "mocha test/**/*.test.js",
-    "jshint": "jshint lib test"
+    "jshint": "jshint lib test",
+    "cover": "npm run cover-main && rm -rf coverage",
+    "coveralls": "npm run cover-main && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+    "cover-main": "COVERAGE=true istanbul cover _mocha --report lcovonly -- -R spec 'test/**/*.test.js'"
   },
   "repository": {
     "type": "git",
@@ -40,6 +43,8 @@
     "mocha": "^2.5.3",
     "chai": "^3.5.0",
     "jshint": "^2.9.2",
+    "istanbul": "^0.4.4",
+    "coveralls": "^2.11.9",
     "continuation-local-storage": "^3.1.7",
     "bluebird": "^2.10.2"
   }
