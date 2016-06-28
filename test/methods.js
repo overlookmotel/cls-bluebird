@@ -117,6 +117,7 @@ module.exports = function(Promise, altPromises, ns) { // jshint ignore:line
             });
 
 			describe('calls callback asynchronously', function() {
+				// TODO add tests for adding `.then` handler in next tick
 				it('resolve handler', function(done) {
 					checkAsync(function(handler) {
 						resolve().then(handler);
@@ -132,11 +133,19 @@ module.exports = function(Promise, altPromises, ns) { // jshint ignore:line
 
 			describe('patch binds callback', function() {
 				it('resolve handler', function(done) {
-					resolve().then(makeHandlerBound(null, done));
+					// TODO need different way to do this to check ns.bind() has been run synchronously
+					var p = resolve();
+					runInContext(function(context) {
+						p.then(makeHandlerBound(context, done));
+					});
 				});
 
 				it('reject handler', function(done) {
-					reject().then(makeHandlerBadResolve(done), makeHandlerBound(null, done));
+					// TODO need different way to do this to check ns.bind() has been run synchronously
+					var p = reject();
+					runInContext(function(context) {
+						p.then(makeHandlerBadResolve(done), makeHandlerBound(context, done));
+					});
 				});
 			});
 		});
@@ -157,13 +166,25 @@ module.exports = function(Promise, altPromises, ns) { // jshint ignore:line
 	function reject() {
 		return Promise.reject(new Error('error'));
 	}
+
+	/**
+	 * Create a CLS context and run function within it.
+	 * Context is created with a unique `_id` attribute within it.
+	 * `fn` is called with the CLS context object as argument.
+	 *
+	 * @param {Function} fn - Function to execute within context
+	 * @returns {*} - Return value of `fn()`
+	 */
+	function runInContext(fn) {
+		return _runInContext(ns, fn);
+	}
 };
 
 /**
- * Runs a function and checks it calls back a handler synchonously.
+ * Runs a function and checks it calls back a handler synchronously.
  * `fn` is called immediately, and passed a handler.
- * If handler is called syncronously, `done` callback is called without error.
- * If handler is called asyncronously, `done` callback is called with an error.
+ * If handler is called synchronously, `done` callback is called without error.
+ * If handler is called asynchronously, `done` callback is called with an error.
  *
  * @param {Function} fn - Function to run.
  * @param {Function} done - Final callback to call with result
@@ -173,7 +194,7 @@ function checkSync(fn, done) {
 	var sync = true;
 	var handler = function() {
 		toCallback(function() {
-			if (!sync) throw new Error('Called asynchonously');
+			if (!sync) throw new Error('Called asynchronously');
 		}, done);
 	};
 
@@ -182,10 +203,10 @@ function checkSync(fn, done) {
 }
 
 /**
- * Runs a function and checks it calls back a handler asynchonously.
+ * Runs a function and checks it calls back a handler asynchronously.
  * `fn` is called immediately, and passed a handler.
- * If handler is called asyncronously, `done` callback is called without error.
- * If handler is called syncronously, `done` callback is called with an error.
+ * If handler is called asynchronously, `done` callback is called without error.
+ * If handler is called synchronously, `done` callback is called with an error.
  *
  * @param {Function} fn - Function to run.
  * @param {Function} done - Final callback to call with result
@@ -195,7 +216,7 @@ function checkAsync(fn, done) {
 	var sync = true;
 	var handler = function() {
 		toCallback(function() {
-			if (sync) throw new Error('Called synchonously');
+			if (sync) throw new Error('Called synchronously');
 		}, done);
 	};
 
@@ -459,7 +480,7 @@ function makeToCallback(fn, cb) {
 */
 
 /**
- * Set of functions to create promises which resolve or reject either synchronously or asynchonously.
+ * Set of functions to create promises which resolve or reject either synchronously or asynchronously.
  */
 function resolveSync(Promise, value) {
     return new Promise(function(resolve) {
@@ -523,4 +544,41 @@ function throwMethod(err) {
 	return function() {
 		throw err;
 	};
+}
+
+/**
+ * Create a CLS context and run function within it.
+ * Context is created with a unique `_id` attribute within it.
+ * `fn` is called with the CLS context object as argument.
+ *
+ * @param {Object} ns - CLS namespace to run within
+ * @param {Function} fn - Function to execute within context
+ * @returns {*} - Return value of `fn()`
+ */
+var nextId = 1;
+function _runInContext(ns, fn) {
+    return _runAndReturn(ns, function(context) {
+        var id = nextId;
+        ns.set('_id', id);
+        nextId++;
+
+        return fn(context);
+    });
+}
+
+/**
+ * Creates CLS context and runs a function within it.
+ * Like `ns.run(fn)` but returns the return value of `fn` rather than the context object.
+ * `fn` is called with the CLS context object as argument.
+ *
+ * @param {Object} ns - CLS namespace to run within
+ * @param {Function} fn - Function to execute within context
+ * @returns {*} - Return value of `fn()`
+ */
+function _runAndReturn(ns, fn) {
+	var value;
+    ns.run(function(context) {
+        value = fn(context);
+    });
+    return value;
 }
