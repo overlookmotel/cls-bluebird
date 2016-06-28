@@ -15,15 +15,25 @@ var ns = require('./ns'),
     test = require('./all');
 
 // Patch bluebird2 + bluebird3
-var PatchedBluebird2 = Bluebird2.getNewLibraryCopy();
-clsBluebird(ns, PatchedBluebird2);
-var PatchedBluebird3 = Bluebird3.getNewLibraryCopy();
-clsBluebird(ns, PatchedBluebird3);
+var PatchedBluebird2 = patch(Bluebird2);
+var PatchedBluebird3 = patch(Bluebird3);
+
+function patch(Promise) {
+    Promise = Promise.getNewLibraryCopy();
+    clsBluebird(ns, Promise);
+
+    Promise.onPossiblyUnhandledRejection(function(err) {
+        console.log('Unhandled rejection:', err);
+        process.exit(1);
+    });
+
+    return Promise;
+}
 
 // Run tests for bluebird v2 and v3
 describe('Bluebird v2.x', function() {
     var altPromises = [
-        {name: 'self', Promise: PatchedBluebird2},
+        {name: 'this promise', Promise: PatchedBluebird2},
         {name: 'bluebird v2 unpatched', Promise: Bluebird2},
         //{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
         {name: 'bluebird v3 unpatched', Promise: Bluebird3},
@@ -35,7 +45,7 @@ describe('Bluebird v2.x', function() {
 
 describe('Bluebird v3.x', function() {
     var altPromises = [
-        {name: 'self', Promise: PatchedBluebird3},
+        {name: 'this promise', Promise: PatchedBluebird3},
         {name: 'bluebird v3 unpatched', Promise: Bluebird3},
         //{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
         {name: 'bluebird v2 unpatched', Promise: Bluebird2},
