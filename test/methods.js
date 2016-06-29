@@ -69,7 +69,9 @@ module.exports = function(Promise, altPromises, ns) { // jshint ignore:line
 			});
 
 			it('patch does not bind callback', function(done) {
-				new Promise(makeHandlerNotBound(done)); // jshint ignore:line
+				checkNotBound(function(handler) {
+					new Promise(handler); // jshint ignore:line
+				}, done);
 			});
 		});
 
@@ -103,69 +105,123 @@ module.exports = function(Promise, altPromises, ns) { // jshint ignore:line
 		 */
 		describe('Promise.prototype.then()', function() {
 			describe('always returns instance of patched Promise constructor when passed', function() {
+				// TODO check for case where attached to async resolved/rejected promise
 				describe('resolve handler', function() {
 					checkReturnsPromise(function(handler) {
-						return resolve().then(handler);
+						return resolveSync(Promise, 1).then(handler);
 					}, Promise, altPromises);
 				});
 
 				describe('reject handler', function() {
 					checkReturnsPromise(function(handler, done) {
-						return reject().then(makeHandlerBadResolve(done), handler);
+						return rejectSync(Promise, new Error('foo')).then(makeHandlerBadResolve(done), handler);
 					}, Promise, altPromises);
 				});
             });
 
 			describe('calls callback asynchronously', function() {
-				// TODO add tests for adding `.then` handler in next tick
-				it('resolve handler', function(done) {
-					checkAsync(function(handler) {
-						resolve().then(handler);
-					}, done);
+				describe('resolve handler', function() {
+					describe('attached sync to', function() {
+						it('settled promise', function(done) {
+							var p = resolveSync(Promise, 1);
+							checkAsync(function(handler) {
+								p.then(handler);
+							}, done);
+						});
+
+						it('pending promise', function(done) {
+							var p = resolveAsync(Promise, 1);
+							checkAsync(function(handler) {
+								p.then(handler);
+							}, done);
+						});
+					});
+
+					describe('attached async to', function() {
+						it('settled promise', function(done) {
+							var p = resolveSync(Promise, 1);
+							setImmediate(function() {
+								checkAsync(function(handler) {
+									p.then(handler);
+								}, done);
+							});
+						});
+
+						it('pending promise', function(done) {
+							var p = resolveAsync(Promise, 1);
+							setImmediate(function() {
+								checkAsync(function(handler) {
+									p.then(handler);
+								}, done);
+							});
+						});
+					});
 				});
 
-				it('reject handler', function(done) {
-					checkAsync(function(handler) {
-						reject().then(makeHandlerBadResolve(done), handler);
-					}, done);
+				describe('reject handler', function() {
+					// TODO ensure handler receives correct error
+					describe('attached sync to', function() {
+						it('settled promise', function(done) {
+							var p = rejectSync(Promise, new Error('foo'));
+							checkAsync(function(handler) {
+								p.then(makeHandlerBadResolve(done), handler);
+							}, done);
+						});
+
+						it('pending promise', function(done) {
+							var p = rejectAsync(Promise, new Error('foo'));
+							checkAsync(function(handler) {
+								p.then(makeHandlerBadResolve(done), handler);
+							}, done);
+						});
+					});
+
+					describe('attached async to', function() {
+						it('settled promise', function(done) {
+							var p = rejectSync(Promise, new Error('foo'));
+							suppressUnhandledRejections(p);
+							setImmediate(function() {
+								checkAsync(function(handler) {
+									p.then(makeHandlerBadResolve(done), handler);
+								}, done);
+							});
+						});
+
+						it('pending promise', function(done) {
+							var p = rejectAsync(Promise, new Error('foo'));
+							suppressUnhandledRejections(p);
+							setImmediate(function() {
+								checkAsync(function(handler) {
+									p.then(makeHandlerBadResolve(done), handler);
+								}, done);
+							});
+						});
+					});
 				});
 			});
 
 			describe('patch binds callback', function() {
+				// TODO add tests for binding to async rejected promise or handler attached async?
 				it('resolve handler', function(done) {
-					// TODO need different way to do this to check ns.bind() has been run synchronously
-					var p = resolve();
+					var p = resolveSync(Promise, 1);
 					runInContext(function(context) {
-						p.then(makeHandlerBound(context, done));
+						checkBound(function(handler) {
+							p.then(handler);
+						}, context, done);
 					});
 				});
 
 				it('reject handler', function(done) {
-					// TODO need different way to do this to check ns.bind() has been run synchronously
-					var p = reject();
+					var p = rejectSync(Promise, new Error('foo'));
 					runInContext(function(context) {
-						p.then(makeHandlerBadResolve(done), makeHandlerBound(context, done));
+						checkBound(function(handler) {
+							p.then(makeHandlerBadResolve(done), handler);
+						}, context, done);
 					});
 				});
 			});
 		});
     });
-
-	/**
-	 * Returns a resolved promise
-	 * @returns {Promise}
-	 */
-	function resolve() {
-		return Promise.resolve(1);
-	}
-
-	/**
-	 * Returns a rejected promise
-	 * @returns {Promise}
-	 */
-	function reject() {
-		return Promise.reject(new Error('error'));
-	}
 
 	/**
 	 * Create a CLS context and run function within it.
@@ -234,7 +290,6 @@ function checkAsync(fn, done) {
  * @param {Function} done - Final callback to call with result
  * @returns {undefined}
  */
-/*
 function checkNotBound(fn, done) {
 	var handler = function() {
 		toCallback(function() {
@@ -244,29 +299,41 @@ function checkNotBound(fn, done) {
 
 	fn(handler);
 }
-*/
 
 /**
  * Runs a function and checks that when it calls back a handler, the handler has been bound to CLS context.
  * `fn` is called immediately, and passed a handler.
- * If handler is bound exactly once, `done` callback is called without error.
- * If handler is not bound or bound more than once, `done` callback is called with an error.
+ *
+ * Checks:
+ *   - Handler is bound to correct context
+ *   - Handler is bound exactly once, synchronously after handler attached
+ *   - Handler is not bound again before handler is executed (asynchronously)
+ *
+ * If all checks pass, `done` callback is called without error.
+ * If any check fails, `done` callback is called with an error.
  *
  * @param {Function} fn - Function to run.
  * @param {Function} done - Final callback to call with result
  * @returns {undefined}
  */
-/*
-function checkBound(fn, done) {
+function checkBound(fn, context, done) {
+	var err;
 	var handler = function() {
 		toCallback(function() {
+			// throw if was not bound synchronously
+			if (err) throw err;
+
+			// throw if not bound at time handler called
 			throwIfNotBound(handler, context);
 		}, done);
 	};
 
+	// run function, passing handler
 	fn(handler);
+
+	// check if bound synchronously and set `err` to Error object if not
+	err = returnErrIfNotBound(handler, context);
 }
-*/
 
 /*
  * Executes `fn` several times providing different handlers.
@@ -333,41 +400,6 @@ function checkReturnsPromiseValue(fn, Promise, altPromises) {
 }
 
 /**
- * Create callback function to be passed to a Promise method which should not be bound to a CLS context.
- * When it is called, it checks it wasn't bound to a CLS context.
- * Calls `done` callback with result (error or no error).
- *
- * @param {Function} done - Final callback to call with result
- * @returns {Function} - Created callback function
- */
-function makeHandlerNotBound(done) {
-	var fn = function() {
-		toCallback(function() {
-			throwIfBound(fn);
-		}, done);
-	};
-	return fn;
-}
-
-/**
- * Create callback function to be passed to a Promise method which should be bound to a CLS context.
- * When it is called, it checks it was bound exactly once and to correct CLS context.
- * Calls `done` callback with result (error or no error).
- *
- * @param {Object} context - CLS context expect function to have been bound to
- * @param {Function} done - Final callback to call with result
- * @returns {Function} - Created callback function
- */
-function makeHandlerBound(context, done) {
-	var fn = function() {
-		toCallback(function() {
-			throwIfNotBound(fn, context);
-		}, done);
-	};
-	return fn;
-}
-
-/**
  * Create callback function to be passed to a Promise method which should never be called.
  * Calls `done` callback with error if called.
  *
@@ -396,13 +428,27 @@ function throwIfBound(fn) {
  *
  * @param {Function} fn - Function to check
  * @returns {undefined}
- * @throws {Error} - If has been bound
+ * @throws {Error} - If not been bound correctly
  */
 function throwIfNotBound(fn, context) {
 	var bound = fn._bound;
 	if (!bound || !bound.length) throw new Error('Function not bound');
 	if (bound.length > 1) throw new Error('Function bound multiple times (' + bound.length + ')');
-	if (bound[0].context !== context) throw new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ' got: ' + JSON.stringify(bound[0].context) + ')');
+	if (bound[0].context !== context) throw new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
+}
+
+/**
+ * Checks provided function has been bound to a CLS context exactly once, and returns error object if not.
+ *
+ * @param {Function} fn - Function to check
+ * @returns {Error|undefined} - Error if not bound correctly, undefined if fine
+ */
+function returnErrIfNotBound(fn, context) {
+	try {
+		throwIfNotBound(fn, context);
+	} catch (err) {
+		return err;
+	}
 }
 
 /**
@@ -426,16 +472,16 @@ function addThen(promise, done) {
  * If error is unexpected, calls `done` with the error.
  * Otherwise, calls `done` with no error.
  */
-function addCatch(promise, err, done) {
+function addCatch(promise, expectedErr, done) {
 	promise.then(
 		function() {
 			done(new Error('Unexpected resolve'));
 		},
-		function(_err) {
-			if (_err === err) {
+		function(err) {
+			if (err === expectedErr) {
 				done();
 			} else {
-				done(_err);
+				done(err);
 			}
 		}
 	);
@@ -478,6 +524,15 @@ function makeToCallback(fn, cb) {
 	};
 }
 */
+
+/**
+ * Attach empty catch handler to promise to prevent unhandled rejections
+ * @param {Promise} promise - Promise to attach catch handler to
+ * @returns {undefined}
+ */
+function suppressUnhandledRejections(promise) {
+	promise.catch(function() {});
+}
 
 /**
  * Set of functions to create promises which resolve or reject either synchronously or asynchronously.
