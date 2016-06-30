@@ -3,7 +3,7 @@
  * Create a CLS namespace
  */
 
-// Imports
+// Modules
 var cls = require('continuation-local-storage'),
 	shimmer = require('shimmer');
 

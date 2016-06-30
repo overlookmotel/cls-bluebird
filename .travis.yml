@@ -9,6 +9,11 @@ node_js:
   - "4"
   - "6"
 
+env:
+  matrix:
+    - BLUEBIRD_VERSION=2
+    - BLUEBIRD_VERSION=3
+
 matrix:
   fast_finish: true
   include:

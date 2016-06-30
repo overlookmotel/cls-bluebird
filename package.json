@@ -4,13 +4,16 @@
   "description": "Make bluebird work with the continuation-local-storage module.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "npm run jshint && npm run test-main",
+    "test": "npm run jshint && npm run test-all",
+    "test-all": "npm run test-bluebird2 && npm run test-bluebird3",
+    "test-bluebird2": "BLUEBIRD_VERSION=2 npm run test-main",
+    "test-bluebird3": "BLUEBIRD_VERSION=3 npm run test-main",
     "test-main": "mocha test/**/*.test.js",
     "jshint": "jshint lib test",
     "cover": "npm run cover-main && rm -rf coverage",
     "coveralls": "npm run cover-main && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
-    "cover-main": "COVERAGE=true istanbul cover _mocha --report lcovonly -- -R spec 'test/**/*.test.js'",
-    "travis": "if [ $COVERAGE ]; then npm run coveralls; else npm test; fi"
+    "cover-main": "COVERAGE=true BLUEBIRD_VERSION=3 istanbul cover _mocha --report lcovonly -- -R spec 'test/**/*.test.js'",
+    "travis": "if [ $COVERAGE ]; then npm run coveralls; else npm run jshint && npm run test-main; fi"
   },
   "repository": {
     "type": "git",
