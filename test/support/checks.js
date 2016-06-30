@@ -141,9 +141,9 @@ module.exports = {
     	u.altPromises.forEach(function(altPromiseParams) {
     		var name = altPromiseParams.name,
     			AltPromise = altPromiseParams.Promise;
-    		if (!AltPromise) return it(name);
 
-    		describe(name, function() {
+            var _describe = (AltPromise ? describe : describe.skip);
+    		_describe(name, function() {
     			it('resolved sync', function(done) {
     				var p = fn(u.resolveSyncMethod(AltPromise), done);
     				expect(p).to.be.instanceof(Promise);
