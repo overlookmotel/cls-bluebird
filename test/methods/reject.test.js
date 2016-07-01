@@ -5,9 +5,6 @@
 
 /* global describe, it */
 
-// Modules
-var expect = require('chai').expect;
-
 // Imports
 var runTests = require('../support');
 
@@ -18,7 +15,7 @@ runTests('Promise.reject()', function(Promise, u) {
         it('literal value', function(done) {
             var err = u.makeError();
             var p = Promise.reject(err);
-            expect(p).to.be.instanceof(Promise);
+            u.throwIfNotPromise(p);
             u.addCatch(p, err, done);
         });
     });

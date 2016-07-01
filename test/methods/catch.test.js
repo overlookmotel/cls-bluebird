@@ -5,9 +5,6 @@
 
 /* global describe, it */
 
-// Modules
-var expect = require('chai').expect;
-
 // Imports
 var runTests = require('../support');
 
@@ -19,12 +16,12 @@ runTests('.catch()', function(Promise, u) { // jshint ignore:line
 
         it('resolved promise', function(done) {
             var p = u.resolveSync().catch(u.makeHandlerBadReject(done));
-            expect(p).to.be.instanceof(Promise);
+            u.throwIfNotPromise(p);
             u.addThen(p, done);
         });
 
         describe('rejected promise', function() {
-            u.checkReturnsPromise(function(handler) {
+            u.testSetMethodReturnsPromise(function(handler) {
                 return u.rejectSync().catch(handler);
             });
         });

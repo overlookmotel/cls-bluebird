@@ -8,7 +8,8 @@ var _ = require('lodash');
 
 // Imports
 var promises = require('./promises'),
-    checks = require('./checks');
+    checks = require('./checks'),
+    testSets = require('./testSets');
 
 // Exports
 
@@ -154,5 +155,6 @@ Utils.prototype = {
 // mixins
 _.extend(Utils.prototype, promises);
 _.extend(Utils.prototype, checks);
+_.extend(Utils.prototype, testSets);
 
 module.exports = Utils;

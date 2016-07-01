@@ -5,11 +5,6 @@
  * Mixin to Utils prototype.
  */
 
-/* global describe, it */
-
-// Modules
-var expect = require('chai').expect;
-
 // Exports
 
 module.exports = {
@@ -116,75 +111,6 @@ module.exports = {
     	err = u.returnErrIfNotBound(handler, context);
     },
 
-    /*
-     * Executes `fn` several times providing different handlers.
-     */
-    checkReturnsPromise: function(fn, noThrow) {
-        var u = this,
-            Promise = u.Promise;
-
-    	it('literal value', function(done) {
-    		var p = fn(u.literalMethod(), done);
-    		expect(p).to.be.instanceof(Promise);
-    		u.addThen(p, done);
-    	});
-
-    	if (!noThrow) {
-    		it('thrown error', function(done) {
-    			var err = u.makeError();
-    			var p = fn(u.throwMethod(err), done);
-    			expect(p).to.be.instanceof(Promise);
-    			u.addCatch(p, err, done);
-    		});
-    	}
-
-    	u.altPromises.forEach(function(altPromiseParams) {
-    		var name = altPromiseParams.name,
-    			AltPromise = altPromiseParams.Promise;
-
-            var _describe = (AltPromise ? describe : describe.skip);
-    		_describe(name, function() {
-    			it('resolved sync', function(done) {
-    				var p = fn(u.resolveSyncMethod(AltPromise), done);
-    				expect(p).to.be.instanceof(Promise);
-    				u.addThen(p, done);
-    			});
-
-    			it('resolved async', function(done) {
-    				var p = fn(u.resolveAsyncMethod(AltPromise), done);
-    				expect(p).to.be.instanceof(Promise);
-    				u.addThen(p, done);
-    			});
-
-                // TODO remove addCatch() calls?
-    			it('rejected sync', function(done) {
-    				var err = new Error('foo');
-    				var p = fn(u.rejectSyncMethod(AltPromise, err), done);
-    				expect(p).to.be.instanceof(Promise);
-    				u.addCatch(p, err, done);
-    			});
-
-    			it('rejected async', function(done) {
-    				var err = new Error('foo');
-    				var p = fn(u.rejectAsyncMethod(AltPromise, err), done);
-    				expect(p).to.be.instanceof(Promise);
-    				u.addCatch(p, err, done);
-    			});
-    		});
-    	});
-    },
-
-    /*
-     * Executes `fn` several times providing different values.
-     */
-    checkReturnsPromiseValue: function(fn) {
-        var u = this;
-    	u.checkReturnsPromise(function(handler) {
-    		var value = handler();
-    		return fn(value);
-    	}, true);
-    },
-
     /**
      * Checks provided function has not been bound to a CLS context, and throws if it has.
      *
@@ -220,5 +146,32 @@ module.exports = {
     	if (!bound || !bound.length) return new Error('Function not bound');
     	if (bound.length > 1) return new Error('Function bound multiple times (' + bound.length + ')');
     	if (bound[0].context !== context) return new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
+    },
+
+    /**
+     * Checks provided promise is a Promise and instance of main Bluebird constructor.
+     * Throws error if not.
+     *
+     * @param {Object} promise - Promise to check
+     * @returns {undefined}
+     * @throws {Error} - If not correct Promise
+     */
+    throwIfNotPromise: function(promise) {
+        var u = this;
+    	var err = u.returnErrIfNotPromise(promise);
+        if (err) throw err;
+    },
+
+    /**
+     * Checks provided promise is a Promise and instance of main Bluebird constructor.
+     * Returns error object if not.
+     *
+     * @param {Object} promise - Promise to check
+     * @returns {Error|undefined} - Error if not correct Promise, undefined if fine
+     */
+    returnErrIfNotPromise: function(promise) {
+        var u = this;
+        if (!promise || typeof promise.then !== 'function') return new Error('Did not return promise');
+        if (!(promise instanceof u.Promise)) return new Error('Did not return promise from correct constructor');
     }
 };

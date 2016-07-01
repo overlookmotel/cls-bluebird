@@ -15,13 +15,13 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
         // TODO test for cases where attached to async resolved/rejected promise
 
         describe('resolve handler', function() {
-            u.checkReturnsPromise(function(handler) {
+            u.testSetMethodReturnsPromise(function(handler) {
                 return u.resolveSync().then(handler);
             });
         });
 
         describe('reject handler', function() {
-            u.checkReturnsPromise(function(handler, done) {
+            u.testSetMethodReturnsPromise(function(handler, done) {
                 return u.rejectSync().then(u.makeHandlerBadResolve(done), handler);
             });
         });
