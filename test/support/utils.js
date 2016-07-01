@@ -13,8 +13,9 @@ var promises = require('./promises'),
 
 // Exports
 
-function Utils(Promise, ns, altPromises) {
+function Utils(Promise, UnpatchedPromise, ns, altPromises) {
     this.Promise = Promise;
+    this.UnpatchedPromise = UnpatchedPromise;
     this.ns = ns;
     this.altPromises = altPromises;
 }

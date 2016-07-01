@@ -34,9 +34,10 @@ module.exports = function(name, testFn) {
     var PatchedBluebird3 = patch(Bluebird3);
 
     // Get bluebird version to use for these tests
-    var Promise, versionName, altPromises;
+    var Promise, UnpatchedPromise, versionName, altPromises;
     if (bluebirdVersion === 2) {
         Promise = PatchedBluebird2;
+        UnpatchedPromise = Bluebird2;
         versionName = 'Bluebird v2.x';
         altPromises = [
             {name: 'this promise', Promise: PatchedBluebird2},
@@ -47,6 +48,7 @@ module.exports = function(name, testFn) {
         ];
     } else if (bluebirdVersion === 3) {
         Promise = PatchedBluebird3;
+        UnpatchedPromise = Bluebird3;
         versionName = 'Bluebird v3.x';
         altPromises = [
             {name: 'this promise', Promise: PatchedBluebird3},
@@ -59,8 +61,8 @@ module.exports = function(name, testFn) {
         throw new Error('BLUEBIRD_VERSION environment variable not set');
     }
 
-    // Create utils object based on Promise, ns and altPromises
-    var utils = new Utils(Promise, ns, altPromises);
+    // Create utils object based on Promise, UnpatchedPromise, ns and altPromises
+    var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises);
 
     // Run tests
     describe(name + ' (' + versionName + ')', function() {
