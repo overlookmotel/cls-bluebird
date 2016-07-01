@@ -60,32 +60,6 @@ Utils.prototype = {
     },
 
     /**
-     * Create callback function to be passed to a Promise method which should never be called.
-     * Calls `done` callback with error if called.
-     *
-     * @param {Function} done - Final callback to call with result
-     * @returns {Function} - Created callback function
-     */
-    makeHandlerBadResolve: function(done) {
-    	return function () {
-    		done(new Error('Unexpected resolve'));
-    	};
-    },
-
-    /**
-     * Create callback function to be passed to a Promise method which should never be called.
-     * Calls `done` callback with error if called.
-     *
-     * @param {Function} done - Final callback to call with result
-     * @returns {Function} - Created callback function
-     */
-    makeHandlerBadReject: function(done) {
-    	return function () {
-    		done(new Error('Unexpected reject'));
-    	};
-    },
-
-    /**
      * Add a then handler to a promise.
      * Calls `done` with no error if resolve handler calls.
      * If reject handler called, calls `done` with the error.

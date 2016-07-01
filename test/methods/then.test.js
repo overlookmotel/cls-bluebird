@@ -21,9 +21,9 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
         });
 
         describe('reject handler', function() {
-            u.testSetMethodReturnsPromise(function(handler, done) {
-                return u.rejectSync().then(u.makeHandlerBadResolve(done), handler);
-            });
+            u.testSetMethodReturnsPromise(function(handler) {
+                return u.rejectSync().then(undefined, handler);
+            }, {catches: true});
         });
     });
 
@@ -72,14 +72,14 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
                 it('settled promise', function(done) {
                     var p = u.rejectSync();
                     u.checkAsync(function(handler) {
-                        p.then(u.makeHandlerBadResolve(done), handler);
+                        p.then(undefined, handler);
                     }, done);
                 });
 
                 it('pending promise', function(done) {
                     var p = u.rejectAsync();
                     u.checkAsync(function(handler) {
-                        p.then(u.makeHandlerBadResolve(done), handler);
+                        p.then(undefined, handler);
                     }, done);
                 });
             });
@@ -90,7 +90,7 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
                     u.suppressUnhandledRejections(p);
                     setImmediate(function() {
                         u.checkAsync(function(handler) {
-                            p.then(u.makeHandlerBadResolve(done), handler);
+                            p.then(undefined, handler);
                         }, done);
                     });
                 });
@@ -100,7 +100,7 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
                     u.suppressUnhandledRejections(p);
                     setImmediate(function() {
                         u.checkAsync(function(handler) {
-                            p.then(u.makeHandlerBadResolve(done), handler);
+                            p.then(undefined, handler);
                         }, done);
                     });
                 });
@@ -123,7 +123,7 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
             var p = u.rejectSync();
             u.runInContext(function(context) {
                 u.checkBound(function(handler) {
-                    p.then(u.makeHandlerBadResolve(done), handler);
+                    p.then(undefined, handler);
                 }, context, done);
             });
         });

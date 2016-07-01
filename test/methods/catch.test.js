@@ -15,7 +15,7 @@ runTests('.catch()', function(Promise, u) { // jshint ignore:line
         // TODO test for cases where attached to async resolved/rejected promise
 
         it('resolved promise', function(done) {
-            var p = u.resolveSync().catch(u.makeHandlerBadReject(done));
+            var p = u.resolveSync().catch(undefined);
             u.throwIfNotPromise(p);
             u.addThen(p, done);
         });
@@ -23,7 +23,7 @@ runTests('.catch()', function(Promise, u) { // jshint ignore:line
         describe('rejected promise', function() {
             u.testSetMethodReturnsPromise(function(handler) {
                 return u.rejectSync().catch(handler);
-            });
+            }, {catches: true});
         });
     });
 

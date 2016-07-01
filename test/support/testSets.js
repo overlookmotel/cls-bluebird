@@ -23,26 +23,42 @@ module.exports = {
      * Promises returned from handlers are instances of various different Promise constructors.
      *
      * @param {Function} fn - Test function
-     * @param {boolean} noThrow - If true, skips throw test
+     * @params {Object} [options] - Options object
+     * @param {boolean} options.valuesOnly - If true, skips throwand undefined handler tests
+     * @param {boolean} options.catches - true if method catches rejected promises e.g. `promise.catch()`
      * @returns {undefined}
      */
-    testSetMethodReturnsPromise: function(fn, noThrow) {
+    // TODO these test cases should provide the promise to `fn` rather than expect `fn` to create promise
+    // TODO multiply test cases by whether base promise is sync/async resolved/rejected
+    // TODO use `catches` option (i.e. whether rejected promises should trigger `handler` to run)
+    // TODO use handler to throw not promise errors (i.e. ensure `done` only called once and no sync throwing)
+    testSetMethodReturnsPromise: function(fn, options) {
         var u = this;
+        options = options || {};
 
     	it('literal value', function(done) {
-    		var p = fn(u.literalMethod(), done);
+    		var p = fn(u.literalMethod());
     		u.throwIfNotPromise(p);
     		u.addThen(p, done);
     	});
 
-        // TODO remove addCatch() call?
-    	if (!noThrow) {
-    		it('thrown error', function(done) {
+        if (!options.valuesOnly) {
+            // TODO remove addCatch() call?
+        	it('thrown error', function(done) {
     			var err = u.makeError();
-    			var p = fn(u.throwMethod(err), done);
+    			var p = fn(u.throwMethod(err));
     			u.throwIfNotPromise(p);
     			u.addCatch(p, err, done);
     		});
+
+            /*
+            // TODO make this work
+            it('undefined handler', function(done) {
+                var p = fn(undefined);
+    			u.throwIfNotPromise(p);
+    			u.addThen(p, done);
+            });
+            */
     	}
 
     	u.altPromises.forEach(function(altPromiseParams) {
@@ -52,13 +68,13 @@ module.exports = {
             var _describe = (AltPromise ? describe : describe.skip);
     		_describe(name, function() {
     			it('resolved sync', function(done) {
-    				var p = fn(u.resolveSyncMethod(AltPromise), done);
+    				var p = fn(u.resolveSyncMethod(AltPromise));
     				u.throwIfNotPromise(p);
     				u.addThen(p, done);
     			});
 
     			it('resolved async', function(done) {
-    				var p = fn(u.resolveAsyncMethod(AltPromise), done);
+    				var p = fn(u.resolveAsyncMethod(AltPromise));
     				u.throwIfNotPromise(p);
     				u.addThen(p, done);
     			});
@@ -66,7 +82,7 @@ module.exports = {
                 // TODO remove addCatch() call?
     			it('rejected sync', function(done) {
     				var err = u.makeError();
-    				var p = fn(u.rejectSyncMethod(AltPromise, err), done);
+    				var p = fn(u.rejectSyncMethod(AltPromise, err));
     				u.throwIfNotPromise(p);
     				u.addCatch(p, err, done);
     			});
@@ -74,7 +90,7 @@ module.exports = {
                 // TODO remove addCatch() call?
     			it('rejected async', function(done) {
                     var err = u.makeError();
-    				var p = fn(u.rejectAsyncMethod(AltPromise, err), done);
+    				var p = fn(u.rejectAsyncMethod(AltPromise, err));
     				u.throwIfNotPromise(p);
     				u.addCatch(p, err, done);
     			});
@@ -102,6 +118,6 @@ module.exports = {
     	u.testSetMethodReturnsPromise(function(handler) {
     		var value = handler();
     		return fn(value);
-    	}, true);
+    	}, {valuesOnly: true});
     }
 };
