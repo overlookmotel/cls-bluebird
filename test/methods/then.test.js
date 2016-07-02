@@ -11,23 +11,21 @@ var runTests = require('../support');
 // Run tests
 
 runTests('.then()', function(Promise, u) { // jshint ignore:line
-    describe('always returns instance of patched Promise constructor when passed', function() {
-        // TODO test for cases where attached to async resolved/rejected promise
-
+    describe('returns instance of patched Promise constructor when', function() {
         describe('resolve handler', function() {
-            u.testSetMethodReturnsPromise(function(handler) {
-                return u.resolveSync().then(handler);
+            u.testSetProtoMethodReturnsPromise(function(p, handler) {
+                return p.then(handler);
             });
         });
 
         describe('reject handler', function() {
-            u.testSetMethodReturnsPromise(function(handler) {
-                return u.rejectSync().then(undefined, handler);
+            u.testSetProtoMethodReturnsPromise(function(p, handler) {
+                return p.then(undefined, handler);
             }, {catches: true});
         });
     });
 
-    describe('calls callback asynchronously', function() {
+    describe('calls callback asynchronously when', function() {
         describe('resolve handler', function() {
             describe('attached sync to', function() {
                 it('settled promise', function(done) {
@@ -67,7 +65,6 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
         });
 
         describe('reject handler', function() {
-            // TODO ensure handler receives correct error
             describe('attached sync to', function() {
                 it('settled promise', function(done) {
                     var p = u.rejectSync();
@@ -108,8 +105,7 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
         });
     });
 
-    describe('patch binds callback', function() {
-        // TODO add tests for binding to async rejected promise or handler attached async?
+    describe('binds callback on', function() {
         it('resolve handler', function(done) {
             var p = u.resolveSync();
             u.runInContext(function(context) {

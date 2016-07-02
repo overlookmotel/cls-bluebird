@@ -3,7 +3,7 @@
  * Tests for Promise.reject()
  */
 
-/* global describe, it */
+/* global describe */
 
 // Imports
 var runTests = require('../support');
@@ -11,12 +11,12 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.reject()', function(Promise, u) {
-    describe('always returns instance of patched Promise constructor when passed', function() {
-        it('error object', function(done) {
-            var err = u.makeError();
-            var p = Promise.reject(err);
-            u.throwIfNotPromise(p);
-            u.addCatch(p, err, done);
+    describe('returns instance of patched Promise constructor when passed', function() {
+        u.it('error object', function(done, error) {
+            var rejectErr = u.makeError();
+            var p = Promise.reject(rejectErr);
+            error(u.returnErrIfNotPromise(p));
+            done(p, rejectErr);
         });
     });
 });

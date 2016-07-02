@@ -21,7 +21,6 @@ module.exports = {
      * Set of functions to create promises which resolve or reject either synchronously or asynchronously.
      * Promises are created from specified Promise constructor.
      */
-
     resolveSyncAlt: function(Promise, value) {
         if (value === undefined) value = this.makeValue();
         return new Promise(function(resolve) {
@@ -57,7 +56,7 @@ module.exports = {
     /*
      * Set of functions to create promises which resolve or reject either synchronously or asynchronously.
      * Promises are created from main Promise constructor.
-    */
+     */
     resolveSync: function(value) {
         return this.resolveSyncAlt(this.Promise, value);
     },
@@ -75,36 +74,84 @@ module.exports = {
     },
 
     /*
-     * Set of functions to create functions which return promises/values/throw error.
+     * Set of functions to create functions which return promises.
+     * Promises resolve or reject either synchronously or asynchronously.
+     * Promises are created from specified Promise constructor.
      */
-    resolveSyncMethod: function(Promise, value) {
-        var self = this;
+    resolveSyncMethodAlt: function(Promise, value) {
+        var u = this;
         return function() {
-    		return self.resolveSyncAlt(Promise, value);
+    		return u.resolveSyncAlt(Promise, value);
     	};
     },
 
-    resolveAsyncMethod: function(Promise, value) {
-        var self = this;
+    resolveAsyncMethodAlt: function(Promise, value) {
+        var u = this;
         return function() {
-    		return self.resolveAsyncAlt(Promise, value);
+    		return u.resolveAsyncAlt(Promise, value);
     	};
     },
 
-    rejectSyncMethod: function(Promise, err) {
-        var self = this;
+    rejectSyncMethodAlt: function(Promise, err) {
+        var u = this;
         return function() {
-    		return self.rejectSyncAlt(Promise, err);
+    		return u.rejectSyncAlt(Promise, err);
     	};
     },
 
-    rejectAsyncMethod: function(Promise, err) {
-        var self = this;
+    rejectAsyncMethodAlt: function(Promise, err) {
+        var u = this;
         return function() {
-    		return self.rejectAsyncAlt(Promise, err);
+    		return u.rejectAsyncAlt(Promise, err);
     	};
     },
 
+    rejectSyncMethodErrorAlt: function(Promise) {
+        var u = this;
+        return function(err) {
+    		return u.rejectSyncAlt(Promise, err);
+    	};
+    },
+
+    rejectAsyncMethodErrorAlt: function(Promise) {
+        var u = this;
+        return function(err) {
+    		return u.rejectAsyncAlt(Promise, err);
+    	};
+    },
+
+    /*
+     * Set of functions to create functions which return promises.
+     * Promises resolve or reject either synchronously or asynchronously.
+     * Promises are created from main Promise constructor.
+     */
+    resolveSyncMethod: function(value) {
+        return this.resolveSyncMethodAlt(this.Promise, value);
+    },
+
+    resolveAsyncMethod: function(value) {
+        return this.resolveAsyncMethodAlt(this.Promise, value);
+    },
+
+    rejectSyncMethod: function(err) {
+        return this.rejectSyncMethodAlt(this.Promise, err);
+    },
+
+    rejectAsyncMethod: function(err) {
+        return this.rejectAsyncMethodAlt(this.Promise, err);
+    },
+
+    rejectSyncMethodError: function() {
+        return this.rejectSyncMethodErrorAlt(this.Promise);
+    },
+
+    rejectAsyncMethodError: function() {
+        return this.rejectAsyncMethodErrorAlt(this.Promise);
+    },
+
+    /*
+     * Functions to create functions that return a literal value, or throw an error.
+     */
     literalMethod: function(value) {
         if (value === undefined) value = this.makeValue();
         return function() {

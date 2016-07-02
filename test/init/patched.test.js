@@ -15,9 +15,6 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Patch', function(Promise, u) {
-    // TODO tests to make sure methods which == eachother before patching, still do after patching
-    // e.g. Promise.prototype.catch == Promise.prototype.caught
-
     describe('patches', function() {
         describe('static method', function() {
             var ignore = [
@@ -60,7 +57,7 @@ runTests('Patch', function(Promise, u) {
         describe('prototype method', function() {
             var ignore = [
                 'catch', // TODO only ignore on bluebird v3
-                'caught',
+                'caught', // TODO only ignore on bluebird v3
                 'error',
                 'all',
                 'props',
@@ -110,6 +107,15 @@ runTests('Patch', function(Promise, u) {
     });
 });
 
+/**
+ * Check all object's methods are patched (creating a test case for each).
+ * Methods whose names are in `ignore` array are skipped.
+ * Methods whose names start with a capital or '_' are skipped.
+ *
+ * @param {Object} obj - Object that's been patched
+ * @param {Array} ignore - Array of method names to skip
+ * @returns {undefined}
+ */
 function checkPatched(obj, ignore) {
     _.forIn(obj, function(method, name) {
         if (name.match(/^[A-Z_]/)) return;
@@ -122,14 +128,29 @@ function checkPatched(obj, ignore) {
     });
 }
 
+/**
+ * Check equality of methods is same before and after patching.
+ * @param {Object} obj - Object after patching
+ * @param {Object} unpatchedObj - Same object before patching
+ * @returns {undefined}
+ * @throws {AssertionError} - If patching has changed things
+ */
 function checkEqual(obj, unpatchedObj) {
-    var matchesUnpatched = getEqual(unpatchedObj);
-    var matchesPatched = getEqual(obj);
+    var matchesUnpatched = getEquals(unpatchedObj);
+    var matchesPatched = getEquals(obj);
 
     expect(matchesPatched).to.deep.equal(matchesUnpatched);
 }
 
-function getEqual(obj) {
+/**
+ * Loop through all object's methods and return array of any which are equal to each other.
+ * e.g. `obj.method1 == obj.method2, obj.method3 == obj.method4`
+ *      -> [ ['method1', 'method2'], ['method3', 'method4'] ]
+ *
+ * @param {Object} obj - Object whose methods to check
+ * @returns {Array} - Array of matches
+ */
+function getEquals(obj) {
     var keys = Object.keys(obj).sort();
 
     var matches = [],

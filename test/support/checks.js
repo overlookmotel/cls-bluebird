@@ -9,7 +9,7 @@
 
 module.exports = {
     /**
-     * Runs a function and checks it calls back a handler synchronously.
+     * Run a function and check it calls back a handler synchronously.
      * `fn` is called immediately, and passed a handler.
      * If handler is called synchronously, `done` callback is called without error.
      * If handler is called asynchronously, `done` callback is called with an error.
@@ -112,20 +112,50 @@ module.exports = {
     },
 
     /**
-     * Checks provided function has not been bound to a CLS context, and throws if it has.
+     * Checks provided function has not been bound to a CLS context.
+     * Throws error if it has been bound.
      *
      * @param {Function} fn - Function to check
      * @returns {undefined}
      * @throws {Error} - If has been bound
      */
     throwIfBound: function(fn) {
-    	if (fn._bound) throw new Error('Function bound');
+        var u = this;
+    	var err = u.returnErrIfBound(fn);
+        if (err) throw err;
     },
 
     /**
-     * Checks provided function has been bound to a CLS context exactly once, and throws if not.
+     * Checks provided function has not been bound to a CLS context.
+     * Calls callback with error if it has been bound.
      *
      * @param {Function} fn - Function to check
+     * @param {Function} cb - Function to call with error if not bound
+     * @returns {undefined}
+     */
+    callbackIfBound: function(fn, cb) {
+        var u = this;
+    	var err = u.returnErrIfBound(fn);
+        if (err) cb(err);
+    },
+
+    /**
+     * Checks provided function has not been bound to a CLS context.
+     * Returns error object if it has been bound.
+     *
+     * @param {Function} fn - Function to check
+     * @returns {Error|undefined} - Error if bound, undefined if has not
+     */
+    returnErrIfBound: function(fn) {
+        if (fn._bound) return new Error('Function bound');
+    },
+
+    /**
+     * Checks provided function has been bound to a CLS context exactly once.
+     * Throws error if not.
+     *
+     * @param {Function} fn - Function to check
+     * @param {Object} context - CLS context object which `fn` should be bound to
      * @returns {undefined}
      * @throws {Error} - If not been bound correctly
      */
@@ -136,9 +166,26 @@ module.exports = {
     },
 
     /**
-     * Checks provided function has been bound to a CLS context exactly once, and returns error object if not.
+     * Checks provided function has been bound to a CLS context exactly once.
+     * Calls callback with error if not.
      *
      * @param {Function} fn - Function to check
+     * @param {Object} context - CLS context object which `fn` should be bound to
+     * @param {Function} cb - Function to call with error if not bound
+     * @returns {undefined}
+     */
+    callbackIfNotBound: function(fn, context, cb) {
+        var u = this;
+    	var err = u.returnErrIfNotBound(fn, context);
+        if (err) cb(err);
+    },
+
+    /**
+     * Checks provided function has been bound to a CLS context exactly once.
+     * Returns error object if not.
+     *
+     * @param {Function} fn - Function to check
+     * @param {Object} context - CLS context object which `fn` should be bound to
      * @returns {Error|undefined} - Error if not bound correctly, undefined if fine
      */
     returnErrIfNotBound: function(fn, context) {
@@ -152,7 +199,7 @@ module.exports = {
      * Checks provided promise is a Promise and instance of main Bluebird constructor.
      * Throws error if not.
      *
-     * @param {Object} promise - Promise to check
+     * @param {*} promise - Promise to check
      * @returns {undefined}
      * @throws {Error} - If not correct Promise
      */
@@ -164,9 +211,23 @@ module.exports = {
 
     /**
      * Checks provided promise is a Promise and instance of main Bluebird constructor.
+     * Calls callback with error if not.
+     *
+     * @param {*} promise - Promise to check
+     * @param {Function} cb - Function to call with error if not correct promise
+     * @returns {undefined}
+     */
+    callbackIfNotPromise: function(promise, cb) {
+        var u = this;
+    	var err = u.returnErrIfNotPromise(promise);
+        if (err) cb(err);
+    },
+
+    /**
+     * Checks provided promise is a Promise and instance of main Bluebird constructor.
      * Returns error object if not.
      *
-     * @param {Object} promise - Promise to check
+     * @param {*} promise - Promise to check
      * @returns {Error|undefined} - Error if not correct Promise, undefined if fine
      */
     returnErrIfNotPromise: function(promise) {

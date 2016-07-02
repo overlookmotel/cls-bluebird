@@ -11,7 +11,7 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.resolve()', function(Promise, u) {
-    describe('always returns instance of patched Promise constructor when passed', function() {
+    describe('returns instance of patched Promise constructor when passed', function() {
         u.testSetValueReturnsPromise(function(value) {
             return Promise.resolve(value);
         });

@@ -3,6 +3,8 @@
  * Utilities constructor
  */
 
+/* global it */
+
 // Modules
 var _ = require('lodash');
 
@@ -61,40 +63,36 @@ Utils.prototype = {
     },
 
     /**
-     * Add a then handler to a promise.
-     * Calls `done` with no error if resolve handler calls.
-     * If reject handler called, calls `done` with the error.
+     * Test runner function, replacement for mocha's `it()`.
+     * Calls mocha's 'it()' to create test case.
+     * Within test, calls test function with arguments `(done, error)`
+     * `error()` registers an error
+     * `done()` calls mocha's `it` done callback with any error that's been registered
+     *
+     * @param {string} name - Test name
+     * @param {Function} fn - Test function
+     * @returns {undefined}
      */
-    addThen: function(promise, done) {
-    	promise.then(
-    		function() {
-    			done();
-    		},
-    		function(err) {
-    			done(err);
-    		}
-    	);
-    },
-
-    /**
-     * Add a catch handler to a promise.
-     * If error is unexpected, calls `done` with the error.
-     * Otherwise, calls `done` with no error.
-     */
-    addCatch: function(promise, expectedErr, done) {
-        //console.log('promise:', promise);
-    	promise.then(
-    		function() {
-                done(new Error('Unexpected resolve'));
-    		},
-    		function(err) {
-                if (err === expectedErr) {
-                    done();
-    			} else {
-                    done(err);
-    			}
-    		}
-    	);
+    it: function(name, fn) {
+        it(name, function(done) {
+            var err;
+            fn(
+                // `done` callback
+                function(promise, expectedErr) {
+                    promise.then(function() {
+                        if (expectedErr && !err) err = new Error('Promise should not be resolved');
+                        done(err);
+                    }, function(rejectedErr) {
+                        if (rejectedErr !== expectedErr && !err) err = rejectedErr || new Error('Empty rejection');
+                        done(err);
+                    });
+                },
+                // `error` callback
+                function(thisErr) {
+                    if (thisErr && !err) err = thisErr;
+                }
+            );
+        });
     },
 
     /**

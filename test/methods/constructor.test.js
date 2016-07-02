@@ -11,31 +11,32 @@ var runTests = require('../support');
 // Run tests
 
 runTests('new Promise()', function(Promise, u) {
-    describe('always returns instance of patched Promise constructor when', function() {
-        it('resolved sync', function(done) {
+    describe('returns instance of patched Promise constructor when', function() {
+        u.it('resolved sync', function(done, error) {
             var p = u.resolveSync();
-            u.throwIfNotPromise(p);
-            u.addThen(p, done);
+            error(u.returnErrIfNotPromise(p));
+            done(p);
         });
 
-        it('resolved async', function(done) {
+        u.it('resolved async', function(done, error) {
             var p = u.resolveAsync();
-            u.throwIfNotPromise(p);
-            u.addThen(p, done);
+            error(u.returnErrIfNotPromise(p));
+            done(p);
         });
 
-        it('rejected sync', function(done) {
-            var err = u.makeError();
-            var p = u.rejectSync(err);
-            u.throwIfNotPromise(p);
-            u.addCatch(p, err, done);
+        u.it('rejected sync', function(done, error) {
+            var rejectErr = u.makeError();
+            var p = u.rejectSync(rejectErr);
+            error(u.returnErrIfNotPromise(p));
+            done(p, rejectErr);
         });
 
-        it('rejected async', function(done) {
-            var err = u.makeError();
-            var p = u.rejectAsync(err);
-            u.throwIfNotPromise(p);
-            u.addCatch(p, err, done);
+        u.it('rejected async', function(done, error) {
+            var rejectErr = u.makeError();
+            var p = u.rejectAsync(rejectErr);
+
+            error(u.returnErrIfNotPromise(p));
+            done(p, rejectErr);
         });
 
         it('unresolved', function() {
@@ -43,13 +44,14 @@ runTests('new Promise()', function(Promise, u) {
             u.throwIfNotPromise(p);
         });
 
-        it('throws', function(done) {
-            var err = u.makeError();
+        u.it('handler throws', function(done, error) {
+            var rejectErr = u.makeError();
             var p = new Promise(function() {
-                throw err;
+                throw rejectErr;
             });
-            u.throwIfNotPromise(p);
-            u.addCatch(p, err, done);
+
+            error(u.returnErrIfNotPromise(p));
+            done(p, rejectErr);
         });
     });
 
@@ -59,7 +61,7 @@ runTests('new Promise()', function(Promise, u) {
         }, done);
     });
 
-    it('patch does not bind callback', function(done) {
+    it('does not bind callback', function(done) {
         u.checkNotBound(function(handler) {
             new Promise(handler); // jshint ignore:line
         }, done);

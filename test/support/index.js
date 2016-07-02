@@ -40,22 +40,22 @@ module.exports = function(name, testFn) {
         UnpatchedPromise = Bluebird2;
         versionName = 'Bluebird v2.x';
         altPromises = [
-            {name: 'this promise', Promise: PatchedBluebird2},
+            {name: 'this', Promise: PatchedBluebird2},
             {name: 'bluebird v2 unpatched', Promise: Bluebird2},
             //{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
             {name: 'bluebird v3 unpatched', Promise: Bluebird3},
-            {name: 'native promise', Promise: global.Promise}
+            {name: 'native', Promise: global.Promise}
         ];
     } else if (bluebirdVersion === 3) {
         Promise = PatchedBluebird3;
         UnpatchedPromise = Bluebird3;
         versionName = 'Bluebird v3.x';
         altPromises = [
-            {name: 'this promise', Promise: PatchedBluebird3},
+            {name: 'this', Promise: PatchedBluebird3},
             {name: 'bluebird v3 unpatched', Promise: Bluebird3},
             //{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
             {name: 'bluebird v2 unpatched', Promise: Bluebird2},
-            {name: 'native promise', Promise: global.Promise}
+            {name: 'native', Promise: global.Promise}
         ];
     } else {
         throw new Error('BLUEBIRD_VERSION environment variable not set');

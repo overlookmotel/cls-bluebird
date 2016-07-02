@@ -11,24 +11,13 @@ var runTests = require('../support');
 // Run tests
 
 runTests('.catch()', function(Promise, u) { // jshint ignore:line
-    describe('always returns instance of patched Promise constructor', function() {
-        // TODO test for cases where attached to async resolved/rejected promise
-
-        it('resolved promise', function(done) {
-            var p = u.resolveSync().catch(undefined);
-            u.throwIfNotPromise(p);
-            u.addThen(p, done);
-        });
-
-        describe('rejected promise', function() {
-            u.testSetMethodReturnsPromise(function(handler) {
-                return u.rejectSync().catch(handler);
-            }, {catches: true});
-        });
+    describe('returns instance of patched Promise constructor when handler', function() {
+        u.testSetProtoMethodReturnsPromise(function(p, handler) {
+            return p.catch(handler);
+        }, {catches: true});
     });
 
-    describe('calls callback asynchronously', function() {
-        // TODO ensure handler receives correct error
+    describe('calls callback asynchronously when handler', function() {
         describe('attached sync to', function() {
             it('settled promise', function(done) {
                 var p = u.rejectSync();
@@ -68,8 +57,7 @@ runTests('.catch()', function(Promise, u) { // jshint ignore:line
         });
     });
 
-    it('patch binds callback', function(done) {
-        // TODO add tests for binding to async rejected promise or handler attached async?
+    it('binds callback', function(done) {
         var p = u.rejectSync();
         u.runInContext(function(context) {
             u.checkBound(function(handler) {
