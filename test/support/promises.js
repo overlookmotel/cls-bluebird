@@ -6,15 +6,21 @@
  */
 
 module.exports = {
-    /*
-     * Functions to create default literal value and error.
+    /**
+     * Function to create default literal value.
+     * @returns {number}
      */
     makeValue: function() {
         return 123;
     },
 
+    /**
+     * Function to create default error.
+     * Creates an `OperationalError` rather than plain `Error` so can be caught by `.error()`
+     * @returns {Error}
+     */
     makeError: function() {
-        return new Error('<rejection value>');
+        return new this.Promise.OperationalError('<rejection value>');
     },
 
     /*

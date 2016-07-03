@@ -10,10 +10,7 @@ var runTests = require('../support');
 
 // TODO make this work in bluebird v3 - .error() only catches operational errors
 runTests('.error()', function(u) {
-    u = u;
-    /*
     u.testSetProtoMethodAsync(function(p, handler) {
         return p.error(handler);
     }, {catches: true, noUndefined: true, noBind: (u.bluebirdVersion === 3)});
-    */
 });

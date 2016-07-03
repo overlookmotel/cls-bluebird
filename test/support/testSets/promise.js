@@ -98,7 +98,7 @@ module.exports = {
 
                 execAsyncIf(function() {
                     p = fn(p, function() {
-                        done(new Error('Handler should not be called'));
+                        error(new Error('Handler should not be called'));
                     });
 
                     error(u.returnErrIfNotPromise(p));
