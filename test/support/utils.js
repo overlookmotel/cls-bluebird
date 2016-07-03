@@ -16,13 +16,16 @@ var promises = require('./promises'),
     testSetsSyncAsync = require('./testSets/syncAsync'),
     testSetsBinding = require('./testSets/binding');
 
-// Exports
+// Constants
+var IT_MULTIPLE_ROUNDS = 3;
 
-function Utils(Promise, UnpatchedPromise, ns, altPromises) {
+// Exports
+function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion) {
     this.Promise = Promise;
     this.UnpatchedPromise = UnpatchedPromise;
     this.ns = ns;
     this.altPromises = altPromises;
+    this.bluebirdVersion = bluebirdVersion;
 }
 
 var nextId = 1;
@@ -96,6 +99,57 @@ Utils.prototype = {
                 }
             );
         });
+    },
+
+    /**
+     * Same as mocha's `it()` but runs the test in parallel multiple times.
+     * If all test runs pass, executes callback with no error.
+     * If any test run fails, executes callback with first error received.
+     * Waits for all test runs to complete before calling callback, even if an error is encountered.
+     * Test functions are passed `cb` argument which must be called at end of test run.
+     *
+     * @param {string} name - Name of test
+     * @param {Function} fn - Test function
+     * @returns {undefined}
+     */
+    itMultiple: function(name, fn) {
+        var u = this;
+    	it(name, function(cb) {
+    		// Throw if CLS context is not empty at start
+    		//if (ns.active !== null) throw new Error('CLS context not empty at start of test');
+
+    		// Run `fn` multiple times
+    		var done = u.callbackAggregator(IT_MULTIPLE_ROUNDS, cb);
+
+    		for (var i = 0; i < IT_MULTIPLE_ROUNDS; i++) {
+    			try {
+    				fn.call(this, done);
+    			} catch (err) {
+    				done(err);
+    			}
+    		}
+        });
+    },
+
+    /**
+     * Make a callback function which calls superior callback when it's been called a number of times.
+     * If called with no errors on any occasion, calls callback with no error.
+     * If called with an error on any occasion, executes callback with first error.
+     * Waits to be called expected number of times before calling callback, even if receives an early error.
+     * (i.e. does not call superior callback immediately on receipt of an error)
+     *
+     * @param {number} numCallbacks - Number of times expects callback to be called
+     * @param {Function} cb - Superior callback to be called with aggregate result
+     * @returns {Function} - Callback function
+     */
+    callbackAggregator: function(numCallbacks, cb) {
+    	var err;
+
+    	return function(thisErr) {
+    		if (thisErr && !err) err = thisErr;
+    		numCallbacks--;
+    		if (!numCallbacks) cb(err);
+    	};
     },
 
     /**

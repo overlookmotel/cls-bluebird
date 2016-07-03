@@ -50,7 +50,7 @@ if (bluebirdVersion === 2) {
 }
 
 // Create utils object based on Promise, UnpatchedPromise, ns and altPromises
-var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises);
+var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion);
 
 // Exports
 

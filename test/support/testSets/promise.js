@@ -62,16 +62,18 @@ module.exports = {
         }
 
         function tests(makePromise, handerShouldNotBeCalled, isRejecting, attachAsync) {
-            u.it('is undefined', function(done, error) {
-                var rejectErr = isRejecting ? u.makeError() : undefined;
-                var p = makePromise(rejectErr);
+            if (!options.noUndefined) {
+                u.it('is undefined', function(done, error) {
+                    var rejectErr = isRejecting ? u.makeError() : undefined;
+                    var p = makePromise(rejectErr);
 
-                execAsyncIf(function() {
-                    p = fn(p, undefined);
-                    error(u.returnErrIfNotPromise(p));
-                    done(p, rejectErr);
-                }, attachAsync, p, isRejecting);
-            });
+                    execAsyncIf(function() {
+                        p = fn(p, undefined);
+                        error(u.returnErrIfNotPromise(p));
+                        done(p, rejectErr);
+                    }, attachAsync, p, isRejecting);
+                });
+            }
 
             if (!handerShouldNotBeCalled) {
                 // Handler should be called

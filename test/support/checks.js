@@ -96,19 +96,41 @@ module.exports = {
         var err;
     	var handler = function() {
     		u.toCallback(function() {
-    			// throw if was not bound synchronously
+    			// Throw if was not bound synchronously
     			if (err) throw err;
 
-    			// throw if not bound at time handler called
+    			// Throw if not bound at time handler called
     			u.throwIfNotBound(handler, context);
     		}, done);
     	};
 
-    	// run function, passing handler
+    	// Run function, passing handler
     	fn(handler);
 
-    	// check if bound synchronously and set `err` to Error object if not
+    	// Check if bound synchronously and set `err` to Error object if not
     	err = u.returnErrIfNotBound(handler, context);
+    },
+
+    /**
+     * Runs a function and checks that when it calls back a handler, the handler runs within correct CLS context.
+     * `fn` is called immediately, and passed a handler.
+     *
+     * `done` callback is called with/without error if is/isn't in right context.
+     *
+     * @param {Function} fn - Function to run.
+     * @param {Function} done - Final callback to call with result
+     * @returns {undefined}
+     */
+    checkRunContext: function(fn, context, done) {
+        var u = this;
+        var handler = function() {
+    		u.toCallback(function() {
+                if (u.ns.active !== context) throw new Error('Function run in wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(u.ns.active) + ')');
+    		}, done);
+    	};
+
+    	// Run function, passing handler
+    	fn(handler);
     },
 
     /**

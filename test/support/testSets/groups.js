@@ -47,6 +47,7 @@ module.exports = {
      */
     testSetProtoMethodAsync: function(fn, options) {
         var u = this;
+        options = options || {};
 
         describe('returns instance of patched Promise constructor when handler', function() {
             u.testSetProtoMethodReturnsPromise(fn, options);
@@ -56,6 +57,8 @@ module.exports = {
             u.testSetCallbackAsync(fn, options);
         });
 
-        u.testSetCallbackBound(fn, options);
+        if (!options.noBind) u.testSetProtoCallbackBound(fn, options);
+
+        u.testSetProtoCallbackContext(fn, options);
     }
 };
