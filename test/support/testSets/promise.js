@@ -120,7 +120,7 @@ module.exports = {
         function execAsyncIf(fn, later, promise, suppress) {
             if (later) {
                 if (suppress) u.suppressUnhandledRejections(promise);
-                setImmediate(fn);
+                u.awaitPromise(promise, fn);
             } else {
                 fn();
             }

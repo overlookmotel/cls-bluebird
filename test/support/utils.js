@@ -119,6 +119,26 @@ Utils.prototype = {
     },
 
     /**
+     * Await resolution of promise and call callback when resolved.
+     * Always calls callback asynchronously even if promise is resolved at start.
+     *
+     * @param {Promise} promise - Promise to watch
+     * @param {Function} cb - Callback function called when promise is resolved
+     * @returns {undefined}
+     */
+    awaitPromise: function(promise, cb) {
+        (function checkResolved() {
+            setImmediate(function() {
+                if (!promise.isPending()) {
+                    cb();
+                    return;
+                }
+                checkResolved();
+            });
+        })();
+    },
+
+    /**
      * Attach empty catch handler to promise to prevent unhandled rejections
      * @param {Promise} promise - Promise to attach catch handler to
      * @returns {undefined}
