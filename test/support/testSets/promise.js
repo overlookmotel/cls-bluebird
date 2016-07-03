@@ -1,7 +1,7 @@
 /*
  * cls-bluebird tests
  * Utilities
- * Functions to run a set of tests.
+ * Functions to run a set of tests relating to testing that methods return a promise of correct type.
  * Mixin to Utils prototype.
  */
 
@@ -24,7 +24,7 @@ module.exports = {
      *
      * @param {Function} fn - Test function
      * @param {Object} [options] - Options object
-     * @param {boolean} options.catches - true if method catches rejected promises e.g. `promise.catch()`
+     * @param {boolean} [options.catches] - true if method catches rejected promises e.g. `promise.catch()`
      * @returns {undefined}
      */
     testSetProtoMethodReturnsPromise: function(fn, options) {
@@ -150,7 +150,7 @@ module.exports = {
         });
     },
 
-    /*
+    /**
      * Run set of tests on a value-taking method to ensure always returns a promise
      * inherited from correct Promise constructor.
      *

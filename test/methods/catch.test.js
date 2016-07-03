@@ -3,7 +3,7 @@
  * Tests for .catch()
  */
 
-/* global describe, it */
+/* global describe */
 
 // Imports
 var runTests = require('../support');
@@ -18,51 +18,12 @@ runTests('.catch()', function(Promise, u) { // jshint ignore:line
     });
 
     describe('calls callback asynchronously when handler', function() {
-        describe('attached sync to', function() {
-            it('settled promise', function(done) {
-                var p = u.rejectSync();
-                u.checkAsync(function(handler) {
-                    p.catch(handler);
-                }, done);
-            });
-
-            it('pending promise', function(done) {
-                var p = u.rejectAsync();
-                u.checkAsync(function(handler) {
-                    p.catch(handler);
-                }, done);
-            });
-        });
-
-        describe('attached async to', function() {
-            it('settled promise', function(done) {
-                var p = u.rejectSync();
-                u.suppressUnhandledRejections(p);
-                setImmediate(function() {
-                    u.checkAsync(function(handler) {
-                        p.catch(handler);
-                    }, done);
-                });
-            });
-
-            it('pending promise', function(done) {
-                var p = u.rejectAsync();
-                u.suppressUnhandledRejections(p);
-                setImmediate(function() {
-                    u.checkAsync(function(handler) {
-                        p.catch(handler);
-                    }, done);
-                });
-            });
-        });
+        u.testSetCallbackAsync(function(p, handler) {
+            p.catch(handler);
+        }, {catches: true});
     });
 
-    it('binds callback', function(done) {
-        var p = u.rejectSync();
-        u.runInContext(function(context) {
-            u.checkBound(function(handler) {
-                p.catch(handler);
-            }, context, done);
-        });
-    });
+    u.testSetCallbackBound(function(p, handler) {
+        p.catch(handler);
+    }, {catches: true});
 });

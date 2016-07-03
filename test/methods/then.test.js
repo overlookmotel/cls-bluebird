@@ -3,7 +3,7 @@
  * Tests for .then()
  */
 
-/* global describe, it */
+/* global describe */
 
 // Imports
 var runTests = require('../support');
@@ -27,101 +27,25 @@ runTests('.then()', function(Promise, u) { // jshint ignore:line
 
     describe('calls callback asynchronously when', function() {
         describe('resolve handler', function() {
-            describe('attached sync to', function() {
-                it('settled promise', function(done) {
-                    var p = u.resolveSync();
-                    u.checkAsync(function(handler) {
-                        p.then(handler);
-                    }, done);
-                });
-
-                it('pending promise', function(done) {
-                    var p = u.resolveAsync();
-                    u.checkAsync(function(handler) {
-                        p.then(handler);
-                    }, done);
-                });
-            });
-
-            describe('attached async to', function() {
-                it('settled promise', function(done) {
-                    var p = u.resolveSync();
-                    setImmediate(function() {
-                        u.checkAsync(function(handler) {
-                            p.then(handler);
-                        }, done);
-                    });
-                });
-
-                it('pending promise', function(done) {
-                    var p = u.resolveAsync();
-                    setImmediate(function() {
-                        u.checkAsync(function(handler) {
-                            p.then(handler);
-                        }, done);
-                    });
-                });
+            u.testSetCallbackAsync(function(p, handler) {
+                p.then(handler);
             });
         });
 
         describe('reject handler', function() {
-            describe('attached sync to', function() {
-                it('settled promise', function(done) {
-                    var p = u.rejectSync();
-                    u.checkAsync(function(handler) {
-                        p.then(undefined, handler);
-                    }, done);
-                });
-
-                it('pending promise', function(done) {
-                    var p = u.rejectAsync();
-                    u.checkAsync(function(handler) {
-                        p.then(undefined, handler);
-                    }, done);
-                });
-            });
-
-            describe('attached async to', function() {
-                it('settled promise', function(done) {
-                    var p = u.rejectSync();
-                    u.suppressUnhandledRejections(p);
-                    setImmediate(function() {
-                        u.checkAsync(function(handler) {
-                            p.then(undefined, handler);
-                        }, done);
-                    });
-                });
-
-                it('pending promise', function(done) {
-                    var p = u.rejectAsync();
-                    u.suppressUnhandledRejections(p);
-                    setImmediate(function() {
-                        u.checkAsync(function(handler) {
-                            p.then(undefined, handler);
-                        }, done);
-                    });
-                });
-            });
+            u.testSetCallbackAsync(function(p, handler) {
+                p.then(undefined, handler);
+            }, {catches: true});
         });
     });
 
     describe('binds callback on', function() {
-        it('resolve handler', function(done) {
-            var p = u.resolveSync();
-            u.runInContext(function(context) {
-                u.checkBound(function(handler) {
-                    p.then(handler);
-                }, context, done);
-            });
-        });
+        u.testSetCallbackBound(function(p, handler) {
+            p.then(handler);
+        }, {name: 'resolve handler'});
 
-        it('reject handler', function(done) {
-            var p = u.rejectSync();
-            u.runInContext(function(context) {
-                u.checkBound(function(handler) {
-                    p.then(undefined, handler);
-                }, context, done);
-            });
-        });
+        u.testSetCallbackBound(function(p, handler) {
+            p.then(undefined, handler);
+        }, {name: 'reject handler', catches: true});
     });
 });

@@ -11,7 +11,9 @@ var _ = require('lodash');
 // Imports
 var promises = require('./promises'),
     checks = require('./checks'),
-    testSets = require('./testSets');
+    testSetsPromise = require('./testSets/promise'),
+    testSetsSyncAsync = require('./testSets/syncAsync'),
+    testSetsBinding = require('./testSets/binding');
 
 // Exports
 
@@ -128,6 +130,8 @@ Utils.prototype = {
 // mixins
 _.extend(Utils.prototype, promises);
 _.extend(Utils.prototype, checks);
-_.extend(Utils.prototype, testSets);
+_.extend(Utils.prototype, testSetsPromise);
+_.extend(Utils.prototype, testSetsSyncAsync);
+_.extend(Utils.prototype, testSetsBinding);
 
 module.exports = Utils;
