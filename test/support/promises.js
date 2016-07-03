@@ -8,15 +8,16 @@
 module.exports = {
     /**
      * Function to create default literal value.
-     * @returns {number}
+     * NB Using array so it works for collection methods.
+     * @returns {Array}
      */
     makeValue: function() {
-        return 123;
+        return [1, 2, 3];
     },
 
     /**
      * Function to create default error.
-     * Creates an `OperationalError` rather than plain `Error` so can be caught by `.error()`
+     * NB Creates an `OperationalError` rather than plain `Error` so can be caught by `.error()`
      * @returns {Error}
      */
     makeError: function() {

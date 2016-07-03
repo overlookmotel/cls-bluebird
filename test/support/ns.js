@@ -17,13 +17,13 @@ module.exports = ns;
  * The `_bound` property is an array with each occurance of a binding being added to the array.
  */
 shimmer.wrap(ns, 'bind', function(bind) {
-	return function(fn) {
+	return function(fn, context) {
 		var originalFn = fn._originalFn || fn;
 
 		if (!originalFn._bound) originalFn._bound = [];
-		originalFn._bound.push({ns: ns, context: ns.active});
+		originalFn._bound.push({ns: ns, context: context || ns.active});
 
-        var fnBound = bind.call(this, fn);
+        var fnBound = bind.call(this, fn, context);
 
         fnBound._originalFn = originalFn;
 		return fnBound;

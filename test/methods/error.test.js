@@ -15,5 +15,5 @@ runTests('.error()', function(u) {
     // TODO Add more tests that handler runs in correct CLS context
     u.testSetProtoMethodAsync(function(p, handler) {
         return p.error(handler);
-    }, {catches: true, noUndefined: true, noBind: (u.bluebirdVersion === 3)});
+    }, {catches: true, noUndefined: true, noBindTest: (u.bluebirdVersion === 3)});
 });

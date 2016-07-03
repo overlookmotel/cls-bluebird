@@ -50,7 +50,8 @@ module.exports = {
      * @param {boolean} [options.continues] - true if handler fires on resolved promise (default `!options.catches`)
      * @param {boolean} [options.catches] - true if handler fires on rejected promise (default `false`)
      * @param {boolean} [options.passThrough] - true if method passes through errors even if handler fires (default `false`)
-     * @param {boolean} [options.noBind] - Skip handler bound test if true (default `false`)
+     * @param {boolean} [options.noAsyncTest] - Skip handler called async test if true (default `false`)
+     * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
      * @returns {undefined}
      */
     testSetProtoMethodAsync: function(fn, options) {
@@ -65,11 +66,13 @@ module.exports = {
             u.testSetProtoMethodReturnsPromise(fn, options);
         });
 
-        describe('calls callback asynchronously when handler', function() {
-            u.testSetCallbackAsync(fn, options);
-        });
+        if (!options.noAsyncTest) {
+            describe('calls callback asynchronously when handler', function() {
+                u.testSetCallbackAsync(fn, options);
+            });
+        }
 
-        if (!options.noBind) u.testSetProtoCallbackBound(fn, options);
+        if (!options.noBindTest) u.testSetProtoCallbackBound(fn, options);
 
         u.testSetProtoCallbackContext(fn, options);
     }

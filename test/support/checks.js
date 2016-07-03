@@ -132,10 +132,13 @@ module.exports = {
      * @param {Object} context - CLS context should be bound to
      * @param {Function} done - Final callback to finish test
      * @param {Function} error - Callback to call with errors
+     * @param {Object} [options] - Options object
+     * @param {boolean} [options.asyncOnly] - Test for binding in handler only, not sync
      * @returns {undefined}
      */
-    checkBound: function(fn, context, done, error) {
+    checkBound: function(fn, context, done, error, options) {
         var u = this;
+        options = options || {};
 
         // Create handler
         var called = false;
@@ -149,7 +152,7 @@ module.exports = {
     	var p = fn(handler);
 
     	// Check that bound synchronously
-    	error(u.returnErrIfNotBound(handler, context));
+    	if (!options.asyncOnly) error(u.returnErrIfNotBound(handler, context));
 
         // Check handler was called
         done(p, null, function() {
