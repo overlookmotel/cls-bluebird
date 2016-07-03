@@ -14,6 +14,44 @@ var Bluebird2 = require('bluebird2'),
 var ns = require('./ns'),
     Utils = require('./utils');
 
+// Get bluebird version to test from environment vars
+var bluebirdVersion = process.env.BLUEBIRD_VERSION * 1;
+
+// Patch bluebird2 + bluebird3
+var PatchedBluebird2 = patch(Bluebird2);
+var PatchedBluebird3 = patch(Bluebird3);
+
+// Get bluebird version to use for these tests
+var Promise, UnpatchedPromise, versionName, altPromises;
+if (bluebirdVersion === 2) {
+    Promise = PatchedBluebird2;
+    UnpatchedPromise = Bluebird2;
+    versionName = 'Bluebird v2.x';
+    altPromises = [
+        {name: 'this', Promise: PatchedBluebird2},
+        {name: 'bluebird v2 unpatched', Promise: Bluebird2},
+        //{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
+        {name: 'bluebird v3 unpatched', Promise: Bluebird3},
+        {name: 'native', Promise: global.Promise}
+    ];
+} else if (bluebirdVersion === 3) {
+    Promise = PatchedBluebird3;
+    UnpatchedPromise = Bluebird3;
+    versionName = 'Bluebird v3.x';
+    altPromises = [
+        {name: 'this', Promise: PatchedBluebird3},
+        {name: 'bluebird v3 unpatched', Promise: Bluebird3},
+        //{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
+        {name: 'bluebird v2 unpatched', Promise: Bluebird2},
+        {name: 'native', Promise: global.Promise}
+    ];
+} else {
+    throw new Error('BLUEBIRD_VERSION environment variable not set');
+}
+
+// Create utils object based on Promise, UnpatchedPromise, ns and altPromises
+var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises);
+
 // Exports
 
 /*
@@ -26,47 +64,9 @@ var ns = require('./ns'),
  * @returns {undefined}
  */
 module.exports = function(name, testFn) {
-    // Get bluebird version to test from environment vars
-    var bluebirdVersion = process.env.BLUEBIRD_VERSION * 1;
-
-    // Patch bluebird2 + bluebird3
-    var PatchedBluebird2 = patch(Bluebird2);
-    var PatchedBluebird3 = patch(Bluebird3);
-
-    // Get bluebird version to use for these tests
-    var Promise, UnpatchedPromise, versionName, altPromises;
-    if (bluebirdVersion === 2) {
-        Promise = PatchedBluebird2;
-        UnpatchedPromise = Bluebird2;
-        versionName = 'Bluebird v2.x';
-        altPromises = [
-            {name: 'this', Promise: PatchedBluebird2},
-            {name: 'bluebird v2 unpatched', Promise: Bluebird2},
-            //{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
-            {name: 'bluebird v3 unpatched', Promise: Bluebird3},
-            {name: 'native', Promise: global.Promise}
-        ];
-    } else if (bluebirdVersion === 3) {
-        Promise = PatchedBluebird3;
-        UnpatchedPromise = Bluebird3;
-        versionName = 'Bluebird v3.x';
-        altPromises = [
-            {name: 'this', Promise: PatchedBluebird3},
-            {name: 'bluebird v3 unpatched', Promise: Bluebird3},
-            //{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
-            {name: 'bluebird v2 unpatched', Promise: Bluebird2},
-            {name: 'native', Promise: global.Promise}
-        ];
-    } else {
-        throw new Error('BLUEBIRD_VERSION environment variable not set');
-    }
-
-    // Create utils object based on Promise, UnpatchedPromise, ns and altPromises
-    var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises);
-
     // Run tests
     describe(name + ' (' + versionName + ')', function() {
-        testFn(Promise, utils);
+        testFn(utils, Promise);
     });
 };
 

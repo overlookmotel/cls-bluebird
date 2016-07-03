@@ -67,5 +67,22 @@ module.exports = {
                 });
             });
         });
+    },
+
+    /**
+     * Run set of tests on a method to ensure always calls callback synchronously.
+     * `fn` is called with a `handler` function which should be attached as the callback to the method under test.
+     * e.g. `Promise.try(handler)`
+     *
+     * @param {Function} fn - Test function
+     * @returns {undefined}
+     */
+    testSetCallbackSync: function(fn) {
+        var u = this;
+        it('calls callback synchronously', function(done) {
+            u.checkSync(function(handler) {
+                fn(handler);
+            }, done);
+        });
     }
 };

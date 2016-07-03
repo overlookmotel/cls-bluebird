@@ -14,7 +14,7 @@ var runTests = require('../support');
 
 // Run tests
 
-runTests('Patch', function(Promise, u) {
+runTests('Patch', function(u, Promise) {
     describe('patches', function() {
         describe('static method', function() {
             var ignore = [

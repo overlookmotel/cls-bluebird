@@ -10,7 +10,7 @@ var runTests = require('../support');
 
 // Run tests
 
-runTests('new Promise()', function(Promise, u) {
+runTests('new Promise()', function(u, Promise) {
     describe('returns instance of patched Promise constructor when', function() {
         u.it('resolved sync', function(done, error) {
             var p = u.resolveSync();
@@ -55,15 +55,11 @@ runTests('new Promise()', function(Promise, u) {
         });
     });
 
-    it('calls callback synchronously', function(done) {
-        u.checkSync(function(handler) {
-            new Promise(handler); // jshint ignore:line
-        }, done);
-    });
+    var testFn = function(handler) {
+        return new Promise(handler);
+    };
 
-    it('does not bind callback', function(done) {
-        u.checkNotBound(function(handler) {
-            new Promise(handler); // jshint ignore:line
-        }, done);
-    });
+    u.testSetCallbackSync(testFn);
+
+    u.testSetCallbackNotBound(testFn);
 });

@@ -144,9 +144,11 @@ module.exports = {
      */
     testSetStaticMethodReturnsPromise: function(fn) {
         var u = this;
-    	u.testSetMethodReturnsPromise(function(handler, cb) {
-            var p = fn(handler);
-            cb(p);
+    	describe('returns instance of patched Promise constructor when handler returns', function() {
+            u.testSetMethodReturnsPromise(function(handler, cb) {
+                var p = fn(handler);
+                cb(p);
+            });
         });
     },
 

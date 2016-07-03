@@ -3,14 +3,17 @@
  * Tests for Promise.reject()
  */
 
-/* global describe */
+/* global describe, it */
+
+// Modules
+var expect = require('chai').expect;
 
 // Imports
 var runTests = require('../support');
 
 // Run tests
 
-runTests('Promise.reject()', function(Promise, u) {
+runTests('Promise.reject()', function(u, Promise) {
     describe('returns instance of patched Promise constructor when passed', function() {
         u.it('error object', function(done, error) {
             var rejectErr = u.makeError();
@@ -18,5 +21,11 @@ runTests('Promise.reject()', function(Promise, u) {
             error(u.returnErrIfNotPromise(p));
             done(p, rejectErr);
         });
+    });
+});
+
+runTests('Promise.rejected()', function(u, Promise) { // jshint ignore:line
+    it('is alias of Promise.reject()', function() {
+        expect(Promise.rejected).to.equal(Promise.reject);
     });
 });

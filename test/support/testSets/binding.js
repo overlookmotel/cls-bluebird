@@ -38,5 +38,22 @@ module.exports = {
                 }, context, done);
             });
         });
+    },
+
+    /**
+     * Run set of tests on a method to ensure callback is never bound to CLS context.
+     * `fn` is called with a `handler` function which should be attached as the callback to the method under test.
+     * e.g. `Promise.try(handler)`
+     *
+     * @param {Function} fn - Test function
+     * @returns {undefined}
+     */
+    testSetCallbackNotBound: function(fn) {
+        var u = this;
+        it('does not bind callback', function(done) {
+            u.checkNotBound(function(handler) {
+                fn(handler);
+            }, done);
+        });
     }
 };
