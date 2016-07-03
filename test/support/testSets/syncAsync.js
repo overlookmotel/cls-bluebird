@@ -19,54 +19,48 @@ module.exports = {
      * If handler is being attached to catch rejections, `options.catches` should be `true`
      *
      * @param {Function} fn - Test function
-     * @param {Object} [options] - Options object
-     * @param {boolean} [options.catches] - true if method catches rejected promises e.g. `promise.catch()`
+     * @param {Object} options - Options object
+     * @param {boolean} options.continues - true if handler fires on resolved promise
+     * @param {boolean} options.catches - true if handler fires on rejected promise
+     * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
      * @returns {undefined}
      */
     testSetCallbackAsync: function(fn, options) {
         var u = this;
-        options = options || {};
-
-        var makePromiseSync = options.catches ? u.rejectSyncMethod() : u.resolveSyncMethod(),
-            makePromiseAsync = options.catches ? u.rejectAsyncMethod() : u.resolveAsyncMethod();
 
         describe('attached sync to', function() {
-            u.it('settled promise', function(done, error) {
-                var p = makePromiseSync();
-                u.checkAsync(function(handler) {
-                    return fn(p, handler);
-                }, done, error);
-            });
-
-            u.it('pending promise', function(done, error) {
-                var p = makePromiseAsync();
-                u.checkAsync(function(handler) {
-                    return fn(p, handler);
-                }, done, error);
-            });
+            testSet(false);
         });
 
         describe('attached async to', function() {
-            u.it('settled promise', function(done, error) {
-                var p = makePromiseSync();
-                u.suppressUnhandledRejections(p);
-                u.awaitPromise(p, function() {
-                    u.checkAsync(function(handler) {
-                        return fn(p, handler);
-                    }, done, error);
-                });
-            });
-
-            u.it('pending promise', function(done, error) {
-                var p = makePromiseAsync();
-                u.suppressUnhandledRejections(p);
-                u.awaitPromise(p, function() {
-                    u.checkAsync(function(handler) {
-                        return fn(p, handler);
-                    }, done, error);
-                });
-            });
+            testSet(true);
         });
+
+        function testSet(attachAsync) {
+            if (options.continues) {
+                test(u.resolveSyncMethod(), false, false, attachAsync);
+                test(u.resolveAsyncMethod(), true, false, attachAsync);
+            }
+
+            if (options.catches) {
+                test(u.rejectSyncMethodError(), false, true, attachAsync);
+                test(u.rejectAsyncMethodError(), true, true, attachAsync);
+            }
+        }
+
+        function test(makePromise, pending, isRejecting, attachAsync) {
+            u.it((pending ? 'pending ' : '') + (isRejecting ? 'rejected' : 'resolved') + ' promise', function(done, error) {
+                var rejectErr = isRejecting ? u.makeError() : undefined;
+                var p = makePromise(rejectErr);
+                if (!options.passThrough) rejectErr = undefined;
+
+                u.execAsyncIf(function() {
+                    u.checkAsync(function(handler) {
+                        return fn(p, handler);
+                    }, done, error, rejectErr);
+                }, attachAsync, p, isRejecting);
+            });
+        }
     },
 
     /**
@@ -86,7 +80,7 @@ module.exports = {
         u.it('calls callback synchronously', function(done, error) {
             u.checkSync(function(handler) {
                 return fn(handler);
-            }, done, error, options.handler);
+            }, done, error, undefined, options.handler);
         });
     }
 };

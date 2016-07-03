@@ -23,51 +23,52 @@ module.exports = {
      * Promises returned from handlers are instances of various different Promise constructors.
      *
      * @param {Function} fn - Test function
-     * @param {Object} [options] - Options object
-     * @param {boolean} [options.catches] - true if method catches rejected promises e.g. `promise.catch()`
+     * @param {Object} options - Options object
+     * @param {boolean} options.continues - true if handler fires on resolved promise
+     * @param {boolean} options.catches - true if handler fires rejected promise
+     * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
      * @returns {undefined}
      */
     testSetProtoMethodReturnsPromise: function(fn, options) {
         var u = this;
-        options = options || {};
 
         describe('attached synchronously to promise', function() {
-            testSet(options.catches, false);
+            testSet(false);
         });
 
         describe('attached asynchronously to promise', function() {
-            testSet(options.catches, true);
+            testSet(true);
         });
 
-        function testSet(catches, attachAsync) {
+        function testSet(attachAsync) {
             describe('resolved sync', function() {
                 var makePromise = u.resolveSyncMethod();
-                tests(makePromise, catches, false, attachAsync);
+                tests(makePromise, options.continues, false, attachAsync);
             });
 
             describe('resolved async', function() {
                 var makePromise = u.resolveAsyncMethod();
-                tests(makePromise, catches, false, attachAsync);
+                tests(makePromise, options.continues, false, attachAsync);
             });
 
             describe('rejected sync', function() {
                 var makePromise = u.rejectSyncMethodError();
-                tests(makePromise, !catches, true, attachAsync);
+                tests(makePromise, options.catches, true, attachAsync);
             });
 
             describe('rejected async', function() {
                 var makePromise = u.rejectAsyncMethodError();
-                tests(makePromise, !catches, true, attachAsync);
+                tests(makePromise, options.catches, true, attachAsync);
             });
         }
 
-        function tests(makePromise, handerShouldNotBeCalled, isRejecting, attachAsync) {
+        function tests(makePromise, handlerShouldBeCalled, isRejecting, attachAsync) {
             if (!options.noUndefined) {
                 u.it('is undefined', function(done, error) {
                     var rejectErr = isRejecting ? u.makeError() : undefined;
                     var p = makePromise(rejectErr);
 
-                    execAsyncIf(function() {
+                    u.execAsyncIf(function() {
                         p = fn(p, undefined);
                         error(u.returnErrIfNotPromise(p));
                         done(p, rejectErr);
@@ -75,15 +76,17 @@ module.exports = {
                 });
             }
 
-            if (!handerShouldNotBeCalled) {
+            if (handlerShouldBeCalled) {
                 // Handler should be called
                 describe('returns', function() {
                     u.testSetMethodReturnsPromise(function(handler, cb) {
-                        var p = makePromise();
+                        var rejectErr = isRejecting ? u.makeError() : undefined;
+                        var p = makePromise(rejectErr);
+                        if (!options.passThrough) rejectErr = undefined;
 
-                        execAsyncIf(function() {
+                        u.execAsyncIf(function() {
                             p = fn(p, handler);
-                            cb(p);
+                            cb(p, rejectErr);
                         }, attachAsync, p, isRejecting);
                     });
                 });
@@ -96,7 +99,7 @@ module.exports = {
                 var rejectErr = isRejecting ? u.makeError() : undefined;
                 var p = makePromise(rejectErr);
 
-                execAsyncIf(function() {
+                u.execAsyncIf(function() {
                     p = fn(p, function() {
                         error(new Error('Handler should not be called'));
                     });
@@ -105,27 +108,6 @@ module.exports = {
                     done(p, rejectErr);
                 }, attachAsync, p, isRejecting);
             });
-        }
-
-        /**
-         * Execute function synchronously or later dependng on condition.
-         * If `later == true` schedules function to run in next tick.
-         * Otherwise, executes function synchronously.
-         * If scheduling for later and `suppress == true` also suppresses unhandled rejections on promise.
-         *
-         * @param {Function} fn - Function to execute
-         * @param {boolean} later - true if to run in next tick, false if to run now
-         * @param {Promise} promise - Promise
-         * @param {boolean} suppress - true to suppress unhandled rejections (only if `later == true` too)
-         * @returns {undefined}
-         */
-        function execAsyncIf(fn, later, promise, suppress) {
-            if (later) {
-                if (suppress) u.suppressUnhandledRejections(promise);
-                u.awaitPromise(promise, fn);
-            } else {
-                fn();
-            }
         }
     },
 
@@ -229,9 +211,9 @@ module.exports = {
         var u = this;
 
         u.it('literal value', function(done, error) {
-            fn(u.literalMethod(), function(p) {
+            fn(u.literalMethod(), function(p, rejectErr) {
                 error(u.returnErrIfNotPromise(p));
-                done(p);
+                done(p, rejectErr);
             });
         });
 
@@ -241,16 +223,16 @@ module.exports = {
             var _describe = (AltPromise ? describe : describe.skip);
             _describe('promise (' + altPromiseParams.name + ')', function() {
                 u.it('resolved sync', function(done, error) {
-                    fn(u.resolveSyncMethodAlt(AltPromise), function(p) {
+                    fn(u.resolveSyncMethodAlt(AltPromise), function(p, rejectErr) {
                         error(u.returnErrIfNotPromise(p));
-                        done(p);
+                        done(p, rejectErr);
                     });
                 });
 
                 u.it('resolved async', function(done, error) {
-                    fn(u.resolveAsyncMethodAlt(AltPromise), function(p) {
+                    fn(u.resolveAsyncMethodAlt(AltPromise), function(p, rejectErr) {
                         error(u.returnErrIfNotPromise(p));
-                        done(p);
+                        done(p, rejectErr);
                     });
                 });
 

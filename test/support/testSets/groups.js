@@ -7,6 +7,9 @@
 
 /* global describe */
 
+// Modules
+var _ = require('lodash');
+
 // Exports
 
 module.exports = {
@@ -43,12 +46,21 @@ module.exports = {
      * e.g. `return Promise.try(handler)`
      *
      * @param {Function} fn - Test function
+     * @param {Object} [options] - Options object
+     * @param {boolean} [options.continues] - true if handler fires on resolved promise (default `!options.catches`)
+     * @param {boolean} [options.catches] - true if handler fires on rejected promise (default `false`)
+     * @param {boolean} [options.passThrough] - true if method passes through errors even if handler fires (default `false`)
+     * @param {boolean} [options.noBind] - Skip handler bound test if true (default `false`)
      * @returns {undefined}
      */
     testSetProtoMethodAsync: function(fn, options) {
         var u = this;
-        options = options || {};
 
+        // Conform options
+        options = _.extend({catches: false, passThrough: false}, options);
+        _.defaults(options, {continues: !options.catches});
+
+        // Run tests
         describe('returns instance of patched Promise constructor when handler', function() {
             u.testSetProtoMethodReturnsPromise(fn, options);
         });

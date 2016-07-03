@@ -18,11 +18,12 @@ module.exports = {
      * @param {Function} fn - Function to run.
      * @param {Function} done - Final callback to finish test
      * @param {Function} error - Callback to call with errors
+     * @param {Error} [rejectErr] - Error that expect promise to reject with
      * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkSync: function(fn, done, error, handler) {
-        this.checkSyncAsync(fn, true, done, error, handler);
+    checkSync: function(fn, done, error, rejectErr, handler) {
+        this.checkSyncAsync(fn, true, done, error, rejectErr, handler);
     },
 
     /**
@@ -35,11 +36,12 @@ module.exports = {
      * @param {Function} fn - Function to run.
      * @param {Function} done - Final callback to finish test
      * @param {Function} error - Callback to call with errors
+     * @param {Error} [rejectErr] - Error that expect promise to reject with
      * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkAsync: function(fn, done, error, handler) {
-        this.checkSyncAsync(fn, false, done, error, handler);
+    checkAsync: function(fn, done, error, rejectErr, handler) {
+        this.checkSyncAsync(fn, false, done, error, rejectErr, handler);
     },
 
     /**
@@ -56,10 +58,11 @@ module.exports = {
      * @param {boolean} expectSync - true if expect callback to be called sync, false if expect async
      * @param {Function} done - Final callback to finish test
      * @param {Function} error - Callback to call with errors
+     * @param {Error} [rejectErr] - Error that expect promise to reject with
      * @param {Function} [handler] - Handler function
      * @returns {undefined}
      */
-    checkSyncAsync: function(fn, expectSync, done, error, handler) {
+    checkSyncAsync: function(fn, expectSync, done, error, rejectErr, handler) {
         // Create handler
         var sync = true,
             called = false;
@@ -75,7 +78,7 @@ module.exports = {
     	sync = false;
 
         // Check handler was called
-        done(p, null, function() {
+        done(p, rejectErr, function() {
             if (!called) error(new Error('Callback not called'));
         });
     },

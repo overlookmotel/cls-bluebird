@@ -213,6 +213,28 @@ Utils.prototype = {
     },
 
     /**
+     * Execute function synchronously or later dependng on condition.
+     * If `later == true` schedules function to run in next tick.
+     * Otherwise, executes function synchronously.
+     * If scheduling for later and `suppress == true` also suppresses unhandled rejections on promise.
+     *
+     * @param {Function} fn - Function to execute
+     * @param {boolean} later - true if to run in next tick, false if to run now
+     * @param {Promise} promise - Promise
+     * @param {boolean} suppress - true to suppress unhandled rejections (only if `later == true` too)
+     * @returns {undefined}
+     */
+    execAsyncIf: function(fn, later, promise, suppress) {
+        var u = this;
+        if (later) {
+            if (suppress) u.suppressUnhandledRejections(promise);
+            u.awaitPromise(promise, fn);
+        } else {
+            fn();
+        }
+    },
+
+    /**
      * Run function and pass return value/thrown error to node-style callback function.
      * If function returns a value, this is passed to callback is 2nd arg.
      * If function throws an error, this is passed to callback as 1st arg.

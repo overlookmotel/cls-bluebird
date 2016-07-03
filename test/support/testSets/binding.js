@@ -17,15 +17,14 @@ module.exports = {
      * If handler is being attached to catch rejections, `options.catches` should be `true`
      *
      * @param {Function} fn - Test function
-     * @param {Object} [options] - Options object
-     * @param {boolean} [options.catches] - true if method catches rejected promises e.g. `promise.catch()`
+     * @param {Object} options - Options object
+     * @param {boolean} options.continues - true if handler fires on resolved promise
      * @returns {undefined}
      */
     testSetProtoCallbackBound: function(fn, options) {
         var u = this;
-        options = options || {};
 
-        var makePromise = options.catches ? u.rejectSyncMethod() : u.resolveSyncMethod();
+        var makePromise = options.continues ? u.resolveSyncMethod() : u.rejectSyncMethod();
 
         u.it('binds callback', function(done, error) {
             var p = makePromise();
@@ -67,18 +66,16 @@ module.exports = {
      * If handler is being attached to catch rejections, `options.catches` should be `true`
      *
      * @param {Function} fn - Test function
-     * @param {Object} [options] - Options object
-     * @param {boolean} [options.catches] - true if method catches rejected promises e.g. `promise.catch()`
-     * @param {string} [options.name] - Name of test ('binds callback' if not provided)
+     * @param {Object} options - Options object
+     * @param {boolean} options.continues - true if handler fires on resolved promise
      * @returns {undefined}
      */
     testSetProtoCallbackContext: function(fn, options) {
         var u = this;
-        options = options || {};
 
-        var makePromise = options.catches ? u.rejectSyncMethod() : u.resolveSyncMethod();
+        var makePromise = options.continues ? u.resolveSyncMethod() : u.rejectSyncMethod();
 
-        u.itMultiple(options.name || 'callback runs in context', function(done, error) {
+        u.itMultiple('callback runs in context', function(done, error) {
             var p = makePromise();
             u.runInContext(function(context) {
                 u.checkRunContext(function(handler) {
