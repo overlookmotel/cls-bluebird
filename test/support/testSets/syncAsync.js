@@ -5,7 +5,7 @@
  * Mixin to Utils prototype.
  */
 
-/* global describe, it */
+/* global describe */
 
 // Exports
 
@@ -31,39 +31,39 @@ module.exports = {
             makePromiseAsync = options.catches ? u.rejectAsyncMethod() : u.resolveAsyncMethod();
 
         describe('attached sync to', function() {
-            it('settled promise', function(done) {
+            u.it('settled promise', function(done, error) {
                 var p = makePromiseSync();
                 u.checkAsync(function(handler) {
-                    fn(p, handler);
-                }, done);
+                    return fn(p, handler);
+                }, done, error);
             });
 
-            it('pending promise', function(done) {
+            u.it('pending promise', function(done, error) {
                 var p = makePromiseAsync();
                 u.checkAsync(function(handler) {
-                    fn(p, handler);
-                }, done);
+                    return fn(p, handler);
+                }, done, error);
             });
         });
 
         describe('attached async to', function() {
-            it('settled promise', function(done) {
+            u.it('settled promise', function(done, error) {
                 var p = makePromiseSync();
                 u.suppressUnhandledRejections(p);
-                setImmediate(function() {
+                u.awaitPromise(p, function() {
                     u.checkAsync(function(handler) {
-                        fn(p, handler);
-                    }, done);
+                        return fn(p, handler);
+                    }, done, error);
                 });
             });
 
-            it('pending promise', function(done) {
+            u.it('pending promise', function(done, error) {
                 var p = makePromiseAsync();
                 u.suppressUnhandledRejections(p);
-                setImmediate(function() {
+                u.awaitPromise(p, function() {
                     u.checkAsync(function(handler) {
-                        fn(p, handler);
-                    }, done);
+                        return fn(p, handler);
+                    }, done, error);
                 });
             });
         });
@@ -75,14 +75,18 @@ module.exports = {
      * e.g. `Promise.try(handler)`
      *
      * @param {Function} fn - Test function
+     * @param {Object} [options] - Options object
+     * @param {Function} [options.handler] - Optional handler function
      * @returns {undefined}
      */
-    testSetCallbackSync: function(fn) {
+    testSetCallbackSync: function(fn, options) {
         var u = this;
-        it('calls callback synchronously', function(done) {
+        options = options || {};
+
+        u.it('calls callback synchronously', function(done, error) {
             u.checkSync(function(handler) {
-                fn(handler);
-            }, done);
+                return fn(handler);
+            }, done, error, options.handler);
         });
     }
 };

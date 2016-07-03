@@ -1,6 +1,6 @@
 /*
  * cls-bluebird tests
- * Tests for .catch() / .error()
+ * Tests for .catch()
  */
 
 /* global describe, it */
@@ -21,6 +21,9 @@ runTests('.catch()', function(u) {
     });
 
     describe('with 2nd arg', function() {
+        // NB In bluebird v3 handler is not bound when on 2nd arg.
+        // `.catch()` calls `.then()` synchronously but with proxy handler.
+        // No way to test for binding.
         u.testSetProtoMethodAsync(function(p, handler) {
             return p.catch(Error, handler);
         }, {catches: true, noUndefined: true, noBind: (u.bluebirdVersion === 3)});
@@ -32,12 +35,3 @@ runTests('.caught()', function(u, Promise) { // jshint ignore:line
         expect(Promise.prototype.caught).to.equal(Promise.prototype.catch);
     });
 });
-
-/*
-// TODO make this work - .error() only catches operational errors
-runTests('.error()', function(u) {
-    u.testSetProtoMethodAsync(function(p, handler) {
-        return p.error(handler);
-    }, {catches: true});
-});
-*/

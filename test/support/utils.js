@@ -71,34 +71,96 @@ Utils.prototype = {
     /**
      * Test runner function, replacement for mocha's `it()`.
      * Calls mocha's 'it()' to create test case.
-     * Within test, calls test function with arguments `(done, error)`
-     * `error()` registers an error
-     * `done()` calls mocha's `it` done callback with any error that's been registered
+     *
+     * Test function is called with `done` and `error` arguments.
+     * `error()` registers an error. Call with an error object.
+     * `done()` finishes the test and calls mocha's `it` done callback with any error that's been registered.
+     *
+     * `done` should be called with arguments:
+     *   - {Promise} promise - Promise to await resolution of to finish test
+     *   - {Error} [expectedErr] - Error expect `promise` to reject with, undefined if expect `promise` to resolve
+     *   - {Function} [final] - Function to run once promise has resolved just before ending test
      *
      * @param {string} name - Test name
      * @param {Function} fn - Test function
      * @returns {undefined}
      */
     it: function(name, fn) {
+        var u = this;
         it(name, function(done) {
-            var err;
-            fn(
-                // `done` callback
-                function(promise, expectedErr) {
-                    promise.then(function() {
-                        if (expectedErr && !err) err = new Error('Promise should not be resolved');
-                        done(err);
-                    }, function(rejectedErr) {
-                        if (rejectedErr !== expectedErr && !err) err = rejectedErr || new Error('Empty rejection');
-                        done(err);
-                    });
-                },
-                // `error` callback
-                function(thisErr) {
-                    if (thisErr && !err) err = thisErr;
-                }
-            );
+            u._it(fn, done);
         });
+    },
+
+    /**
+     * Same as`u.it()` but runs the test in parallel multiple times.
+     * If all test runs pass, executes callback with no error.
+     * If any test run fails, executes callback with first error received.
+     * Waits for all test runs to complete before calling callback, even if an error is encountered.
+     *
+     * Test function is called with `done` and `error` arguments.
+     * `error()` registers an error. Call with an error object.
+     * `done()` finishes the test and calls `cb()` callback with any error that's been registered.
+     *
+     * `done` should be called with arguments:
+     *   - {Promise} promise - Promise to await resolution of to finish test
+     *   - {Error} [expectedErr] - Error expect `promise` to reject with, undefined if expect `promise` to resolve
+     *   - {Function} [final] - Function to run once promise has resolved just before ending test
+     *
+     * @param {string} name - Name of test
+     * @param {Function} fn - Test function
+     * @returns {undefined}
+     */
+    itMultiple: function(name, fn) {
+        var u = this;
+    	it(name, function(mochaDone) {
+    		// Run `fn` multiple times
+    		var done = u.callbackAggregator(IT_MULTIPLE_ROUNDS, mochaDone);
+
+    		for (var i = 0; i < IT_MULTIPLE_ROUNDS; i++) {
+                u._it(fn, done);
+    		}
+        });
+    },
+
+    /**
+     * Calls test function with arguments `(done, error)`.
+     * `error()` registers an error. Call with an error object.
+     * `done()` finishes the test and calls `cb()` callback with any error that's been registered.
+     *
+     * `done` should be called with arguments:
+     *   - {Promise} promise - Promise to await resolution of to finish test
+     *   - {Error} [expectedErr] - Error expect `promise` to reject with, undefined if expect `promise` to resolve
+     *   - {Function} [final] - Function to run once promise has resolved just before ending test
+     *
+     * @private
+     * @param {Function} fn - Test function
+     * @param {Function} cb - Callback to call on completion
+     * @returns {undefined}
+     */
+    _it: function(fn, cb) {
+        var err;
+        var error = function(thisErr) {
+            if (thisErr && !err) err = thisErr;
+        };
+
+        var done = function(promise, expectedErr, final) {
+            promise.then(function() {
+                if (final) final();
+                if (expectedErr) error(new Error('Promise should not be resolved'));
+                cb(err);
+            }, function(rejectedErr) {
+                if (final) final();
+                if (!expectedErr || rejectedErr !== expectedErr) error(rejectedErr || new Error('Empty rejection'));
+                cb(err);
+            });
+        };
+
+        try {
+            fn(done, error);
+        } catch (err) {
+            cb(err);
+        }
     },
 
     /**
@@ -112,14 +174,12 @@ Utils.prototype = {
      * @param {Function} fn - Test function
      * @returns {undefined}
      */
-    itMultiple: function(name, fn) {
+    // Not used. TODO remove this!
+    itMultipleMocha: function(name, fn) {
         var u = this;
-    	it(name, function(cb) {
-    		// Throw if CLS context is not empty at start
-    		//if (ns.active !== null) throw new Error('CLS context not empty at start of test');
-
+    	it(name, function(mochaDone) {
     		// Run `fn` multiple times
-    		var done = u.callbackAggregator(IT_MULTIPLE_ROUNDS, cb);
+    		var done = u.callbackAggregator(IT_MULTIPLE_ROUNDS, mochaDone);
 
     		for (var i = 0; i < IT_MULTIPLE_ROUNDS; i++) {
     			try {

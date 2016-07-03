@@ -13,22 +13,16 @@ module.exports = {
      * `fn` is called immediately, and passed a handler.
      * If handler is called synchronously, `done` callback is called without error.
      * If handler is called asynchronously, `done` callback is called with an error.
+     * If handler is not called, `done` callback is called with an error.
      *
      * @param {Function} fn - Function to run.
-     * @param {Function} done - Final callback to call with result
+     * @param {Function} done - Final callback to finish test
+     * @param {Function} error - Callback to call with errors
+     * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkSync: function(fn, done) {
-        var u = this;
-    	var sync = true;
-    	var handler = function() {
-    		u.toCallback(function() {
-    			if (!sync) throw new Error('Called asynchronously');
-    		}, done);
-    	};
-
-    	fn(handler);
-    	sync = false;
+    checkSync: function(fn, done, error, handler) {
+        this.checkSyncAsync(fn, true, done, error, handler);
     },
 
     /**
@@ -36,22 +30,54 @@ module.exports = {
      * `fn` is called immediately, and passed a handler.
      * If handler is called asynchronously, `done` callback is called without error.
      * If handler is called synchronously, `done` callback is called with an error.
+     * If handler is not called, `done` callback is called with an error.
      *
      * @param {Function} fn - Function to run.
-     * @param {Function} done - Final callback to call with result
+     * @param {Function} done - Final callback to finish test
+     * @param {Function} error - Callback to call with errors
+     * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkAsync: function(fn, done) {
-        var u = this;
-    	var sync = true;
-    	var handler = function() {
-    		u.toCallback(function() {
-    			if (sync) throw new Error('Called synchronously');
-    		}, done);
+    checkAsync: function(fn, done, error, handler) {
+        this.checkSyncAsync(fn, false, done, error, handler);
+    },
+
+    /**
+     * Runs a function and checks it calls back a handler synchronously or asynchronously.
+     * `fn` is called immediately, and passed a handler.
+     * Whether expect sync or async callback is defined by `expectSync` argument.
+     * If handler is called as expected, `done` callback is called without error.
+     * If handler is called not as expected, `done` callback is called with an error.
+     * If handler is not called, `done` callback is called with an error.
+     *
+     * If `handler` argument is provided to this function, it's executed as part of the handler.
+     *
+     * @param {Function} fn - Function to run.
+     * @param {boolean} expectSync - true if expect callback to be called sync, false if expect async
+     * @param {Function} done - Final callback to finish test
+     * @param {Function} error - Callback to call with errors
+     * @param {Function} [handler] - Handler function
+     * @returns {undefined}
+     */
+    checkSyncAsync: function(fn, expectSync, done, error, handler) {
+        // Create handler
+        var sync = true,
+            called = false;
+
+    	var handlerWrapped = function() {
+            called = true;
+            if (sync !== expectSync) error(new Error('Callback called ' + (expectSync ? 'asynchronously' : 'synchronously')));
+            if (handler) return handler.apply(this, arguments);
     	};
 
-    	fn(handler);
+        // Run test function with handler
+    	var p = fn(handlerWrapped);
     	sync = false;
+
+        // Check handler was called
+        done(p, null, function() {
+            if (!called) error(new Error('Callback not called'));
+        });
     },
 
     /**
@@ -61,18 +87,30 @@ module.exports = {
      * If handler is bound, `done` callback is called with an error.
      *
      * @param {Function} fn - Function to run.
-     * @param {Function} done - Final callback to call with result
+     * @param {Function} done - Final callback to finish test
+     * @param {Function} error - Callback to call with errors
+     * @param {Function} [handler] - Handler function
      * @returns {undefined}
      */
-    checkNotBound: function(fn, done) {
+    checkNotBound: function(fn, done, error, handler) {
         var u = this;
-    	var handler = function() {
-    		u.toCallback(function() {
-    			u.throwIfBound(handler);
-    		}, done);
+
+        // Create handler
+        var called = false;
+
+    	var handlerWrapped = function() {
+            called = true;
+            error(u.returnErrIfBound(handlerWrapped));
+            if (handler) return handler.apply(this, arguments);
     	};
 
-    	fn(handler);
+        // Run test function with handler
+    	var p = fn(handlerWrapped);
+
+        // Check handler was called
+        done(p, null, function() {
+            if (!called) error(new Error('Callback not called'));
+        });
     },
 
     /**
@@ -88,27 +126,32 @@ module.exports = {
      * If any check fails, `done` callback is called with an error.
      *
      * @param {Function} fn - Function to run.
-     * @param {Function} done - Final callback to call with result
+     * @param {Object} context - CLS context should be bound to
+     * @param {Function} done - Final callback to finish test
+     * @param {Function} error - Callback to call with errors
      * @returns {undefined}
      */
-    checkBound: function(fn, context, done) {
+    checkBound: function(fn, context, done, error) {
         var u = this;
-        var err;
-    	var handler = function() {
-    		u.toCallback(function() {
-    			// Throw if was not bound synchronously
-    			if (err) throw err;
 
-    			// Throw if not bound at time handler called
-    			u.throwIfNotBound(handler, context);
-    		}, done);
+        // Create handler
+        var called = false;
+
+    	var handler = function() {
+            called = true;
+            error(u.returnErrIfNotBound(handler, context));
     	};
 
-    	// Run function, passing handler
-    	fn(handler);
+        // Run test function with handler
+    	var p = fn(handler);
 
-    	// Check if bound synchronously and set `err` to Error object if not
-    	err = u.returnErrIfNotBound(handler, context);
+    	// Check that bound synchronously
+    	error(u.returnErrIfNotBound(handler, context));
+
+        // Check handler was called
+        done(p, null, function() {
+            if (!called) error(new Error('Callback not called'));
+        });
     },
 
     /**
@@ -118,19 +161,28 @@ module.exports = {
      * `done` callback is called with/without error if is/isn't in right context.
      *
      * @param {Function} fn - Function to run.
-     * @param {Function} done - Final callback to call with result
+     * @param {Function} done - Final callback to finish test
+     * @param {Function} error - Callback to call with errors
      * @returns {undefined}
      */
-    checkRunContext: function(fn, context, done) {
+    checkRunContext: function(fn, context, done, error) {
         var u = this;
-        var handler = function() {
-    		u.toCallback(function() {
-                if (u.ns.active !== context) throw new Error('Function run in wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(u.ns.active) + ')');
-    		}, done);
+
+        // Create handler
+        var called = false;
+
+    	var handler = function() {
+            called = true;
+            if (u.ns.active !== context) error(new Error('Function run in wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(u.ns.active) + ')'));
     	};
 
-    	// Run function, passing handler
-    	fn(handler);
+        // Run test function with handler
+    	var p = fn(handler);
+
+        // Check handler was called
+        done(p, null, function() {
+            if (!called) error(new Error('Callback not called'));
+        });
     },
 
     /**

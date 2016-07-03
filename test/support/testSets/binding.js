@@ -5,8 +5,6 @@
  * Mixin to Utils prototype.
  */
 
-/* global it */
-
 // Exports
 
 module.exports = {
@@ -21,7 +19,6 @@ module.exports = {
      * @param {Function} fn - Test function
      * @param {Object} [options] - Options object
      * @param {boolean} [options.catches] - true if method catches rejected promises e.g. `promise.catch()`
-     * @param {string} [options.name] - Name of test ('binds callback' if not provided)
      * @returns {undefined}
      */
     testSetProtoCallbackBound: function(fn, options) {
@@ -30,12 +27,12 @@ module.exports = {
 
         var makePromise = options.catches ? u.rejectSyncMethod() : u.resolveSyncMethod();
 
-        it(options.name || 'binds callback', function(done) {
+        u.it('binds callback', function(done, error) {
             var p = makePromise();
             u.runInContext(function(context) {
                 u.checkBound(function(handler) {
-                    fn(p, handler);
-                }, context, done);
+                    return fn(p, handler);
+                }, context, done, error);
             });
         });
     },
@@ -46,14 +43,18 @@ module.exports = {
      * e.g. `Promise.try(handler)`
      *
      * @param {Function} fn - Test function
+     * @param {Object} [options] - Options object
+     * @param {Function} [options.handler] - Optional handler function
      * @returns {undefined}
      */
-    testSetCallbackNotBound: function(fn) {
+    testSetCallbackNotBound: function(fn, options) {
         var u = this;
-        it('does not bind callback', function(done) {
+        options = options || {};
+
+        u.it('does not bind callback', function(done, error) {
             u.checkNotBound(function(handler) {
-                fn(handler);
-            }, done);
+                return fn(handler);
+            }, done, error, options.handler);
         });
     },
 
@@ -77,12 +78,12 @@ module.exports = {
 
         var makePromise = options.catches ? u.rejectSyncMethod() : u.resolveSyncMethod();
 
-        u.itMultiple(options.name || 'callback runs in context', function(done) {
+        u.itMultiple(options.name || 'callback runs in context', function(done, error) {
             var p = makePromise();
             u.runInContext(function(context) {
                 u.checkRunContext(function(handler) {
-                    fn(p, handler);
-                }, context, done);
+                    return fn(p, handler);
+                }, context, done, error);
             });
         });
     }

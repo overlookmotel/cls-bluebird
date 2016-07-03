@@ -59,7 +59,7 @@ runTests('new Promise()', function(u, Promise) {
         return new Promise(handler);
     };
 
-    u.testSetCallbackSync(testFn);
+    u.testSetCallbackSync(testFn, {handler: function(resolve) { resolve(); }});
 
-    u.testSetCallbackNotBound(testFn);
+    u.testSetCallbackNotBound(testFn, {handler: function(resolve) { resolve(); }});
 });
