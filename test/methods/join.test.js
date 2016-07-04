@@ -17,9 +17,16 @@ runTests('.join()', function(u, Promise) {
         });
     });
 
+    /*
+     * NB Due to oddity in bluebird https://github.com/petkaantonov/bluebird/issues/1153
+     * `Promise.join()` calls the callback synchronously if input is only values or
+     * resolved promises, but async if any promises are pending.
+     * So async calling test is performed separately to allow for this.
+     * TODO Change test once issue is fixed (if it is considered a bug).
+     */
     u.testSetProtoMethodAsync(function(p, handler) {
         return Promise.join(p, p, p, handler);
-    }, {noUndefined: true, noBindTest: true, noAsyncTest: true});
+    }, {noUndefined: true, noAsyncTest: true});
 
     // Check callback called sync/async
     describe('calls callback', function() {
@@ -34,18 +41,5 @@ runTests('.join()', function(u, Promise) {
                 return Promise.join(Promise.resolve(1), Promise.resolve(2).tap(function() {}), Promise.resolve(3), handler);
             }, done, error);
         });
-    });
-
-    // Checking binding for sync/async
-    describe('callback binding', function() {
-        // Check callback not bound when promises are resolved
-        u.testSetCallbackNotBound(function(handler) {
-            return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), handler);
-        }, {name: 'not performed when promises are resolved'});
-
-        // Check callback is bound when promises are pending
-        u.testSetCallbackBound(function(handler) {
-            return Promise.join(Promise.resolve(1).tap(function() {}), Promise.resolve(2), Promise.resolve(3), handler);
-        }, {name: 'is performed when promises are pending', asyncOnly: true});
     });
 });
