@@ -30,16 +30,16 @@ runTests('.join()', function(u, Promise) {
 
     // Check callback called sync/async
     describe('calls callback', function() {
-        u.it('synchronously when promises are resolved', function(done, error) {
+        u.test('synchronously when promises are resolved', function(t) {
             u.checkSync(function(handler) {
                 return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), handler);
-            }, done, error);
+            }, t);
         });
 
-        u.it('asynchronously when promises are pending', function(done, error) {
+        u.test('asynchronously when promises are pending', function(t) {
             u.checkAsync(function(handler) {
                 return Promise.join(Promise.resolve(1), Promise.resolve(2).tap(function() {}), Promise.resolve(3), handler);
-            }, done, error);
+            }, t);
         });
     });
 });

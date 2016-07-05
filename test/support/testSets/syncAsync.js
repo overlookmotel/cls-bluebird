@@ -49,7 +49,7 @@ module.exports = {
         }
 
         function test(makePromise, pending, isRejecting, attachAsync) {
-            u.it((pending ? 'pending ' : '') + (isRejecting ? 'rejected' : 'resolved') + ' promise', function(done, error) {
+            u.test((pending ? 'pending ' : '') + (isRejecting ? 'rejected' : 'resolved') + ' promise', function(t) {
                 var rejectErr = isRejecting ? u.makeError() : undefined;
                 var p = makePromise(rejectErr);
                 if (!options.passThrough) rejectErr = undefined;
@@ -57,7 +57,7 @@ module.exports = {
                 u.execAsyncIf(function() {
                     u.checkAsync(function(handler) {
                         return fn(p, handler);
-                    }, done, error, rejectErr);
+                    }, t, rejectErr);
                 }, attachAsync, p, isRejecting);
             });
         }
@@ -77,10 +77,10 @@ module.exports = {
         var u = this;
         options = options || {};
 
-        u.it('calls callback synchronously', function(done, error) {
+        u.test('calls callback synchronously', function(t) {
             u.checkSync(function(handler) {
                 return fn(handler);
-            }, done, error, undefined, options.handler);
+            }, t, undefined, options.handler);
         });
     }
 };

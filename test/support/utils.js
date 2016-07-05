@@ -3,21 +3,17 @@
  * Utilities constructor
  */
 
-/* global it */
-
 // Modules
 var _ = require('lodash');
 
 // Imports
-var promises = require('./promises'),
+var test = require('./test'),
+    promises = require('./promises'),
     checks = require('./checks'),
     testSetsGroups = require('./testSets/groups'),
     testSetsPromise = require('./testSets/promise'),
     testSetsSyncAsync = require('./testSets/syncAsync'),
     testSetsBinding = require('./testSets/binding');
-
-// Constants
-var IT_MULTIPLE_ROUNDS = 3;
 
 // Exports
 function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion) {
@@ -28,6 +24,7 @@ function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion) {
     this.bluebirdVersion = bluebirdVersion;
 }
 
+// Define initial value for `nextId`, used by `.runInContext()`
 var nextId = 1;
 
 Utils.prototype = {
@@ -66,150 +63,6 @@ Utils.prototype = {
             value = fn(context);
         });
         return value;
-    },
-
-    /**
-     * Test runner function, replacement for mocha's `it()`.
-     * Calls mocha's 'it()' to create test case.
-     *
-     * Test function is called with `done` and `error` arguments.
-     * `error()` registers an error. Call with an error object.
-     * `done()` finishes the test and calls mocha's `it` done callback with any error that's been registered.
-     *
-     * `done` should be called with arguments:
-     *   - {Promise} promise - Promise to await resolution of to finish test
-     *   - {Error} [expectedErr] - Error expect `promise` to reject with, undefined if expect `promise` to resolve
-     *   - {Function} [final] - Function to run once promise has resolved just before ending test
-     *
-     * @param {string} name - Test name
-     * @param {Function} fn - Test function
-     * @returns {undefined}
-     */
-    it: function(name, fn) {
-        var u = this;
-        it(name, function(done) {
-            u._it(fn, done);
-        });
-    },
-
-    /**
-     * Same as`u.it()` but runs the test in parallel multiple times.
-     * If all test runs pass, executes callback with no error.
-     * If any test run fails, executes callback with first error received.
-     * Waits for all test runs to complete before calling callback, even if an error is encountered.
-     *
-     * Test function is called with `done` and `error` arguments.
-     * `error()` registers an error. Call with an error object.
-     * `done()` finishes the test and calls `cb()` callback with any error that's been registered.
-     *
-     * `done` should be called with arguments:
-     *   - {Promise} promise - Promise to await resolution of to finish test
-     *   - {Error} [expectedErr] - Error expect `promise` to reject with, undefined if expect `promise` to resolve
-     *   - {Function} [final] - Function to run once promise has resolved just before ending test
-     *
-     * @param {string} name - Name of test
-     * @param {Function} fn - Test function
-     * @returns {undefined}
-     */
-    itMultiple: function(name, fn) {
-        var u = this;
-    	it(name, function(mochaDone) {
-    		// Run `fn` multiple times
-    		var done = u.callbackAggregator(IT_MULTIPLE_ROUNDS, mochaDone);
-
-    		for (var i = 0; i < IT_MULTIPLE_ROUNDS; i++) {
-                u._it(fn, done);
-    		}
-        });
-    },
-
-    /**
-     * Calls test function with arguments `(done, error)`.
-     * `error()` registers an error. Call with an error object.
-     * `done()` finishes the test and calls `cb()` callback with any error that's been registered.
-     *
-     * `done` should be called with arguments:
-     *   - {Promise} promise - Promise to await resolution of to finish test
-     *   - {Error} [expectedErr] - Error expect `promise` to reject with, undefined if expect `promise` to resolve
-     *   - {Function} [final] - Function to run once promise has resolved just before ending test
-     *
-     * @private
-     * @param {Function} fn - Test function
-     * @param {Function} cb - Callback to call on completion
-     * @returns {undefined}
-     */
-    _it: function(fn, cb) {
-        var err;
-        var error = function(thisErr) {
-            if (thisErr && !err) err = thisErr;
-        };
-
-        var done = function(promise, expectedErr, final) {
-            promise.then(function() {
-                if (final) final();
-                if (expectedErr) error(new Error('Promise should not be resolved'));
-                cb(err);
-            }, function(rejectedErr) {
-                if (final) final();
-                if (!expectedErr || rejectedErr !== expectedErr) error(rejectedErr || new Error('Empty rejection'));
-                cb(err);
-            });
-        };
-
-        try {
-            fn(done, error);
-        } catch (err) {
-            cb(err);
-        }
-    },
-
-    /**
-     * Same as mocha's `it()` but runs the test in parallel multiple times.
-     * If all test runs pass, executes callback with no error.
-     * If any test run fails, executes callback with first error received.
-     * Waits for all test runs to complete before calling callback, even if an error is encountered.
-     * Test functions are passed `cb` argument which must be called at end of test run.
-     *
-     * @param {string} name - Name of test
-     * @param {Function} fn - Test function
-     * @returns {undefined}
-     */
-    // Not used. TODO remove this!
-    itMultipleMocha: function(name, fn) {
-        var u = this;
-    	it(name, function(mochaDone) {
-    		// Run `fn` multiple times
-    		var done = u.callbackAggregator(IT_MULTIPLE_ROUNDS, mochaDone);
-
-    		for (var i = 0; i < IT_MULTIPLE_ROUNDS; i++) {
-    			try {
-    				fn.call(this, done);
-    			} catch (err) {
-    				done(err);
-    			}
-    		}
-        });
-    },
-
-    /**
-     * Make a callback function which calls superior callback when it's been called a number of times.
-     * If called with no errors on any occasion, calls callback with no error.
-     * If called with an error on any occasion, executes callback with first error.
-     * Waits to be called expected number of times before calling callback, even if receives an early error.
-     * (i.e. does not call superior callback immediately on receipt of an error)
-     *
-     * @param {number} numCallbacks - Number of times expects callback to be called
-     * @param {Function} cb - Superior callback to be called with aggregate result
-     * @returns {Function} - Callback function
-     */
-    callbackAggregator: function(numCallbacks, cb) {
-    	var err;
-
-    	return function(thisErr) {
-    		if (thisErr && !err) err = thisErr;
-    		numCallbacks--;
-    		if (!numCallbacks) cb(err);
-    	};
     },
 
     /**
@@ -285,6 +138,7 @@ Utils.prototype = {
 };
 
 // mixins
+_.extend(Utils.prototype, test);
 _.extend(Utils.prototype, promises);
 _.extend(Utils.prototype, checks);
 _.extend(Utils.prototype, testSetsGroups);

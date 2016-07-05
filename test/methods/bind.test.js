@@ -12,20 +12,20 @@ var runTests = require('../support');
 
 runTests('Promise.bind()', function(u, Promise) {
     describe('returns instance of patched Promise constructor when passed', function() {
-        u.it('object', function(done, error) {
+        u.test('object', function(t) {
             var p = Promise.bind({});
-            error(u.returnErrIfNotPromise(p));
-            done(p);
+            t.error(u.returnErrIfNotPromise(p));
+            t.done(p);
         });
     });
 });
 
 runTests('.bind()', function(u, Promise) {
     describe('returns instance of patched Promise constructor when passed', function() {
-        u.it('object', function(done, error) {
+        u.test('object', function(t) {
             var p = Promise.resolve().bind({});
-            error(u.returnErrIfNotPromise(p));
-            done(p);
+            t.error(u.returnErrIfNotPromise(p));
+            t.done(p);
         });
     });
 });

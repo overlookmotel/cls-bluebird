@@ -24,11 +24,11 @@ module.exports = {
         var u = this;
         options = options || {};
 
-        u.it(options.name || 'binds callback', function(done, error) {
+        u.test(options.name || 'binds callback', function(t) {
             u.runInContext(function(context) {
                 u.checkBound(function(handler) {
                     return fn(handler);
-                }, context, done, error, {asyncOnly: options.asyncOnly});
+                }, context, t, {asyncOnly: options.asyncOnly});
             });
         });
     },
@@ -52,12 +52,12 @@ module.exports = {
 
         var makePromise = options.continues ? u.resolveSyncMethod() : u.rejectSyncMethod();
 
-        u.it(options.name || 'binds callback', function(done, error) {
+        u.test(options.name || 'binds callback', function(t) {
             var p = makePromise();
             u.runInContext(function(context) {
                 u.checkBound(function(handler) {
                     return fn(p, handler);
-                }, context, done, error);
+                }, context, t);
             });
         });
     },
@@ -77,10 +77,10 @@ module.exports = {
         var u = this;
         options = options || {};
 
-        u.it(options.name || 'does not bind callback', function(done, error) {
+        u.test(options.name || 'does not bind callback', function(t) {
             u.checkNotBound(function(handler) {
                 return fn(handler);
-            }, done, error, options.handler);
+            }, t, options.handler);
         });
     },
 
@@ -102,12 +102,12 @@ module.exports = {
 
         var makePromise = options.continues ? u.resolveSyncMethod() : u.rejectSyncMethod();
 
-        u.itMultiple('callback runs in context', function(done, error) {
+        u.testMultiple('callback runs in context', function(t) {
             var p = makePromise();
             u.runInContext(function(context) {
                 u.checkRunContext(function(handler) {
                     return fn(p, handler);
-                }, context, done, error);
+                }, context, t);
             });
         });
     }

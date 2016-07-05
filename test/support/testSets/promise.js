@@ -64,14 +64,14 @@ module.exports = {
 
         function tests(makePromise, handlerShouldBeCalled, isRejecting, attachAsync) {
             if (!options.noUndefined) {
-                u.it('is undefined', function(done, error) {
+                u.test('is undefined', function(t) {
                     var rejectErr = isRejecting ? u.makeError() : undefined;
                     var p = makePromise(rejectErr);
 
                     u.execAsyncIf(function() {
                         p = fn(p, undefined);
-                        error(u.returnErrIfNotPromise(p));
-                        done(p, rejectErr);
+                        t.error(u.returnErrIfNotPromise(p));
+                        t.done(p, rejectErr);
                     }, attachAsync, p, isRejecting);
                 });
             }
@@ -95,17 +95,17 @@ module.exports = {
             }
 
             // Handler should not be called
-            u.it('is ignored', function(done, error) {
+            u.test('is ignored', function(t) {
                 var rejectErr = isRejecting ? u.makeError() : undefined;
                 var p = makePromise(rejectErr);
 
                 u.execAsyncIf(function() {
                     p = fn(p, function() {
-                        error(new Error('Handler should not be called'));
+                        t.error(new Error('Handler should not be called'));
                     });
 
-                    error(u.returnErrIfNotPromise(p));
-                    done(p, rejectErr);
+                    t.error(u.returnErrIfNotPromise(p));
+                    t.done(p, rejectErr);
                 }, attachAsync, p, isRejecting);
             });
         }
@@ -182,11 +182,11 @@ module.exports = {
 
         u.testSetMethodValueReturnsPromise(fn);
 
-        u.it('thrown error', function(done, error) {
+        u.test('thrown error', function(t) {
             var rejectErr = u.makeError();
 			fn(u.throwMethod(rejectErr), function(p) {
-                error(u.returnErrIfNotPromise(p));
-                done(p, rejectErr);
+                t.error(u.returnErrIfNotPromise(p));
+                t.done(p, rejectErr);
             });
 		});
     },
@@ -210,10 +210,10 @@ module.exports = {
     testSetMethodValueReturnsPromise: function(fn) {
         var u = this;
 
-        u.it('literal value', function(done, error) {
+        u.test('literal value', function(t) {
             fn(u.literalMethod(), function(p, rejectErr) {
-                error(u.returnErrIfNotPromise(p));
-                done(p, rejectErr);
+                t.error(u.returnErrIfNotPromise(p));
+                t.done(p, rejectErr);
             });
         });
 
@@ -222,33 +222,33 @@ module.exports = {
 
             var _describe = (AltPromise ? describe : describe.skip);
             _describe('promise (' + altPromiseParams.name + ')', function() {
-                u.it('resolved sync', function(done, error) {
+                u.test('resolved sync', function(t) {
                     fn(u.resolveSyncMethodAlt(AltPromise), function(p, rejectErr) {
-                        error(u.returnErrIfNotPromise(p));
-                        done(p, rejectErr);
+                        t.error(u.returnErrIfNotPromise(p));
+                        t.done(p, rejectErr);
                     });
                 });
 
-                u.it('resolved async', function(done, error) {
+                u.test('resolved async', function(t) {
                     fn(u.resolveAsyncMethodAlt(AltPromise), function(p, rejectErr) {
-                        error(u.returnErrIfNotPromise(p));
-                        done(p, rejectErr);
+                        t.error(u.returnErrIfNotPromise(p));
+                        t.done(p, rejectErr);
                     });
                 });
 
-                u.it('rejected sync', function(done, error) {
+                u.test('rejected sync', function(t) {
                     var rejectErr = u.makeError();
                     fn(u.rejectSyncMethodAlt(AltPromise, rejectErr), function(p) {
-                        error(u.returnErrIfNotPromise(p));
-                        done(p, rejectErr);
+                        t.error(u.returnErrIfNotPromise(p));
+                        t.done(p, rejectErr);
                     });
                 });
 
-                u.it('rejected async', function(done, error) {
+                u.test('rejected async', function(t) {
                     var rejectErr = u.makeError();
                     fn(u.rejectSyncMethodAlt(AltPromise, rejectErr), function(p) {
-                        error(u.returnErrIfNotPromise(p));
-                        done(p, rejectErr);
+                        t.error(u.returnErrIfNotPromise(p));
+                        t.done(p, rejectErr);
                     });
                 });
             });
