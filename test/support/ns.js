@@ -29,10 +29,3 @@ shimmer.wrap(ns, 'bind', function(bind) {
 		return fnBound;
 	};
 });
-
-/*
-var fnBound = bind.call(this, function() {
-	if (originalFn._bound.length > 1 && originalFn !== fn) console.log('Function bound ' + originalFn._bound.length + ' times: ' + originalFn.toString());
-	return fn.apply(this, arguments);
-});
-*/

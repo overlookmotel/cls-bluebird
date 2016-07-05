@@ -17,18 +17,16 @@ module.exports = {
      * @param {Function} fn - Test function
      * @param {Object} [options] - Options object
      * @param {boolean} [options.name] - Test name
-     * @param {boolean} [options.asyncOnly] - Test for binding in handler only, not that it was bound immediately
      * @returns {undefined}
      */
     testSetCallbackBound: function(fn, options) {
         var u = this;
-        options = options || {};
 
         u.test(options.name || 'binds callback', function(t) {
             u.runInContext(function(context) {
                 u.checkBound(function(handler) {
                     return fn(handler);
-                }, context, t, {asyncOnly: options.asyncOnly});
+                }, context, t);
             });
         });
     },
