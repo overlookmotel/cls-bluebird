@@ -43,20 +43,22 @@ module.exports = {
             }
 
             if (options.catches) {
-                test(u.rejectSyncMethodError(), false, true, attachAsync);
-                test(u.rejectAsyncMethodError(), true, true, attachAsync);
+                test(u.rejectSyncMethod(), false, true, attachAsync);
+                test(u.rejectAsyncMethod(), true, true, attachAsync);
             }
         }
 
-        function test(makePromise, pending, isRejecting, attachAsync) {
-            u.test((pending ? 'pending ' : '') + (isRejecting ? 'rejected' : 'resolved') + ' promise', function(t) {
+        function test(makePromise, pending, rejects, attachAsync) {
+            u.test((pending ? 'pending ' : '') + (rejects ? 'rejected' : 'resolved') + ' promise', function(t) {
                 var p = makePromise();
-                
+
                 u.execAsyncIf(function() {
                     u.checkAsync(function(handler) {
-                        return fn(p, handler);
-                    }, t, isRejecting && options.passThrough);
-                }, attachAsync, p, isRejecting);
+                        var newP = fn(p, handler);
+                        if (options.passThrough) u.inheritRejectStatus(newP, p);
+                        return newP;
+                    }, t);
+                }, attachAsync, p);
             });
         }
     },
@@ -78,7 +80,7 @@ module.exports = {
         u.test('calls callback synchronously', function(t) {
             u.checkSync(function(handler) {
                 return fn(handler);
-            }, t, undefined, options.handler);
+            }, t, options.handler);
         });
     }
 };

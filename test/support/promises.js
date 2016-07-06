@@ -5,6 +5,8 @@
  * Mixin to Utils prototype.
  */
 
+// Exports
+
 module.exports = {
     /**
      * Function to create default literal value.
@@ -12,7 +14,7 @@ module.exports = {
      * @returns {Array}
      */
     makeValue: function() {
-        return [1, 2, 3];
+        return 1;
     },
 
     /**
@@ -46,18 +48,22 @@ module.exports = {
 
     rejectSyncAlt: function(Promise, err) {
         if (err === undefined) err = this.makeError();
-        return new Promise(function(resolve, reject) { // jshint ignore:line
+        var p = new Promise(function(resolve, reject) { // jshint ignore:line
             reject(err);
         });
+        this.setRejectStatus(p);
+        return p;
     },
 
     rejectAsyncAlt: function(Promise, err) {
         if (err === undefined) err = this.makeError();
-        return new Promise(function(resolve, reject) { // jshint ignore:line
+        var p = new Promise(function(resolve, reject) { // jshint ignore:line
             setImmediate(function() {
                 reject(err);
             });
         });
+        this.setRejectStatus(p);
+        return p;
     },
 
     /*
@@ -113,21 +119,6 @@ module.exports = {
     	};
     },
 
-    // TODO delete these 2 methods if not used
-    rejectSyncMethodErrorAlt: function(Promise) {
-        var u = this;
-        return function(err) {
-    		return u.rejectSyncAlt(Promise, err);
-    	};
-    },
-
-    rejectAsyncMethodErrorAlt: function(Promise) {
-        var u = this;
-        return function(err) {
-    		return u.rejectAsyncAlt(Promise, err);
-    	};
-    },
-
     /*
      * Set of functions to create functions which return promises.
      * Promises resolve or reject either synchronously or asynchronously.
@@ -147,15 +138,6 @@ module.exports = {
 
     rejectAsyncMethod: function(err) {
         return this.rejectAsyncMethodAlt(this.Promise, err);
-    },
-
-    // TODO delete these 2 methods if not used
-    rejectSyncMethodError: function() {
-        return this.rejectSyncMethodErrorAlt(this.Promise);
-    },
-
-    rejectAsyncMethodError: function() {
-        return this.rejectAsyncMethodErrorAlt(this.Promise);
     },
 
     /*

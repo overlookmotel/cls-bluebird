@@ -51,20 +51,19 @@ module.exports = function(u) {
     	/**
     	 * Completes test.
     	 * @param {Promise} promise - Test completes when this promise settles
-    	 * @param {boolean} [rejects] - true if promise is expected to reject, false if not
     	 * @param {Function} [final] - Function to execute after promise settles but before test completes.
     	 *        Last chance to register an error e.g. an event should have happened before this point but didn't.
     	 * @returns {undefined}
     	 */
-    	done: function(promise, rejects, final) {
+    	done: function(promise, final) {
     		var test = this;
     		promise.then(function() {
     			if (final) final();
-    			if (rejects) test.error(new Error('Promise should not be resolved'));
+    			if (u.getRejectStatus(promise)) test.error(new Error('Promise should not be resolved'));
     			test._done(this._err);
     		}, function(err) {
     			if (final) final();
-    			if (!rejects || !(err instanceof TestError)) test.error(err || new Error('Empty rejection'));
+    			if (!u.getRejectStatus(promise) || !(err instanceof TestError)) test.error(err || new Error('Empty rejection'));
     			test._done(this._err);
     		});
     	}

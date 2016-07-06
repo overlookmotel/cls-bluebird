@@ -16,9 +16,10 @@ var runTests = require('../support');
 runTests('Promise.reject()', function(u, Promise) {
     describe('returns instance of patched Promise constructor when passed', function() {
         u.test('error object', function(t) {
-            var p = Promise.reject();
+            var p = Promise.reject(u.makeError());
+            u.setRejectStatus(p);
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, true);
+            t.done(p);
         });
     });
 });

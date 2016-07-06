@@ -27,13 +27,13 @@ runTests('new Promise()', function(u, Promise) {
         u.test('rejected sync', function(t) {
             var p = u.rejectSync();
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, true);
+            t.done(p);
         });
 
         u.test('rejected async', function(t) {
             var p = u.rejectAsync();
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, true);
+            t.done(p);
         });
 
         it('unresolved', function() {
@@ -47,7 +47,7 @@ runTests('new Promise()', function(u, Promise) {
             });
 
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, true);
+            t.done(p);
         });
     });
 

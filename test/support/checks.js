@@ -19,12 +19,11 @@ module.exports = {
      *
      * @param {Function} fn - Function to run.
      * @param {Test} t - Test object
-     * @param {boolean} [rejects] - true if promise rejects, false if not
      * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkSync: function(fn, t, rejects, handler) {
-        this.checkSyncAsync(fn, true, t, rejects, handler);
+    checkSync: function(fn, t, handler) {
+        this.checkSyncAsync(fn, true, t, handler);
     },
 
     /**
@@ -38,12 +37,11 @@ module.exports = {
      *
      * @param {Function} fn - Function to run.
      * @param {Test} t - Test object
-     * @param {boolean} [rejects] - true if promise rejects, false if not
      * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkAsync: function(fn, t, rejects, handler) {
-        this.checkSyncAsync(fn, false, t, rejects, handler);
+    checkAsync: function(fn, t, handler) {
+        this.checkSyncAsync(fn, false, t, handler);
     },
 
     /**
@@ -61,11 +59,10 @@ module.exports = {
      * @param {Function} fn - Function to run.
      * @param {boolean} expectSync - true if expect callback to be called sync, false if expect async
      * @param {Test} t - Test object
-     * @param {boolean} [rejects] - true if promise rejects, false if not
      * @param {Function} [handler] - Handler function
      * @returns {undefined}
      */
-    checkSyncAsync: function(fn, expectSync, t, rejects, handler) {
+    checkSyncAsync: function(fn, expectSync, t, handler) {
         // Create handler
         var sync = true,
             called = false;
@@ -81,7 +78,7 @@ module.exports = {
     	sync = false;
 
         // Check handler was called
-        t.done(p, rejects, function() {
+        t.done(p, function() {
             if (!called) t.error(new Error('Callback not called'));
         });
     },
@@ -113,7 +110,7 @@ module.exports = {
     	var p = fn(handlerWrapped);
 
         // Check handler was called
-        t.done(p, null, function() {
+        t.done(p, function() {
             if (!called) t.error(new Error('Callback not called'));
         });
     },
@@ -153,7 +150,7 @@ module.exports = {
     	t.error(u.returnErrIfNotBound(handler, context));
 
         // Check handler was called
-        t.done(p, null, function() {
+        t.done(p, function() {
             if (!called) t.error(new Error('Callback not called'));
         });
     },
@@ -184,7 +181,7 @@ module.exports = {
     	var p = fn(handler);
 
         // Check handler was called
-        t.done(p, null, function() {
+        t.done(p, function() {
             if (!called) t.error(new Error('Callback not called'));
         });
     },

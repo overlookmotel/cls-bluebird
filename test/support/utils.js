@@ -16,6 +16,9 @@ var addCtors = require('./ctors'),
     testSetsSyncAsync = require('./testSets/syncAsync'),
     testSetsBinding = require('./testSets/binding');
 
+// Constants
+var REJECT_STATUS_KEY = '__clsBluebirdTestRejectStatus';
+
 // Exports
 function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion) {
     this.Promise = Promise;
@@ -77,13 +80,12 @@ Utils.prototype = {
      * @param {Function} fn - Function to execute
      * @param {boolean} later - true if to run in next tick, false if to run now
      * @param {Promise} promise - Promise
-     * @param {boolean} suppress - true to suppress unhandled rejections (only if `later == true` too)
      * @returns {undefined}
      */
-    execAsyncIf: function(fn, later, promise, suppress) {
+    execAsyncIf: function(fn, later, promise) {
         var u = this;
         if (later) {
-            if (suppress) u.suppressUnhandledRejections(promise);
+            if (u.getRejectStatus(promise)) u.suppressUnhandledRejections(promise);
             u.awaitPromise(promise, fn);
         } else {
             fn();
@@ -128,6 +130,36 @@ Utils.prototype = {
                 checkResolved();
             });
         })();
+    },
+
+    /**
+     * Get rejection status of promise.
+     * @param {Promise} - Promise to get status of
+     * @returns {boolean} - true if rejecting, false if not
+     */
+    getRejectStatus: function(promise) {
+        return !!promise[REJECT_STATUS_KEY];
+    },
+
+    /**
+     * Set rejection status of promise as rejecting.
+     * @param {Promise} - Promise to set status of
+     * @returns {Promise} - Input promise
+     */
+    setRejectStatus: function(promise) {
+        promise[REJECT_STATUS_KEY] = true;
+        return promise;
+    },
+
+    /**
+     * Inherit rejection status from one promise to another.
+     * @param {Promise} target - Target promise
+     * @param {Promise} source - Source promise
+     * @returns {Promise} - Target promise
+     */
+    inheritRejectStatus: function(target, source) {
+        target[REJECT_STATUS_KEY] = !!source[REJECT_STATUS_KEY];
+        return target;
     },
 
     /**
