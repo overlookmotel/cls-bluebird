@@ -22,8 +22,9 @@ module.exports = {
 	 * @returns {undefined}
      */
 	test: function(name, fn) {
+		var u = this;
 		it(name, function(done) {
-            runTest(fn, done);
+            u._runTest(fn, done);
         });
 	},
 
@@ -40,33 +41,35 @@ module.exports = {
      * @returns {undefined}
      */
 	testMultiple: function(name, fn) {
+		var u = this;
 		it(name, function(done) {
     		done = callbackAggregator(TEST_MULTIPLE_ROUNDS, done);
 
     		for (var i = 0; i < TEST_MULTIPLE_ROUNDS; i++) {
-                runTest(fn, done);
+                u._runTest(fn, done);
     		}
         });
+	},
+
+	/**
+	 * Run a test function.
+	 * `fn` is called with a Test object, bound to provided `done` callback.
+	 * If test function throws, error is passed to `done` callback.
+	 * Otherwise completion of test is controlled by Test object's `.done()` method.
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Function} done - Callback function
+	 */
+	_runTest: function(fn, done) {
+		var Test = this.Test;
+		var t = new Test(done);
+		try {
+			fn(t);
+		} catch (err) {
+			done(err);
+		}
 	}
 };
-
-/**
- * Run a test function.
- * `fn` is called with a Test object, bound to provided `done` callback.
- * If test function throws, error is passed to `done` callback.
- * Otherwise completion of test is controlled by Test object's `.done()` method.
- *
- * @param {Function} fn - Test function
- * @param {Function} done - Callback function
- */
-function runTest(fn, done) {
-	var t = new Test(done);
-	try {
-		fn(t);
-	} catch (err) {
-		done(err);
-	}
-}
 
 /**
  * Return a callback function which calls superior callback when it's been called a number of times.
@@ -88,47 +91,3 @@ function callbackAggregator(numCallbacks, cb) {
 		if (!numCallbacks) cb(err);
 	};
 }
-
-/**
- * Test object constructor.
- * @constructor
- * @param {Function} done - Callback to be called when test is complete (i.e. `test.done()` is called)
- */
-function Test(done) {
-	this._done = done;
-}
-
-Test.prototype = {
-	/**
-	 * Register error.
-	 * If called with a value, it is registered as error for the test.
-	 * (if an error is already registered, it is ignored - 1st error takes precedence)
-	 * @param {Error|undefined}
-	 * @returns {undefined}
-	 */
-	error: function(err) {
-		if (err !== undefined && !this._err) this._err = err;
-	},
-
-	/**
-	 * Completes test.
-	 * @param {Promise} promise - Test completes when this promise settles
-	 * @param {Error|undefined} [expectedErr] - If promise is expected to reject, the error it should reject with.
-	 *        If promise expected to resolve without error, should be `undefined`
-	 * @param {Function} [final] - Function to execute after promise settles but before test completes.
-	 *        Last chance to register an error e.g. an event should have happened before this point but didn't.
-	 * @returns {undefined}
-	 */
-	done: function(promise, expectedErr, final) {
-		var test = this;
-		promise.then(function() {
-			if (final) final();
-			if (expectedErr !== undefined) test.error(new Error('Promise should not be resolved'));
-			test._done(this._err);
-		}, function(err) {
-			if (final) final();
-			if (expectedErr === undefined || err !== expectedErr) test.error(err || new Error('Empty rejection'));
-			test._done(this._err);
-		});
-	}
-};

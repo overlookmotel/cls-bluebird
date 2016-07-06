@@ -52,12 +52,12 @@ module.exports = {
             });
 
             describe('rejected sync', function() {
-                var makePromise = u.rejectSyncMethodError();
+                var makePromise = u.rejectSyncMethod();
                 tests(makePromise, options.catches, true, attachAsync);
             });
 
             describe('rejected async', function() {
-                var makePromise = u.rejectAsyncMethodError();
+                var makePromise = u.rejectAsyncMethod();
                 tests(makePromise, options.catches, true, attachAsync);
             });
         }
@@ -65,13 +65,12 @@ module.exports = {
         function tests(makePromise, handlerShouldBeCalled, isRejecting, attachAsync) {
             if (!options.noUndefined) {
                 u.test('is undefined', function(t) {
-                    var rejectErr = isRejecting ? u.makeError() : undefined;
-                    var p = makePromise(rejectErr);
+                    var p = makePromise();
 
                     u.execAsyncIf(function() {
                         p = fn(p, undefined);
                         t.error(u.returnErrIfNotPromise(p));
-                        t.done(p, rejectErr);
+                        t.done(p, isRejecting);
                     }, attachAsync, p, isRejecting);
                 });
             }
@@ -80,13 +79,11 @@ module.exports = {
                 // Handler should be called
                 describe('returns', function() {
                     u.testSetMethodReturnsPromise(function(handler, cb) {
-                        var rejectErr = isRejecting ? u.makeError() : undefined;
-                        var p = makePromise(rejectErr);
-                        if (!options.passThrough) rejectErr = undefined;
+                        var p = makePromise();
 
                         u.execAsyncIf(function() {
                             p = fn(p, handler);
-                            cb(p, rejectErr);
+                            cb(p, isRejecting && options.passThrough);
                         }, attachAsync, p, isRejecting);
                     });
                 });
@@ -96,8 +93,7 @@ module.exports = {
 
             // Handler should not be called
             u.test('is ignored', function(t) {
-                var rejectErr = isRejecting ? u.makeError() : undefined;
-                var p = makePromise(rejectErr);
+                var p = makePromise();
 
                 u.execAsyncIf(function() {
                     p = fn(p, function() {
@@ -105,7 +101,7 @@ module.exports = {
                     });
 
                     t.error(u.returnErrIfNotPromise(p));
-                    t.done(p, rejectErr);
+                    t.done(p, isRejecting);
                 }, attachAsync, p, isRejecting);
             });
         }
@@ -167,7 +163,7 @@ module.exports = {
      *
      * Test function `fn` is called with `handler` and `callback` functions.
      * `fn` should call the method being tested with `handler` as the callback,
-     * and call `callback` with resulting promise.
+     * and call `callback` with resulting promise and `rejects` (true if promise rejects).
      * e.g. `callback(Promise.try(handler))`
      *
      * A different `handler` is provided in each test.
@@ -183,10 +179,9 @@ module.exports = {
         u.testSetMethodValueReturnsPromise(fn);
 
         u.test('thrown error', function(t) {
-            var rejectErr = u.makeError();
-			fn(u.throwMethod(rejectErr), function(p) {
+            fn(u.throwMethod(), function(p) {
                 t.error(u.returnErrIfNotPromise(p));
-                t.done(p, rejectErr);
+                t.done(p, true);
             });
 		});
     },
@@ -197,7 +192,7 @@ module.exports = {
      *
      * Test function `fn` is called with `handler` and `callback` functions.
      * `fn` should call the method being tested with `handler` as the callback,
-     * and call `callback` with resulting promise.
+     * and call `callback` with resulting promise and `rejects` (true if promise rejects).
      * e.g. `callback(Promise.try(handler))`
      *
      * A different `handler` is provided in each test.
@@ -211,9 +206,9 @@ module.exports = {
         var u = this;
 
         u.test('literal value', function(t) {
-            fn(u.literalMethod(), function(p, rejectErr) {
+            fn(u.literalMethod(), function(p, rejects) {
                 t.error(u.returnErrIfNotPromise(p));
-                t.done(p, rejectErr);
+                t.done(p, rejects);
             });
         });
 
@@ -223,32 +218,30 @@ module.exports = {
             var _describe = (AltPromise ? describe : describe.skip);
             _describe('promise (' + altPromiseParams.name + ')', function() {
                 u.test('resolved sync', function(t) {
-                    fn(u.resolveSyncMethodAlt(AltPromise), function(p, rejectErr) {
+                    fn(u.resolveSyncMethodAlt(AltPromise), function(p, rejects) {
                         t.error(u.returnErrIfNotPromise(p));
-                        t.done(p, rejectErr);
+                        t.done(p, rejects);
                     });
                 });
 
                 u.test('resolved async', function(t) {
-                    fn(u.resolveAsyncMethodAlt(AltPromise), function(p, rejectErr) {
+                    fn(u.resolveAsyncMethodAlt(AltPromise), function(p, rejects) {
                         t.error(u.returnErrIfNotPromise(p));
-                        t.done(p, rejectErr);
+                        t.done(p, rejects);
                     });
                 });
 
                 u.test('rejected sync', function(t) {
-                    var rejectErr = u.makeError();
-                    fn(u.rejectSyncMethodAlt(AltPromise, rejectErr), function(p) {
+                    fn(u.rejectSyncMethodAlt(AltPromise), function(p) {
                         t.error(u.returnErrIfNotPromise(p));
-                        t.done(p, rejectErr);
+                        t.done(p, true);
                     });
                 });
 
                 u.test('rejected async', function(t) {
-                    var rejectErr = u.makeError();
-                    fn(u.rejectSyncMethodAlt(AltPromise, rejectErr), function(p) {
+                    fn(u.rejectSyncMethodAlt(AltPromise), function(p) {
                         t.error(u.returnErrIfNotPromise(p));
-                        t.done(p, rejectErr);
+                        t.done(p, true);
                     });
                 });
             });

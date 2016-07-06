@@ -25,18 +25,15 @@ runTests('new Promise()', function(u, Promise) {
         });
 
         u.test('rejected sync', function(t) {
-            var rejectErr = u.makeError();
-            var p = u.rejectSync(rejectErr);
+            var p = u.rejectSync();
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, rejectErr);
+            t.done(p, true);
         });
 
         u.test('rejected async', function(t) {
-            var rejectErr = u.makeError();
-            var p = u.rejectAsync(rejectErr);
-
+            var p = u.rejectAsync();
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, rejectErr);
+            t.done(p, true);
         });
 
         it('unresolved', function() {
@@ -45,13 +42,12 @@ runTests('new Promise()', function(u, Promise) {
         });
 
         u.test('handler throws', function(t) {
-            var rejectErr = u.makeError();
             var p = new Promise(function() {
-                throw rejectErr;
+                throw u.makeError();
             });
 
             t.error(u.returnErrIfNotPromise(p));
-            t.done(p, rejectErr);
+            t.done(p, true);
         });
     });
 

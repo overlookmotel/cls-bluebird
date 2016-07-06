@@ -7,7 +7,8 @@
 var _ = require('lodash');
 
 // Imports
-var test = require('./test'),
+var addCtors = require('./ctors'),
+    test = require('./test'),
     promises = require('./promises'),
     checks = require('./checks'),
     testSetsGroups = require('./testSets/groups'),
@@ -22,6 +23,8 @@ function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion) {
     this.ns = ns;
     this.altPromises = altPromises;
     this.bluebirdVersion = bluebirdVersion;
+
+    addCtors(this);
 }
 
 // Define initial value for `nextId`, used by `.runInContext()`

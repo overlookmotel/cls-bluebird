@@ -17,11 +17,11 @@ module.exports = {
 
     /**
      * Function to create default error.
-     * NB Creates an `OperationalError` rather than plain `Error` so can be caught by `.error()`
+     * Error is instance of TestError constructor.
      * @returns {Error}
      */
     makeError: function() {
-        return new this.Promise.OperationalError('<rejection value>');
+        return new this.TestError();
     },
 
     /*
@@ -113,6 +113,7 @@ module.exports = {
     	};
     },
 
+    // TODO delete these 2 methods if not used
     rejectSyncMethodErrorAlt: function(Promise) {
         var u = this;
         return function(err) {
@@ -148,6 +149,7 @@ module.exports = {
         return this.rejectAsyncMethodAlt(this.Promise, err);
     },
 
+    // TODO delete these 2 methods if not used
     rejectSyncMethodError: function() {
         return this.rejectSyncMethodErrorAlt(this.Promise);
     },

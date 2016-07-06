@@ -50,14 +50,12 @@ module.exports = {
 
         function test(makePromise, pending, isRejecting, attachAsync) {
             u.test((pending ? 'pending ' : '') + (isRejecting ? 'rejected' : 'resolved') + ' promise', function(t) {
-                var rejectErr = isRejecting ? u.makeError() : undefined;
-                var p = makePromise(rejectErr);
-                if (!options.passThrough) rejectErr = undefined;
-
+                var p = makePromise();
+                
                 u.execAsyncIf(function() {
                     u.checkAsync(function(handler) {
                         return fn(p, handler);
-                    }, t, rejectErr);
+                    }, t, isRejecting && options.passThrough);
                 }, attachAsync, p, isRejecting);
             });
         }

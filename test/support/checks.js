@@ -19,12 +19,12 @@ module.exports = {
      *
      * @param {Function} fn - Function to run.
      * @param {Test} t - Test object
-     * @param {Error} [rejectErr] - Error that expect promise to reject with
+     * @param {boolean} [rejects] - true if promise rejects, false if not
      * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkSync: function(fn, t, rejectErr, handler) {
-        this.checkSyncAsync(fn, true, t, rejectErr, handler);
+    checkSync: function(fn, t, rejects, handler) {
+        this.checkSyncAsync(fn, true, t, rejects, handler);
     },
 
     /**
@@ -38,12 +38,12 @@ module.exports = {
      *
      * @param {Function} fn - Function to run.
      * @param {Test} t - Test object
-     * @param {Error} [rejectErr] - Error that expect promise to reject with
+     * @param {boolean} [rejects] - true if promise rejects, false if not
      * @param {Function} [handler] - Optional handler function
      * @returns {undefined}
      */
-    checkAsync: function(fn, t, rejectErr, handler) {
-        this.checkSyncAsync(fn, false, t, rejectErr, handler);
+    checkAsync: function(fn, t, rejects, handler) {
+        this.checkSyncAsync(fn, false, t, rejects, handler);
     },
 
     /**
@@ -61,11 +61,11 @@ module.exports = {
      * @param {Function} fn - Function to run.
      * @param {boolean} expectSync - true if expect callback to be called sync, false if expect async
      * @param {Test} t - Test object
-     * @param {Error} [rejectErr] - Error that expect promise to reject with
+     * @param {boolean} [rejects] - true if promise rejects, false if not
      * @param {Function} [handler] - Handler function
      * @returns {undefined}
      */
-    checkSyncAsync: function(fn, expectSync, t, rejectErr, handler) {
+    checkSyncAsync: function(fn, expectSync, t, rejects, handler) {
         // Create handler
         var sync = true,
             called = false;
@@ -81,7 +81,7 @@ module.exports = {
     	sync = false;
 
         // Check handler was called
-        t.done(p, rejectErr, function() {
+        t.done(p, rejects, function() {
             if (!called) t.error(new Error('Callback not called'));
         });
     },
