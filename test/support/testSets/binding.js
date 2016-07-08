@@ -28,7 +28,7 @@ module.exports = {
 	 */
 	testSetProtoCallbackBound: function(fn, options) {
 		var u = this;
-		describe('binds callback on', function() {
+		describe('binds callback on a promise', function() {
 			u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
 				u.testBound(function(handler, p, cb) {
 					attach(function() {

@@ -30,11 +30,11 @@ module.exports = {
 		var u = this;
 		describe('returns instance of patched Promise constructor when passed', function() {
 			u.describeValues(function(makeValue) {
-				u.testIsPromise(function() {
+				u.testIsPromise(function(cb) {
 					var value = makeValue();
 					var p = fn(value);
 					u.inheritRejectStatus(p, value);
-					return p;
+					cb(p);
 				});
 			});
 		});
@@ -59,16 +59,18 @@ module.exports = {
 	testSetProtoMethodReceivingValueReturnsPromise: function(fn) {
 		var u = this;
 		describe('returns instance of patched Promise constructor when attached to promise', function() {
-			u.describeResolveRejectSyncAsync(function(makePromise) {
+			u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
 				describe('when value is', function() {
 					u.describeValues(function(makeValue) {
-						u.testIsPromise(function() {
+						u.testIsPromise(function(cb) {
 							var p = makePromise();
-							var value = makeValue();
 
-							var newP = fn(p, value);
-							if (u.getRejectStatus(p) || u.getRejectStatus(value)) u.setRejectStatus(newP);
-							return newP;
+							attach(function() {
+								var value = makeValue();
+								var newP = fn(p, value);
+								if (u.getRejectStatus(p) || u.getRejectStatus(value)) u.setRejectStatus(newP);
+								cb(newP);
+							}, p);
 						});
 					});
 				});

@@ -28,7 +28,7 @@ module.exports = {
 	 */
 	testSetProtoCallbackContext: function(fn, options) {
 		var u = this;
-		describe('callback runs in context on', function() {
+		describe('callback runs in context on a promise', function() {
 			u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
 				u.testRunContext(function(handler, p, cb) {
 					attach(function() {

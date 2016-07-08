@@ -64,15 +64,18 @@ module.exports = {
 
 	/**
 	 * Create `describe` test groups for promise of different types resolved/rejected sync/async.
+	 * Calls `testFn` with a function `makePromise` to create a promise.
+	 *
 	 * Cases cover:
 	 *   - promises made from each alterative Promise constructors
 	 *   - promises resolved or rejected
 	 *   - promises resolved/rejected sync or async
 	 *
-	 * @param {Function} testFn - Function to call for each `describe`. Called with `Promise` constructor.
+	 * @param {Function} testFn - Function to call for each `describe`.
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
 	describePromiseConstructorsResolveRejectSyncAsync: function(testFn, options) {
@@ -109,13 +112,16 @@ module.exports = {
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
 	describeResolveRejectSyncAsyncAttachSyncAsync: function(testFn, Promise, options) {
 		var u = this;
 		u.describeResolveRejectSyncAsync(function(makePromise) {
-			u.describeAttachSyncAsync(function(attach) {
-				testFn(makePromise, attach);
+			describe('and method attached', function() {
+				u.describeAttachSyncAsync(function(attach) {
+					testFn(makePromise, attach);
+				});
 			});
 		}, Promise, options);
 	},
@@ -131,6 +137,7 @@ module.exports = {
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
 	describeResolveRejectSyncAsync: function(testFn, Promise, options) {
@@ -139,11 +146,11 @@ module.exports = {
 		if (options.continues) {
 			describe('resolved', function() {
 				describe('sync', function() {
-					testFn(u.resolveSyncMethod(Promise));
+					testFn(u[options.creator ? 'resolveSyncCreator' : 'resolveSyncHandler'](Promise));
 				});
 
 				describe('async', function() {
-					testFn(u.resolveAsyncMethod(Promise));
+					testFn(u[options.creator ? 'resolveAsyncCreator' : 'resolveAsyncHandler'](Promise));
 				});
 			});
 		}
@@ -151,11 +158,11 @@ module.exports = {
 		if (options.catches) {
 			describe('rejected', function() {
 				describe('sync', function() {
-					testFn(u.rejectSyncMethod(Promise));
+					testFn(u.rejectSyncHandler(Promise));
 				});
 
 				describe('async', function() {
-					testFn(u.rejectAsyncMethod(Promise));
+					testFn(u.rejectAsyncHandler(Promise));
 				});
 			});
 		}
@@ -173,13 +180,13 @@ module.exports = {
 	describeAttachSyncAsync: function(testFn) {
 		var u = this;
 
-		describe('attached sync', function() {
+		describe('sync', function() {
 			testFn(function(fn) { // jshint ignore:line
 				fn();
 			});
 		});
 
-		describe('attached async', function() {
+		describe('async', function() {
 			testFn(function(fn, p) {
 				if (u.getRejectStatus(p)) u.suppressUnhandledRejections(p);
 				setImmediate(fn);

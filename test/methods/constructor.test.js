@@ -13,8 +13,9 @@ var runTests = require('../support');
 runTests('new Promise()', function(u, Promise) {
 	describe('returns instance of patched Promise constructor when', function() {
 		u.describeResolveRejectSyncAsync(function(makePromise) {
-			u.testIsPromise(function() {
-				return makePromise();
+			u.testIsPromise(function(cb) {
+				var p = makePromise();
+				cb(p);
 			});
 		}, Promise, {continues: true, catches: true});
 
@@ -40,11 +41,11 @@ runTests('new Promise()', function(u, Promise) {
 
 		function testValues(fn) {
 			u.describeValues(function(makeValue) {
-				u.testIsPromise(function() {
+				u.testIsPromise(function(cb) {
 					var value = makeValue();
 					var p = fn(value);
 					u.inheritRejectStatus(p, value);
-					return p;
+					cb(p);
 				});
 			});
 		}
@@ -56,12 +57,12 @@ runTests('new Promise()', function(u, Promise) {
 		});
 
 		describe('handler throws', function() {
-			u.testIsPromise(function() {
+			u.testIsPromise(function(cb) {
 				var p = new Promise(function() {
 					throw u.makeError();
 				});
 				u.setRejectStatus(p);
-				return p;
+				cb(p);
 			});
 		});
 	});

@@ -10,11 +10,11 @@
 module.exports = {
 	/**
 	 * Run a function and check it returns a promise from patched constructor.
-	 * `fn` is called immediately.
+	 * `fn` is called immediately and should call callback `cb` with promise to be tested.
 	 *
 	 * Checks:
-	 *   - `fn()` returns a promise
-	 *   - `fn()` returns a promise of the right type
+	 *   - `fn()` calls back with a promise
+	 *   - `fn()` calls back with a promise of the right type
 	 * Any failed check errors are registered on test object, and `t.done()` is called.
 	 *
 	 * @param {Function} fn - Function to run.
@@ -23,9 +23,10 @@ module.exports = {
 	testIsPromise: function(fn) {
 		var u = this;
 		u.test(function(t) {
-			var p = fn();
-			t.error(u.checkIsPromise(p));
-			t.done(p);
+			fn(function(p) {
+				t.error(u.checkIsPromise(p));
+				t.done(p);
+			});
 		});
 	},
 

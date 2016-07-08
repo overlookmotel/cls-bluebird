@@ -47,18 +47,18 @@ module.exports = {
 	 * Set of functions to create promises which resolve or reject either synchronously or asynchronously.
 	 * Promises are created from specified Promise constructor.
 	 */
-	resolveSync: function(Promise) {
-		var value = this.makeValue();
+	resolveSync: function(Promise, makeValue) {
+		if (!makeValue) makeValue = this.makeValue;
 		return new Promise(function(resolve) {
-			resolve(value);
+			resolve(makeValue());
 		});
 	},
 
-	resolveAsync: function(Promise) {
-		var value = this.makeValue();
+	resolveAsync: function(Promise, makeValue) {
+		if (!makeValue) makeValue = this.makeValue;
 		return new Promise(function(resolve) {
 			setImmediate(function() {
-				resolve(value);
+				resolve(makeValue());
 			});
 		});
 	},
@@ -88,21 +88,21 @@ module.exports = {
 	 * Promises resolve or reject either synchronously or asynchronously.
 	 * Promises are created from specified Promise constructor.
 	 */
-	resolveSyncMethod: function(Promise) {
+	resolveSyncHandler: function(Promise) {
 		var u = this;
 		return function() {
 			return u.resolveSync(Promise);
 		};
 	},
 
-	resolveAsyncMethod: function(Promise) {
+	resolveAsyncHandler: function(Promise) {
 		var u = this;
 		return function() {
 			return u.resolveAsync(Promise);
 		};
 	},
 
-	rejectSyncMethod: function(Promise) {
+	rejectSyncHandler: function(Promise) {
 		var u = this;
 		var fn = function() {
 			return u.rejectSync(Promise);
@@ -111,13 +111,33 @@ module.exports = {
 		return fn;
 	},
 
-	rejectAsyncMethod: function(Promise) {
+	rejectAsyncHandler: function(Promise) {
 		var u = this;
 		var fn = function() {
 			return u.rejectAsync(Promise);
 		};
 		this.setRejectStatus(fn);
 		return fn;
+	},
+
+	/*
+	 * Set of functions to create functions which return promises.
+	 * Unlike handler functions above, the functions returned will take a `makeValue` argument.
+	 * Promises resolve either synchronously or asynchronously.
+	 * Promises are created from specified Promise constructor.
+	 */
+	resolveSyncCreator: function(Promise) {
+		var u = this;
+		return function(makeValue) {
+			return u.resolveSync(Promise, makeValue);
+		};
+	},
+
+	resolveAsyncCreator: function(Promise) {
+		var u = this;
+		return function(makeValue) {
+			return u.resolveAsync(Promise, makeValue);
+		};
 	},
 
 	/**
