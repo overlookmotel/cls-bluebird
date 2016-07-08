@@ -73,10 +73,8 @@ module.exports = {
 
         // Run tests
         u.testSetProtoMethodReturnsPromise(fn, options);
-
         if (!options.noAsyncTest) u.testSetProtoCallbackAsync(fn, options);
         if (!options.noBindTest) u.testSetProtoCallbackBound(fn, options);
-
         u.testSetProtoCallbackContext(fn, options);
     }
 };

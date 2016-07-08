@@ -97,11 +97,27 @@ module.exports = {
         var u = this;
         describe('returns instance of patched Promise constructor when callback', function() {
             u.describeHandlers(function(handler) {
-                u.testIsPromise(function() {
-                    // TODO check handler is called in all cases
-                    var p = fn(handler);
+                u.test(function(t) {
+                    // Create handler
+                    var called = 0;
+
+                    var handlerWrapped = function() {
+                        called++;
+                        return handler.apply(this, arguments);
+                    };
+
+                    // Run test function with handler
+                    var p = fn(handlerWrapped);
                     u.inheritRejectStatus(p, handler);
-                    return p;
+
+                    // Check result is Promise
+                    t.error(u.checkIsPromise(p));
+
+                    // Check handler was called once
+                    t.done(p, function() {
+                        if (!called) t.error(new Error('Callback not called'));
+                        if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
+                    });
                 });
         	});
         });
@@ -172,16 +188,31 @@ module.exports = {
                     // Test all handlers
                     u.describeHandlers(function(handler) {
                         u.test(function(t) {
+                            // Create handler
+                            var called = 0;
+
+                        	var handlerWrapped = function() {
+                                called++;
+                                return handler.apply(this, arguments);
+                        	};
+
+                            // Create promise
                             var p = makePromise();
 
+                            // Run method on promise and pass handler
                             attach(function() {
-                                // TODO check handler is called in all cases
-                                var newP = fn(p, handler);
+                                var newP = fn(p, handlerWrapped);
                                 u.inheritRejectStatus(newP, handler);
                                 if (options.passThrough && u.getRejectStatus(p)) u.setRejectStatus(newP);
 
+                                // Check result is promise
                                 t.error(u.checkIsPromise(newP));
-                                t.done(newP);
+
+                                // Check handler was called once
+                                t.done(newP, function() {
+                                    if (!called) t.error(new Error('Callback not called'));
+                                    if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
+                                });
                             }, p);
                         });
                     });

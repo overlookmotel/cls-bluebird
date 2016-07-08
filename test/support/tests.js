@@ -73,7 +73,7 @@ module.exports = {
      * Whether expect sync or async callback is defined by `expectSync` argument.
      *
      * Checks:
-     *   - handler is called
+     *   - handler is called once
      *   - handler is called as expected (sync/async)
      * Any failed check errors are registered on test object, and `t.done()` is called.
      *
@@ -89,10 +89,10 @@ module.exports = {
         u.test(function(t) {
             // Create handler
             var sync = true,
-                called = false;
+                called = 0;
 
         	var handlerWrapped = function() {
-                called = true;
+                called++;
                 if (sync !== expectSync) t.error(new Error('Callback called ' + (expectSync ? 'asynchronously' : 'synchronously')));
                 if (handler) return handler.apply(this, arguments);
         	};
@@ -101,9 +101,10 @@ module.exports = {
         	fn(handlerWrapped, function(p) {
                 sync = false;
 
-                // Check handler was called
+                // Check handler was called once
                 t.done(p, function() {
                     if (!called) t.error(new Error('Callback not called'));
+                    if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
                 });
             });
         });
@@ -115,7 +116,7 @@ module.exports = {
      * `fn` should create a promise and call callback `cb` with it.
      *
      * Checks:
-     *   - handler is called
+     *   - handler is called once
      *   - Handler is bound to correct context
      *   - Handler is bound exactly once, synchronously after handler attached
      *   - Handler is not bound again before handler is executed (asynchronously)
@@ -138,10 +139,10 @@ module.exports = {
 
             u.runInContext(function(context) {
                 // Create handler
-                var called = false;
+                var called = 0;
 
             	var handlerWrapped = function() {
-                    called = true;
+                    called++;
                     t.error(u.checkBound(handlerWrapped, context));
                     if (handler) return handler.apply(this, arguments);
             	};
@@ -151,9 +152,10 @@ module.exports = {
                     // Check that bound synchronously
                 	t.error(u.checkBound(handlerWrapped, context));
 
-                    // Check handler was called
+                    // Check handler was called once
                     t.done(p, function() {
                         if (!called) t.error(new Error('Callback not called'));
+                        if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
                     });
                 });
             });
@@ -165,7 +167,7 @@ module.exports = {
      * `fn` is called immediately, and passed a handler.
      *
      * Checks:
-     *   - handler is called
+     *   - handler is called once
      *   - handler is not bound
      * Any failed check errors are registered on test object, and `t.done()` is called.
      *
@@ -179,10 +181,10 @@ module.exports = {
         var u = this;
         u.test(function(t) {
             // Create handler
-            var called = false;
+            var called = 0;
 
         	var handlerWrapped = function() {
-                called = true;
+                called++;
                 t.error(u.checkNotBound(handlerWrapped));
                 if (handler) return handler.apply(this, arguments);
         	};
@@ -190,9 +192,10 @@ module.exports = {
             // Run test function with handler
         	var p = fn(handlerWrapped);
 
-            // Check handler was called
+            // Check handler was called once
             t.done(p, function() {
                 if (!called) t.error(new Error('Callback not called'));
+                if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
             });
         });
     },
@@ -202,7 +205,7 @@ module.exports = {
      * `fn` is called immediately, and passed a handler.
      *
      * Checks:
-     *   - handler is called
+     *   - handler is called once
      *   - handler is run in correct context
      *
      * Any failed check errors are registered on test object, and `t.done()` is called.
@@ -223,19 +226,20 @@ module.exports = {
 
             u.runInContext(function(context) {
                 // Create handler
-                var called = false;
+                var called = 0;
 
             	var handlerWrapped = function() {
-                    called = true;
+                    called++;
                     if (u.ns.active !== context) t.error(new Error('Function run in wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(u.ns.active) + ')'));
                     if (handler) return handler.apply(this, arguments);
             	};
 
                 // Run test function with handler
             	fn(handlerWrapped, preResult, function(p) {
-                    // Check handler was called
+                    // Check handler was called once
                     t.done(p, function() {
                         if (!called) t.error(new Error('Callback not called'));
+                        if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
                     });
                 });
             });
