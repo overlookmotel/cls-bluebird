@@ -20,7 +20,7 @@ module.exports = {
 	 * @param {string} name - Test case name
 	 * @param {Function} fn - Test function
 	 * @returns {undefined}
-     */
+	 */
 	test: function(name, fn) {
 		var u = this;
 
@@ -30,22 +30,22 @@ module.exports = {
 		}
 
 		it(name, function(done) {
-            u._runTest(fn, done);
-        });
+			u._runTest(fn, done);
+		});
 	},
 
 	/**
-     * Same as`u.test()` but runs the test in parallel multiple times.
-     * If all test runs pass, executes callback with no error.
-     * If any test run fails, executes callback with first error received.
-     * Waits for all test runs to complete before calling callback, even if an error is encountered.
-     *
+	 * Same as`u.test()` but runs the test in parallel multiple times.
+	 * If all test runs pass, executes callback with no error.
+	 * If any test run fails, executes callback with first error received.
+	 * Waits for all test runs to complete before calling callback, even if an error is encountered.
+	 *
 	 * Test function is passed a Test object with `.error()` and `.done()` methods.
-     *
-     * @param {string} name - Name of test
-     * @param {Function} fn - Test function
-     * @returns {undefined}
-     */
+	 *
+	 * @param {string} name - Name of test
+	 * @param {Function} fn - Test function
+	 * @returns {undefined}
+	 */
 	testMultiple: function(name, fn) {
 		var u = this;
 
@@ -55,12 +55,12 @@ module.exports = {
 		}
 
 		it(name, function(done) {
-    		done = callbackAggregator(TEST_MULTIPLE_ROUNDS, done);
+			done = callbackAggregator(TEST_MULTIPLE_ROUNDS, done);
 
-    		for (var i = 0; i < TEST_MULTIPLE_ROUNDS; i++) {
-                u._runTest(fn, done);
-    		}
-        });
+			for (var i = 0; i < TEST_MULTIPLE_ROUNDS; i++) {
+				u._runTest(fn, done);
+			}
+		});
 	},
 
 	/**

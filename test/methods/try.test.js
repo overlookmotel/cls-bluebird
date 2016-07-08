@@ -14,13 +14,13 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.try()', function(u, Promise) {
-    u.testSetStaticMethodSyncHandler(function(handler) {
-        return Promise.try(handler);
-    });
+	u.testSetStaticMethodSyncHandler(function(handler) {
+		return Promise.try(handler);
+	});
 });
 
 runTests('Promise.attempt()', function(u, Promise) { // jshint ignore:line
-    it('is alias of Promise.try()', function() {
-        expect(Promise.attempt).to.equal(Promise.try);
-    });
+	it('is alias of Promise.try()', function() {
+		expect(Promise.attempt).to.equal(Promise.try);
+	});
 });

@@ -14,24 +14,24 @@ var runTests = require('../support');
 // Run tests
 
 runTests('.catch()', function(u) {
-    describe('with 1st arg', function() {
-        u.testSetProtoMethodAsyncHandler(function(p, handler) {
-            return p.catch(handler);
-        }, {catches: true});
-    });
+	describe('with 1st arg', function() {
+		u.testSetProtoMethodAsyncHandler(function(p, handler) {
+			return p.catch(handler);
+		}, {catches: true});
+	});
 
-    describe('with 2nd arg', function() {
-        // NB In bluebird v3 handler is not bound when on 2nd arg.
-        // `.catch()` calls `.then()` synchronously but with proxy handler.
-        // No way to test for binding.
-        u.testSetProtoMethodAsyncHandler(function(p, handler) {
-            return p.catch(Error, handler);
-        }, {catches: true, noUndefined: true, noBindTest: (u.bluebirdVersion === 3)});
-    });
+	describe('with 2nd arg', function() {
+		// NB In bluebird v3 handler is not bound when on 2nd arg.
+		// `.catch()` calls `.then()` synchronously but with proxy handler.
+		// No way to test for binding.
+		u.testSetProtoMethodAsyncHandler(function(p, handler) {
+			return p.catch(Error, handler);
+		}, {catches: true, noUndefined: true, noBindTest: (u.bluebirdVersion === 3)});
+	});
 });
 
 runTests('.caught()', function(u, Promise) { // jshint ignore:line
-    it('is alias of .catch()', function() {
-        expect(Promise.prototype.caught).to.equal(Promise.prototype.catch);
-    });
+	it('is alias of .catch()', function() {
+		expect(Promise.prototype.caught).to.equal(Promise.prototype.catch);
+	});
 });

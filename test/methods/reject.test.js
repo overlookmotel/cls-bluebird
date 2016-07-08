@@ -14,19 +14,19 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.reject()', function(u, Promise) {
-    describe('returns instance of patched Promise constructor when passed', function() {
-        describe('error object', function() {
-            u.testIsPromise(function() {
-                var p = Promise.reject(u.makeError());
-                u.setRejectStatus(p);
-                return p;
-            });
-        });
-    });
+	describe('returns instance of patched Promise constructor when passed', function() {
+		describe('error object', function() {
+			u.testIsPromise(function() {
+				var p = Promise.reject(u.makeError());
+				u.setRejectStatus(p);
+				return p;
+			});
+		});
+	});
 });
 
 runTests('Promise.rejected()', function(u, Promise) { // jshint ignore:line
-    it('is alias of Promise.reject()', function() {
-        expect(Promise.rejected).to.equal(Promise.reject);
-    });
+	it('is alias of Promise.reject()', function() {
+		expect(Promise.rejected).to.equal(Promise.reject);
+	});
 });

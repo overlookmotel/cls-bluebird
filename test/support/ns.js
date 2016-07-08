@@ -23,9 +23,9 @@ shimmer.wrap(ns, 'bind', function(bind) {
 		if (!originalFn._bound) originalFn._bound = [];
 		originalFn._bound.push({ns: ns, context: context || ns.active});
 
-        var fnBound = bind.call(this, fn, context);
+		var fnBound = bind.call(this, fn, context);
 
-        fnBound._originalFn = originalFn;
+		fnBound._originalFn = originalFn;
 		return fnBound;
 	};
 });

@@ -7,7 +7,7 @@
 
 // Modules
 var expect = require('chai').expect,
-    _ = require('lodash');
+	_ = require('lodash');
 
 // Imports
 var runTests = require('../support');
@@ -15,96 +15,96 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Patch', function(u, Promise) {
-    describe('patches', function() {
-        describe('static method', function() {
-            var ignore = [
-                'onPossiblyUnhandledRejection',
-                'onUnhandledRejectionHandled',
-                'longStackTraces',
-                'hasLongStackTraces',
-                'config',
-                'getNewLibraryCopy',
-                'is',
-                'fromCallback',
-                'fromNode',
-                'promisify',
-                'promisifyAll',
-                'all',
-                'props',
-                'any',
-                'some',
-                'race',
-                'resolve',
-                'fulfilled',
-                'cast',
-                'reject',
-                'rejected',
-                'setScheduler',
-                'method',
-                'try',
-                'attempt',
-                'bind',
-                'settle',
-                'delay',
-                'defer',
-                'pending',
-                'clone' // comes from bluebird2 / bluebird3 libraries not bluebird itself
-            ];
+	describe('patches', function() {
+		describe('static method', function() {
+			var ignore = [
+				'onPossiblyUnhandledRejection',
+				'onUnhandledRejectionHandled',
+				'longStackTraces',
+				'hasLongStackTraces',
+				'config',
+				'getNewLibraryCopy',
+				'is',
+				'fromCallback',
+				'fromNode',
+				'promisify',
+				'promisifyAll',
+				'all',
+				'props',
+				'any',
+				'some',
+				'race',
+				'resolve',
+				'fulfilled',
+				'cast',
+				'reject',
+				'rejected',
+				'setScheduler',
+				'method',
+				'try',
+				'attempt',
+				'bind',
+				'settle',
+				'delay',
+				'defer',
+				'pending',
+				'clone' // comes from bluebird2 / bluebird3 libraries not bluebird itself
+			];
 
-            checkPatched(Promise, ignore);
-        });
+			checkPatched(Promise, ignore);
+		});
 
-        describe('prototype method', function() {
-            var ignore = [
-                'catch', // TODO only ignore on bluebird v3
-                'caught', // TODO only ignore on bluebird v3
-                'error',
-                'all',
-                'props',
-                'any',
-                'some',
-                'race',
-                'bind',
-                'isFulfilled',
-                'isRejected',
-                'isPending',
-                'isCancelled',
-                'isResolved',
-                'value',
-                'reason',
-                'reflect',
-                'settle',
-                'delay',
-                'timeout',
-                'get',
-                'return',
-                'thenReturn',
-                'throw',
-                'thenThrow',
-                'catchReturn',
-                'catchThrow',
-                'cancel',
-                'break',
-                'isCancellable',
-                'cancellable',
-                'uncancellable',
-                'suppressUnhandledRejections',
-                'toString',
-                'toJSON'
-            ];
-            checkPatched(Promise.prototype, ignore);
-        });
-    });
+		describe('prototype method', function() {
+			var ignore = [
+				'catch', // TODO only ignore on bluebird v3
+				'caught', // TODO only ignore on bluebird v3
+				'error',
+				'all',
+				'props',
+				'any',
+				'some',
+				'race',
+				'bind',
+				'isFulfilled',
+				'isRejected',
+				'isPending',
+				'isCancelled',
+				'isResolved',
+				'value',
+				'reason',
+				'reflect',
+				'settle',
+				'delay',
+				'timeout',
+				'get',
+				'return',
+				'thenReturn',
+				'throw',
+				'thenThrow',
+				'catchReturn',
+				'catchThrow',
+				'cancel',
+				'break',
+				'isCancellable',
+				'cancellable',
+				'uncancellable',
+				'suppressUnhandledRejections',
+				'toString',
+				'toJSON'
+			];
+			checkPatched(Promise.prototype, ignore);
+		});
+	});
 
-    describe('maintains method equality', function() {
-        it('static methods', function() {
-            checkEqual(Promise, u.UnpatchedPromise);
-        });
+	describe('maintains method equality', function() {
+		it('static methods', function() {
+			checkEqual(Promise, u.UnpatchedPromise);
+		});
 
-        it('prototype methods', function() {
-            checkEqual(Promise.prototype, u.UnpatchedPromise.prototype);
-        });
-    });
+		it('prototype methods', function() {
+			checkEqual(Promise.prototype, u.UnpatchedPromise.prototype);
+		});
+	});
 });
 
 /**
@@ -117,15 +117,15 @@ runTests('Patch', function(u, Promise) {
  * @returns {undefined}
  */
 function checkPatched(obj, ignore) {
-    _.forIn(obj, function(method, name) {
-        if (name.match(/^[A-Z_]/)) return;
-        if (ignore.indexOf(name) !== -1) return;
-        if (typeof method !== 'function') return;
+	_.forIn(obj, function(method, name) {
+		if (name.match(/^[A-Z_]/)) return;
+		if (ignore.indexOf(name) !== -1) return;
+		if (typeof method !== 'function') return;
 
-        it(name, function() {
-            if (!method.__wrapped) throw new Error("'" + name + "' method not patched"); // jshint ignore:line
-        });
-    });
+		it(name, function() {
+			if (!method.__wrapped) throw new Error("'" + name + "' method not patched"); // jshint ignore:line
+		});
+	});
 }
 
 /**
@@ -136,46 +136,46 @@ function checkPatched(obj, ignore) {
  * @throws {AssertionError} - If patching has changed things
  */
 function checkEqual(obj, unpatchedObj) {
-    var matchesUnpatched = getEquals(unpatchedObj);
-    var matchesPatched = getEquals(obj);
+	var matchesUnpatched = getEquals(unpatchedObj);
+	var matchesPatched = getEquals(obj);
 
-    expect(matchesPatched).to.deep.equal(matchesUnpatched);
+	expect(matchesPatched).to.deep.equal(matchesUnpatched);
 }
 
 /**
  * Loop through all object's methods and return array of any which are equal to each other.
  * e.g. `obj.method1 == obj.method2, obj.method3 == obj.method4`
- *      -> [ ['method1', 'method2'], ['method3', 'method4'] ]
+ *   -> [ ['method1', 'method2'], ['method3', 'method4'] ]
  *
  * @param {Object} obj - Object whose methods to check
  * @returns {Array} - Array of matches
  */
 function getEquals(obj) {
-    var keys = Object.keys(obj).sort();
+	var keys = Object.keys(obj).sort();
 
-    var matches = [],
-        matched = [];
-    keys.forEach(function(key) {
-        var method = obj[key];
-        if (typeof method !== 'function') return;
-        if (matches.indexOf(key) !== -1) return;
+	var matches = [],
+		matched = [];
+	keys.forEach(function(key) {
+		var method = obj[key];
+		if (typeof method !== 'function') return;
+		if (matches.indexOf(key) !== -1) return;
 
-        var thisMatches = [];
-        keys.forEach(function(otherKey) {
-            if (otherKey <= key) return;
+		var thisMatches = [];
+		keys.forEach(function(otherKey) {
+			if (otherKey <= key) return;
 
-            var otherMethod = obj[otherKey];
-            if (method === otherMethod) {
-                thisMatches.push(otherKey);
-                matched.push(otherKey);
-            }
-        });
+			var otherMethod = obj[otherKey];
+			if (method === otherMethod) {
+				thisMatches.push(otherKey);
+				matched.push(otherKey);
+			}
+		});
 
-        if (thisMatches.length) {
-            thisMatches.unshift(key);
-            matches.push(thisMatches);
-        }
-    });
+		if (thisMatches.length) {
+			thisMatches.unshift(key);
+			matches.push(thisMatches);
+		}
+	});
 
-    return matches;
+	return matches;
 }

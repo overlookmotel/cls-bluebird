@@ -71,9 +71,9 @@ module.exports = {
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `Promise` constructor.
 	 * @param {Object} options - Options object
-     * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-     * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-     * @returns {undefined}
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @returns {undefined}
 	 */
 	describePromiseConstructorsResolveRejectSyncAsync: function(testFn, options) {
 		var u = this;
@@ -91,13 +91,13 @@ module.exports = {
 		var u = this;
 
 		u.altPromises.forEach(function(altPromiseParams) {
-            var Promise = altPromiseParams.Promise;
+			var Promise = altPromiseParams.Promise;
 
-            var runThis = (Promise ? describe : describe.skip);
-            runThis('promise (' + altPromiseParams.name + ')', function() {
+			var runThis = (Promise ? describe : describe.skip);
+			runThis('promise (' + altPromiseParams.name + ')', function() {
 				testFn(Promise);
 			});
-        });
+		});
 	},
 
 	/**
@@ -107,9 +107,9 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`.
 	 * @param {Function} Promise - Promise constructor to create promises with
 	 * @param {Object} options - Options object
-     * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-     * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-     * @returns {undefined}
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @returns {undefined}
 	 */
 	describeResolveRejectSyncAsyncAttachSyncAsync: function(testFn, Promise, options) {
 		var u = this;
@@ -129,9 +129,9 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with function to create a promise.
 	 * @param {Function} Promise - Promise constructor to create promises with
 	 * @param {Object} options - Options object
-     * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-     * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-     * @returns {undefined}
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @returns {undefined}
 	 */
 	describeResolveRejectSyncAsync: function(testFn, Promise, options) {
 		var u = this;

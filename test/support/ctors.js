@@ -13,66 +13,66 @@ module.exports = function(u) {
 	var Promise = u.Promise;
 
 	/**
-     * TestError constructor.
+	 * TestError constructor.
 	 * All promises created in the tests that reject are rejected with a TestError.
 	 * NB Inherits from `Promise.OperationalError` rather than plain `Error` so can be caught by `.error()`
 	 * @constructor
 	 */
 	function TestError() {
-        Promise.OperationalError.call(this, '<rejection value>');
-        this.name = 'ClsBluebirdTestError';
-    }
-    util.inherits(TestError, Promise.OperationalError);
+		Promise.OperationalError.call(this, '<rejection value>');
+		this.name = 'ClsBluebirdTestError';
+	}
+	util.inherits(TestError, Promise.OperationalError);
 
 	// Add TestError to utils object
-    u.TestError = TestError;
+	u.TestError = TestError;
 
-    /**
-     * Test object constructor.
-     * @constructor
-     * @param {Function} done - Callback to be called when test is complete (i.e. `test.done()` is called)
-     */
-    function Test(done) {
-    	this._done = done;
-    }
+	/**
+	 * Test object constructor.
+	 * @constructor
+	 * @param {Function} done - Callback to be called when test is complete (i.e. `test.done()` is called)
+	 */
+	function Test(done) {
+		this._done = done;
+	}
 
-    Test.prototype = {
-    	/**
-    	 * Register error.
-    	 * If called with a value, it is registered as error for the test.
-    	 * (if an error is already registered, it is ignored - 1st error takes precedence)
+	Test.prototype = {
+		/**
+		 * Register error.
+		 * If called with a value, it is registered as error for the test.
+		 * (if an error is already registered, it is ignored - 1st error takes precedence)
 		 *
-    	 * @param {Error} [err] - Error to register
-    	 * @returns {undefined}
-    	 */
-    	error: function(err) {
+		 * @param {Error} [err] - Error to register
+		 * @returns {undefined}
+		 */
+		error: function(err) {
 			if (err !== undefined && this._err === undefined) {
 				if (!(err instanceof Error)) err = new Error(err);
 				this._err = err;
 			}
-    	},
+		},
 
-    	/**
-    	 * Completes test.
-    	 * @param {Promise} promise - Test completes when this promise settles
-    	 * @param {Function} [final] - Function to execute after promise settles but before test completes.
-    	 *        Last chance to register an error e.g. an event should have happened before this point but didn't.
-    	 * @returns {undefined}
-    	 */
-    	done: function(promise, final) {
-    		var test = this;
+		/**
+		 * Completes test.
+		 * @param {Promise} promise - Test completes when this promise settles
+		 * @param {Function} [final] - Function to execute after promise settles but before test completes.
+		 *		Last chance to register an error e.g. an event should have happened before this point but didn't.
+		 * @returns {undefined}
+		 */
+		done: function(promise, final) {
+			var test = this;
 			promise.then(function() {
 				if (final) final();
-    			if (u.getRejectStatus(promise)) test.error(new Error('Promise should not be resolved'));
+				if (u.getRejectStatus(promise)) test.error(new Error('Promise should not be resolved'));
 				test._done(test._err);
-    		}, function(err) {
+			}, function(err) {
 				if (final) final();
-    			if (!u.getRejectStatus(promise) || !(err instanceof TestError)) test.error(err || new Error('Empty rejection'));
+				if (!u.getRejectStatus(promise) || !(err instanceof TestError)) test.error(err || new Error('Empty rejection'));
 				test._done(test._err);
-    		});
-    	}
-    };
+			});
+		}
+	};
 
 	// Add Test to utils object
-    u.Test = Test;
+	u.Test = Test;
 };
