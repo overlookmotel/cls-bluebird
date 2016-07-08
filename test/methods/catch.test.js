@@ -15,7 +15,7 @@ var runTests = require('../support');
 
 runTests('.catch()', function(u) {
     describe('with 1st arg', function() {
-        u.testSetProtoMethodAsync(function(p, handler) {
+        u.testSetProtoMethodAsyncHandler(function(p, handler) {
             return p.catch(handler);
         }, {catches: true});
     });
@@ -25,7 +25,7 @@ runTests('.catch()', function(u) {
         // `.catch()` calls `.then()` synchronously but with proxy handler.
         // No way to test for binding.
         // TODO Add more tests that handler runs in correct CLS context
-        u.testSetProtoMethodAsync(function(p, handler) {
+        u.testSetProtoMethodAsyncHandler(function(p, handler) {
             return p.catch(Error, handler);
         }, {catches: true, noUndefined: true, noBindTest: (u.bluebirdVersion === 3)});
     });

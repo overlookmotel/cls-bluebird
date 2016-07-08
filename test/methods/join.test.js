@@ -10,11 +10,11 @@ var runTests = require('../support');
 
 // Run tests
 
+// TODO Intersect two promise return test sets - test all combinations of promise values and handler return values.
+//      This will make it work like the collection method tests.
 runTests('.join()', function(u, Promise) {
-    describe('returns instance of patched Promise constructor when resolving values are', function() {
-        u.testSetValueReturnsPromise(function(value) {
-            return Promise.join(value, value, value);
-        });
+    u.testSetStaticMethodReceivingValueReturnsPromise(function(value) {
+        return Promise.join(value, value, value);
     });
 
     /*
@@ -24,22 +24,24 @@ runTests('.join()', function(u, Promise) {
      * So async calling test is performed separately to allow for this.
      * TODO Change test once issue is fixed (if it is considered a bug).
      */
-    u.testSetProtoMethodAsync(function(p, handler) {
+    u.testSetProtoMethodAsyncHandler(function(p, handler) {
         return Promise.join(p, p, p, handler);
     }, {noUndefined: true, noAsyncTest: true});
 
     // Check callback called sync/async
     describe('calls callback', function() {
-        u.test('synchronously when promises are resolved', function(t) {
-            u.checkSync(function(handler) {
-                return Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), handler);
-            }, t);
+        describe('synchronously when promises are resolved', function() {
+            u.testSync(function(handler, cb) {
+                var p = Promise.join(Promise.resolve(1), Promise.resolve(2), Promise.resolve(3), handler);
+                cb(p);
+            });
         });
 
-        u.test('asynchronously when promises are pending', function(t) {
-            u.checkAsync(function(handler) {
-                return Promise.join(Promise.resolve(1), Promise.resolve(2).tap(function() {}), Promise.resolve(3), handler);
-            }, t);
+        describe('asynchronously when promises are pending', function() {
+            u.testAsync(function(handler, cb) {
+                var p = Promise.join(Promise.resolve(1), Promise.resolve(2).tap(function() {}), Promise.resolve(3), handler);
+                cb(p);
+            });
         });
     });
 });

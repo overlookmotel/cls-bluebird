@@ -8,7 +8,8 @@
 // Modules
 var Bluebird2 = require('bluebird2'),
     Bluebird3 = require('bluebird3'),
-    clsBluebird = require('../../lib');
+    clsBluebird = require('../../lib'),
+    mochaShim = require('./mochaShim');
 
 // Imports
 var ns = require('./ns'),
@@ -64,10 +65,13 @@ var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersio
  * @returns {undefined}
  */
 module.exports = function(name, testFn) {
+    // Apply mocha shim to collapse single `it` statements into parent `describe`
+    if (!describe.__shimmed) mochaShim();
+
     // Run tests
     describe(name + ' (' + versionName + ')', function() {
         testFn(utils, Promise);
-    });
+    }, true);
 };
 
 /*

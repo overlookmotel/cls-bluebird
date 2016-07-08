@@ -3,7 +3,7 @@
  * Tests for Promise.resolve()
  */
 
-/* global describe, it */
+/* global it */
 
 // Modules
 var expect = require('chai').expect;
@@ -14,10 +14,8 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.resolve()', function(u, Promise) {
-    describe('returns instance of patched Promise constructor when passed', function() {
-        u.testSetValueReturnsPromise(function(value) {
-            return Promise.resolve(value);
-        });
+    u.testSetStaticMethodReceivingValueReturnsPromise(function(value) {
+        return Promise.resolve(value);
     });
 });
 

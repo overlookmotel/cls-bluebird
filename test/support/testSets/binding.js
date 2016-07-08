@@ -5,32 +5,11 @@
  * Mixin to Utils prototype.
  */
 
+/* global describe */
+
 // Exports
 
 module.exports = {
-    /**
-     * Run set of tests on a method to ensure callback is always bound to CLS context.
-     * Function `fn` should call the method being tested on it.
-     * `fn` is called with a `handler` function which should be attached as the callback to the method under test.
-     * e.g. `return Promise.join(Promise.resolve().then(function() {}), handler)`
-     *
-     * @param {Function} fn - Test function
-     * @param {Object} [options] - Options object
-     * @param {boolean} [options.name] - Test name
-     * @returns {undefined}
-     */
-    testSetCallbackBound: function(fn, options) {
-        var u = this;
-
-        u.test(options.name || 'binds callback', function(t) {
-            u.runInContext(function(context) {
-                u.checkBound(function(handler) {
-                    return fn(handler);
-                }, context, t);
-            });
-        });
-    },
-
     /**
      * Run set of tests on a method to ensure callback is always bound to CLS context.
      * Function `fn` should take provided `promise` and call the method being tested on it.
@@ -42,71 +21,42 @@ module.exports = {
      * @param {Function} fn - Test function
      * @param {Object} options - Options object
      * @param {boolean} options.continues - true if handler fires on resolved promise
-     * @param {boolean} [options.name] - Test name
      * @returns {undefined}
      */
     testSetProtoCallbackBound: function(fn, options) {
         var u = this;
 
-        var makePromise = options.continues ? u.resolveSyncMethod() : u.rejectSyncMethod();
+        // TODO tests for attaching to promises which are resolved/rejected async?
+        // TODO tests for attaching method to promise in next tick?
+        // TODO would be better if promise was created outside of CLS context rather than inside
+        var makePromise = options.continues ? u.resolveSyncMethod(u.Promise) : u.rejectSyncMethod(u.Promise);
 
-        u.test(options.name || 'binds callback', function(t) {
-            var p = makePromise();
-            u.runInContext(function(context) {
-                u.checkBound(function(handler) {
-                    return fn(p, handler);
-                }, context, t);
-            });
+        describe('binds callback', function() {
+            u.testBound(function(handler) {
+                var p = makePromise();
+                return fn(p, handler);
+            }, options.handler);
         });
     },
 
     /**
-     * Run set of tests on a method to ensure callback is never bound to CLS context.
-     * `fn` is called with a `handler` function which should be attached as the callback to the method under test.
+     * Run set of tests on a static method to ensure callback is never bound to CLS context.
+     * Function `fn` should call the method being tested, attaching `handler` as the callback.
      * e.g. `return Promise.try(handler)`
      *
      * @param {Function} fn - Test function
      * @param {Object} [options] - Options object
      * @param {Function} [options.handler] - Optional handler function
-     * @param {boolean} [options.name] - Test name
      * @returns {undefined}
      */
-    testSetCallbackNotBound: function(fn, options) {
+    testSetStaticCallbackNotBound: function(fn, options) {
         var u = this;
         options = options || {};
 
-        u.test(options.name || 'does not bind callback', function(t) {
-            u.checkNotBound(function(handler) {
+        describe('does not bind callback', function() {
+            u.testNotBound(function(handler) {
                 return fn(handler);
-            }, t, options.handler);
-        });
-    },
-
-    /**
-     * Run set of tests on a method to ensure callback is always run in correct CLS context.
-     * Function `fn` should take provided `promise` and call the method being tested on it.
-     * `fn` is called with a `promise` and a `handler` function which should be attached as the callback to the method under test.
-     * e.g. `promise.then(handler)`
-     *
-     * If handler is being attached to catch rejections, `options.catches` should be `true`
-     *
-     * @param {Function} fn - Test function
-     * @param {Object} options - Options object
-     * @param {boolean} options.continues - true if handler fires on resolved promise
-     * @returns {undefined}
-     */
-    testSetProtoCallbackContext: function(fn, options) {
-        var u = this;
-
-        var makePromise = options.continues ? u.resolveSyncMethod() : u.rejectSyncMethod();
-
-        u.testMultiple('callback runs in context', function(t) {
-            var p = makePromise();
-            u.runInContext(function(context) {
-                u.checkRunContext(function(handler) {
-                    return fn(p, handler);
-                }, context, t);
-            });
+            }, options.handler);
         });
     }
 };

@@ -41,11 +41,15 @@ module.exports = function(u) {
     	 * Register error.
     	 * If called with a value, it is registered as error for the test.
     	 * (if an error is already registered, it is ignored - 1st error takes precedence)
-    	 * @param {Error|undefined}
+		 *
+    	 * @param {Error} [err] - Error to register
     	 * @returns {undefined}
     	 */
     	error: function(err) {
-    		if (err !== undefined && !this._err) this._err = err;
+			if (err !== undefined && this._err === undefined) {
+				if (!(err instanceof Error)) err = new Error(err);
+				this._err = err;
+			}
     	},
 
     	/**
@@ -57,14 +61,14 @@ module.exports = function(u) {
     	 */
     	done: function(promise, final) {
     		var test = this;
-    		promise.then(function() {
-    			if (final) final();
+			promise.then(function() {
+				if (final) final();
     			if (u.getRejectStatus(promise)) test.error(new Error('Promise should not be resolved'));
-    			test._done(this._err);
+				test._done(test._err);
     		}, function(err) {
-    			if (final) final();
+				if (final) final();
     			if (!u.getRejectStatus(promise) || !(err instanceof TestError)) test.error(err || new Error('Empty rejection'));
-    			test._done(this._err);
+				test._done(test._err);
     		});
     	}
     };

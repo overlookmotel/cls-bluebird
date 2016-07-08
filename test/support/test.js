@@ -23,6 +23,12 @@ module.exports = {
      */
 	test: function(name, fn) {
 		var u = this;
+
+		if (typeof name === 'function') {
+			fn = name;
+			name = '';
+		}
+
 		it(name, function(done) {
             u._runTest(fn, done);
         });
@@ -42,6 +48,12 @@ module.exports = {
      */
 	testMultiple: function(name, fn) {
 		var u = this;
+
+		if (typeof name === 'function') {
+			fn = name;
+			name = '';
+		}
+
 		it(name, function(done) {
     		done = callbackAggregator(TEST_MULTIPLE_ROUNDS, done);
 

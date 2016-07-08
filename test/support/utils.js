@@ -11,10 +11,13 @@ var addCtors = require('./ctors'),
     test = require('./test'),
     promises = require('./promises'),
     checks = require('./checks'),
-    testSetsGroups = require('./testSets/groups'),
-    testSetsPromise = require('./testSets/promise'),
-    testSetsSyncAsync = require('./testSets/syncAsync'),
-    testSetsBinding = require('./testSets/binding');
+    tests = require('./tests'),
+    describeSets = require('./describeSets'),
+    testSetPromise = require('./testSets/promise'),
+    testSetSyncAsync = require('./testSets/syncAsync'),
+    testSetBinding = require('./testSets/binding'),
+    testSetContext = require('./testSets/context'),
+    testSetGroups = require('./testSets/groups');
 
 // Constants
 var REJECT_STATUS_KEY = '__clsBluebirdTestRejectStatus';
@@ -72,52 +75,12 @@ Utils.prototype = {
     },
 
     /**
-     * Execute function synchronously or later dependng on condition.
-     * If `later == true` schedules function to run in next tick.
-     * Otherwise, executes function synchronously.
-     * If scheduling for later and `suppress == true` also suppresses unhandled rejections on promise.
-     *
-     * @param {Function} fn - Function to execute
-     * @param {boolean} later - true if to run in next tick, false if to run now
-     * @param {Promise} promise - Promise
-     * @returns {undefined}
-     */
-    execAsyncIf: function(fn, later, promise) {
-        var u = this;
-        if (later) {
-            if (u.getRejectStatus(promise)) u.suppressUnhandledRejections(promise);
-            u.awaitPromise(promise, fn);
-        } else {
-            fn();
-        }
-    },
-
-    /**
-     * Run function and pass return value/thrown error to node-style callback function.
-     * If function returns a value, this is passed to callback is 2nd arg.
-     * If function throws an error, this is passed to callback as 1st arg.
-     *
-     * @param {Function} fn - Function to execute
-     * @param {Function} cb - Callback function to call with result
-     * @returns {undefined}
-     */
-    toCallback: function(fn, cb) {
-    	var result;
-    	try {
-    		result = fn();
-    	} catch (err) {
-    		cb(err);
-    		return;
-    	}
-    	cb(null, result);
-    },
-
-    /**
-     * Await resolution of promise and call callback when resolved.
-     * Always calls callback asynchronously even if promise is resolved at start.
+     * Await settling of promise and call callback when settled.
+     * Callback is called regardless of whether promise resolves or rejects.
+     * Always calls callback asynchronously even if promise is already settled at time function is called.
      *
      * @param {Promise} promise - Promise to watch
-     * @param {Function} cb - Callback function called when promise is resolved
+     * @param {Function} cb - Callback function to call when promise is resolved
      * @returns {undefined}
      */
     awaitPromise: function(promise, cb) {
@@ -138,6 +101,7 @@ Utils.prototype = {
      * @returns {boolean} - true if rejecting, false if not
      */
     getRejectStatus: function(promise) {
+        if (!promise) return false;
         return !!promise[REJECT_STATUS_KEY];
     },
 
@@ -158,7 +122,7 @@ Utils.prototype = {
      * @returns {Promise} - Target promise
      */
     inheritRejectStatus: function(target, source) {
-        target[REJECT_STATUS_KEY] = !!source[REJECT_STATUS_KEY];
+        target[REJECT_STATUS_KEY] = this.getRejectStatus(source);
         return target;
     },
 
@@ -176,9 +140,12 @@ Utils.prototype = {
 _.extend(Utils.prototype, test);
 _.extend(Utils.prototype, promises);
 _.extend(Utils.prototype, checks);
-_.extend(Utils.prototype, testSetsGroups);
-_.extend(Utils.prototype, testSetsPromise);
-_.extend(Utils.prototype, testSetsSyncAsync);
-_.extend(Utils.prototype, testSetsBinding);
+_.extend(Utils.prototype, tests);
+_.extend(Utils.prototype, describeSets);
+_.extend(Utils.prototype, testSetPromise);
+_.extend(Utils.prototype, testSetSyncAsync);
+_.extend(Utils.prototype, testSetBinding);
+_.extend(Utils.prototype, testSetContext);
+_.extend(Utils.prototype, testSetGroups);
 
 module.exports = Utils;

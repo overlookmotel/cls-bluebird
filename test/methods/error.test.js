@@ -13,7 +13,7 @@ runTests('.error()', function(u) {
     // `.error()` calls `.catch()` synchronously which calls `.then()` synchronously but with proxy handler.
     // No way to test for binding.
     // TODO Add more tests that handler runs in correct CLS context
-    u.testSetProtoMethodAsync(function(p, handler) {
+    u.testSetProtoMethodAsyncHandler(function(p, handler) {
         return p.error(handler);
     }, {catches: true, noUndefined: true, noBindTest: (u.bluebirdVersion === 3)});
 });

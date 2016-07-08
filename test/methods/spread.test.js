@@ -3,22 +3,20 @@
  * Tests for .spread()
  */
 
-/* global describe */
-
 // Imports
 var runTests = require('../support');
 
 // Run tests
 
-// TODO tests for reject handler in bluebird v2
+// TODO Tests for reject handler in bluebird v2
+// TODO Intersect these two test sets - test all combinations of promise values and handler return values.
+//      This will make it work like the collection method tests.
 runTests('.spread()', function(u, Promise) {
-    describe('returns instance of patched Promise constructor when passed array containing', function() {
-        u.testSetValueReturnsPromise(function(value) {
-            return Promise.resolve([value, value]).spread(function() {});
-        });
+    u.testSetStaticMethodReceivingValueReturnsPromise(function(value) {
+        return Promise.resolve([value, value]).spread(function() {});
     });
 
-    u.testSetProtoMethodAsync(function(p, handler) {
+    u.testSetProtoMethodAsyncHandler(function(p, handler) {
         return p.spread(handler);
     }, {noUndefined: true});
 });
