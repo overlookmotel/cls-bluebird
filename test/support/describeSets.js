@@ -101,7 +101,31 @@ module.exports = {
 	},
 
 	/**
-	 * Create `describe` test groups for promise resolved/rejected sync/async
+	 * Create `describe` test groups for promise resolved/rejected sync/async and handler attached sync/async.
+	 * Calls `testFn` with a function `makePromise` to create a promise.
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`.
+	 * @param {Function} Promise - Promise constructor to create promises with
+	 * @param {Object} options - Options object
+     * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+     * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+     * @returns {undefined}
+	 */
+	describeResolveRejectSyncAsyncAttachSyncAsync: function(testFn, Promise, options) {
+		var u = this;
+		u.describeResolveRejectSyncAsync(function(makePromise) {
+			u.describeAttachSyncAsync(function(attach) {
+				testFn(makePromise, attach);
+			});
+		}, Promise, options);
+	},
+
+	/**
+	 * Create `describe` test groups for promise resolved/rejected sync/async.
+	 * Calls `testFn` with:
+	 *   - a function `makePromise` to create a promise
+	 *   - a function `attach` that schedules a function to run immediately or in next tick
+	 *
 	 * @param {Function} testFn - Function to call for each `describe`. Called with function to create a promise.
 	 * @param {Function} Promise - Promise constructor to create promises with
 	 * @param {Object} options - Options object
@@ -144,7 +168,6 @@ module.exports = {
 	 * on the promise.
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`. Called with function that.
-	 * @param {Function} Promise - Promise constructor to create promises with
 	 * @returns {undefined}
 	 */
 	describeAttachSyncAsync: function(testFn) {

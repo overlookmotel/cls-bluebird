@@ -21,21 +21,23 @@ module.exports = {
      * @param {Function} fn - Test function
      * @param {Object} options - Options object
      * @param {boolean} options.continues - true if handler fires on resolved promise
+     * @param {boolean} options.catches - true if handler fires on rejected promise
+     * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
+     * @param {Function} [options.handler] - Handler function
      * @returns {undefined}
      */
     testSetProtoCallbackContext: function(fn, options) {
         var u = this;
-
-        var makePromise = options.continues ? u.resolveSyncMethod(u.Promise) : u.rejectSyncMethod(u.Promise);
-
-        // TODO tests for attaching to promises which are resolved/rejected async?
-        // TODO tests for attaching method to promise in next tick?
-        // TODO would be better if promise was created outside of CLS context rather than inside
-        describe('callback runs in context', function() {
-            u.testRunContext(function(handler) {
-                var p = makePromise();
-                return fn(p, handler);
-            });
+        describe('callback runs in context on', function() {
+            u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
+                u.testRunContext(function(handler, p, cb) {
+                    attach(function() {
+                        var newP = fn(p, handler);
+                        if (options.passThrough) u.inheritRejectStatus(newP, p);
+                        cb(newP);
+                    }, p);
+                }, makePromise, options.handler);
+            }, u.Promise, options);
         });
     }
 };

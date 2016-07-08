@@ -112,6 +112,7 @@ module.exports = {
     /**
      * Runs a function and checks that when it calls back a handler, the handler has been bound to CLS context.
      * `fn` is called immediately, and passed a handler.
+     * `fn` should create a promise and call callback `cb` with it.
      *
      * Checks:
      *   - handler is called
@@ -121,15 +122,20 @@ module.exports = {
      *
      * Any failed check errors are registered on test object, and `t.done()` is called.
      *
-     * If `handler` argument is provided, it's executed as part of the handler.
+     * `preFn` (if provided) is executed before CLS context created and result passed to `fn` as 2nd arg.
+     * `handler` (if provided) is executed as part of the handler.
      *
      * @param {Function} fn - Function to run.
+     * @param {Function} [preFn] - Function to run before CLS context created
      * @param {Function} [handler] - Handler function
      * @returns {undefined}
      */
-    testBound: function(fn, handler) {
+    testBound: function(fn, preFn, handler) {
         var u = this;
         u.test(function(t) {
+            var preResult;
+            if (preFn) preResult = preFn();
+
             u.runInContext(function(context) {
                 // Create handler
                 var called = false;
@@ -141,14 +147,14 @@ module.exports = {
             	};
 
                 // Run test function with handler
-            	var p = fn(handlerWrapped);
+            	fn(handlerWrapped, preResult, function(p) {
+                    // Check that bound synchronously
+                	t.error(u.checkBound(handlerWrapped, context));
 
-            	// Check that bound synchronously
-            	t.error(u.checkBound(handlerWrapped, context));
-
-                // Check handler was called
-                t.done(p, function() {
-                    if (!called) t.error(new Error('Callback not called'));
+                    // Check handler was called
+                    t.done(p, function() {
+                        if (!called) t.error(new Error('Callback not called'));
+                    });
                 });
             });
         });
@@ -201,15 +207,20 @@ module.exports = {
      *
      * Any failed check errors are registered on test object, and `t.done()` is called.
      *
-     * If `handler` argument is provided, it's executed as part of the handler.
+     * `preFn` (if provided) is executed before CLS context created and result passed to `fn` as 2nd arg.
+     * `handler` (if provided) is executed as part of the handler.
      *
      * @param {Function} fn - Function to run.
+     * @param {Function} [preFn] - Function to run before CLS context created
      * @param {Function} [handler] - Handler function
      * @returns {undefined}
      */
-    testRunContext: function(fn, handler) {
+    testRunContext: function(fn, preFn, handler) {
         var u = this;
         u.testMultiple(function(t) {
+            var preResult;
+            if (preFn) preResult = preFn();
+
             u.runInContext(function(context) {
                 // Create handler
                 var called = false;
@@ -221,11 +232,11 @@ module.exports = {
             	};
 
                 // Run test function with handler
-            	var p = fn(handlerWrapped);
-
-                // Check handler was called
-                t.done(p, function() {
-                    if (!called) t.error(new Error('Callback not called'));
+            	fn(handlerWrapped, preResult, function(p) {
+                    // Check handler was called
+                    t.done(p, function() {
+                        if (!called) t.error(new Error('Callback not called'));
+                    });
                 });
             });
         });

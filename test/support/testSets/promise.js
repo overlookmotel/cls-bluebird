@@ -9,8 +9,6 @@
 
 // Exports
 
-// TODO check handler is called in all cases
-
 module.exports = {
     /**
      * Run set of tests on a static method which receives a value to ensure always returns a promise
@@ -100,6 +98,7 @@ module.exports = {
         describe('returns instance of patched Promise constructor when callback', function() {
             u.describeHandlers(function(handler) {
                 u.testIsPromise(function() {
+                    // TODO check handler is called in all cases
                     var p = fn(handler);
                     u.inheritRejectStatus(p, handler);
                     return p;
@@ -132,59 +131,58 @@ module.exports = {
     testSetProtoMethodReturnsPromise: function(fn, options) {
         var u = this;
         describe('returns instance of patched Promise constructor when called on promise', function() {
-            u.describeResolveRejectSyncAsync(function(makePromise) {
-                u.describeAttachSyncAsync(function(attach) {
-                    describe('and handler', function() {
-                        // Test undefined handler
-                        if (!options.noUndefined) {
-                            u.test('is undefined', function(t) {
-                                var p = makePromise();
+            u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
+                describe('and handler', function() {
+                    // Test undefined handler
+                    if (!options.noUndefined) {
+                        u.test('is undefined', function(t) {
+                            var p = makePromise();
 
-                                attach(function() {
-                                    var newP = fn(p, undefined);
-                                    u.inheritRejectStatus(newP, p);
+                            attach(function() {
+                                var newP = fn(p, undefined);
+                                u.inheritRejectStatus(newP, p);
 
-                                    t.error(u.checkIsPromise(newP));
-                                    t.done(newP);
-                                }, p);
-                            });
-                        }
+                                t.error(u.checkIsPromise(newP));
+                                t.done(newP);
+                            }, p);
+                        });
+                    }
 
-                        // If handler should not be fired on this promise, check is not fired
-                        var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+                    // If handler should not be fired on this promise, check is not fired
+                    var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 
-                        if (!handlerShouldBeCalled) {
-                            u.test('is ignored', function(t) {
-                                var p = makePromise();
+                    if (!handlerShouldBeCalled) {
+                        u.test('is ignored', function(t) {
+                            var p = makePromise();
 
-                                attach(function() {
-                                    var newP = fn(p, function() {
-                                        t.error(new Error('Handler should not be called'));
-                                    });
-                                    u.inheritRejectStatus(newP, p);
+                            attach(function() {
+                                var newP = fn(p, function() {
+                                    t.error(new Error('Handler should not be called'));
+                                });
+                                u.inheritRejectStatus(newP, p);
 
-                                    t.error(u.checkIsPromise(newP));
-                                    t.done(newP);
-                                }, p);
-                            });
-                            return;
-                        }
+                                t.error(u.checkIsPromise(newP));
+                                t.done(newP);
+                            }, p);
+                        });
+                        return;
+                    }
 
-                        // Handler should fire on this promise
-                        // Test all handlers
-                        u.describeHandlers(function(handler) {
-                            u.test(function(t) {
-                                var p = makePromise();
+                    // Handler should fire on this promise
+                    // Test all handlers
+                    u.describeHandlers(function(handler) {
+                        u.test(function(t) {
+                            var p = makePromise();
 
-                                attach(function() {
-                                    var newP = fn(p, handler);
-                                    u.inheritRejectStatus(newP, handler);
-                                    if (options.passThrough && u.getRejectStatus(p)) u.setRejectStatus(newP);
+                            attach(function() {
+                                // TODO check handler is called in all cases
+                                var newP = fn(p, handler);
+                                u.inheritRejectStatus(newP, handler);
+                                if (options.passThrough && u.getRejectStatus(p)) u.setRejectStatus(newP);
 
-                                    t.error(u.checkIsPromise(newP));
-                                    t.done(newP);
-                                }, p);
-                            });
+                                t.error(u.checkIsPromise(newP));
+                                t.done(newP);
+                            }, p);
                         });
                     });
                 });

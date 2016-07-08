@@ -28,17 +28,15 @@ module.exports = {
     testSetProtoCallbackAsync: function(fn, options) {
         var u = this;
         describe('calls callback asynchronously when called on promise', function() {
-            u.describeResolveRejectSyncAsync(function(makePromise) {
-                u.describeAttachSyncAsync(function(attach) {
-                    u.testAsync(function(handler, cb) {
-                        var p = makePromise();
+            u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
+                u.testAsync(function(handler, cb) {
+                    var p = makePromise();
 
-                        attach(function() {
-                            var newP = fn(p, handler);
-                            if (options.passThrough) u.inheritRejectStatus(newP, p);
-                            cb(newP);
-                        }, p);
-                    });
+                    attach(function() {
+                        var newP = fn(p, handler);
+                        if (options.passThrough) u.inheritRejectStatus(newP, p);
+                        cb(newP);
+                    }, p);
                 });
             }, u.Promise, options);
         });
