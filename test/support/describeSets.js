@@ -38,7 +38,7 @@ module.exports = {
 			});
 		}
 
-		u.describePromiseConstructorsResolveRejectSyncAsync(testFn, {continues: true, catches: true, creator: true});
+		u.describePromiseConstructorsResolveRejectSyncAsync(testFn, {continues: true, catches: true});
 	},
 
 	/**
@@ -153,7 +153,7 @@ module.exports = {
 
 				testFn(makePromise);
 			}, options);
-		}, u.Promise, {continues: true, catches: true, creator: true});
+		}, u.Promise, {continues: true, catches: true});
 	},
 
 	/**
@@ -214,7 +214,6 @@ module.exports = {
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
 	describePromiseConstructorsResolveRejectSyncAsync: function(testFn, options) {
@@ -251,7 +250,6 @@ module.exports = {
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
 	describeResolveRejectSyncAsyncAttachSyncAsync: function(testFn, Promise, options) {
@@ -276,21 +274,19 @@ module.exports = {
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
-	// TODO check if can just use `resolveSyncCreator` and `resolveAsyncCreator` all the time
 	describeResolveRejectSyncAsync: function(testFn, Promise, options) {
 		var u = this;
 
 		if (options.continues) {
 			describe('resolved', function() {
 				describe('sync', function() {
-					testFn(u[options.creator ? 'resolveSyncCreator' : 'resolveSyncHandler'](Promise));
+					testFn(u.resolveSyncHandler(Promise));
 				});
 
 				describe('async', function() {
-					testFn(u[options.creator ? 'resolveAsyncCreator' : 'resolveAsyncHandler'](Promise));
+					testFn(u.resolveAsyncHandler(Promise));
 				});
 			});
 		}

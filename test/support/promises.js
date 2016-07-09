@@ -56,18 +56,20 @@ module.exports = {
 	 */
 	resolveSync: function(Promise, makeValue) {
 		if (!makeValue) makeValue = this.valueCreator();
-		return new Promise(function(resolve) {
+		var p = new Promise(function(resolve) {
 			resolve(makeValue());
 		});
+		return this.inheritRejectStatus(p, makeValue);
 	},
 
 	resolveAsync: function(Promise, makeValue) {
 		if (!makeValue) makeValue = this.valueCreator();
-		return new Promise(function(resolve) {
+		var p = new Promise(function(resolve) {
 			setImmediate(function() {
 				resolve(makeValue());
 			});
 		});
+		return this.inheritRejectStatus(p, makeValue);
 	},
 
 	rejectSync: function(Promise) {
@@ -92,13 +94,14 @@ module.exports = {
 
 	/*
 	 * Set of functions to create functions which return promises.
-	 * Promises resolve or reject either synchronously or asynchronously.
+	 * Functions returned that resolve will take a `makeValue` argument.
+ 	 * Promises resolve or reject either synchronously or asynchronously.
 	 * Promises are created from specified Promise constructor.
 	 */
 	resolveSyncHandler: function(Promise) {
 		var u = this;
-		var makePromise = function() {
-			return u.resolveSync(Promise);
+		var makePromise = function(makeValue) {
+			return u.resolveSync(Promise, makeValue);
 		};
 		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
 		return makePromise;
@@ -106,8 +109,8 @@ module.exports = {
 
 	resolveAsyncHandler: function(Promise) {
 		var u = this;
-		var makePromise = function() {
-			return u.resolveAsync(Promise);
+		var makePromise = function(makeValue) {
+			return u.resolveAsync(Promise, makeValue);
 		};
 		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
 		makePromise.__async = true; // TODO Remove this once issue with unhandled rejections is solved
@@ -130,33 +133,6 @@ module.exports = {
 		};
 		this.setRejectStatus(fn);
 		return fn;
-	},
-
-	/*
-	 * Set of functions to create functions which return promises.
-	 * Unlike handler functions above, the functions returned will take a `makeValue` argument.
-	 * Promises resolve either synchronously or asynchronously.
-	 * Promises are created from specified Promise constructor.
-	 */
-	resolveSyncCreator: function(Promise) {
-		var u = this;
-		var makePromise = function(makeValue) {
-			var p = u.resolveSync(Promise, makeValue);
-			return u.inheritRejectStatus(p, makeValue);
-		};
-		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
-		return makePromise;
-	},
-
-	resolveAsyncCreator: function(Promise) {
-		var u = this;
-		var makePromise = function(makeValue) {
-			var p = u.resolveAsync(Promise, makeValue);
-			return u.inheritRejectStatus(p, makeValue);
-		};
-		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
-		makePromise.__async = true; // TODO Remove this once issue with unhandled rejections is solved
-		return makePromise;
 	},
 
 	/**
