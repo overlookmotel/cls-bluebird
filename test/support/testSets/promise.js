@@ -46,7 +46,7 @@ module.exports = {
 	 *
 	 * Test function `fn` is called with a `value`.
 	 * `fn` should call the method being tested with `value`, and return resulting promise.
-	 * e.g. `return Promise.resolve(value)`
+	 * e.g. `return promise.bind(value)`
 	 *
 	 * A different `value` is provided in each test:
 	 *   - literal value

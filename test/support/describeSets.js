@@ -10,11 +10,11 @@
 // Exports
 module.exports = {
 	/**
-	 * Create `describe` test groups for values that can be consumed by methods that take a value
+	 * Create `describe` test groups for values that can be consumed by methods that take a value.
 	 * e.g. `Promise.resolve(value)`.
-	 * Calls `testFn` with functions that create different values when called.
+	 * Calls `testFn` with `makeValue` function that creates different values when called.
 	 *
-	 * Values are:
+	 * Values returned by `makeValue` are:
 	 *   - literal value
 	 *   - undefined
 	 *   - promises of different types, resolved or rejected, async or sync
@@ -33,7 +33,7 @@ module.exports = {
 			testFn(u.makeUndefined);
 		});
 
-		u.describePromiseConstructorsResolveRejectSyncAsync(testFn, {continues: true, catches: true});
+		u.describePromiseConstructorsResolveRejectSyncAsync(testFn, {continues: true, catches: true, creator: true});
 	},
 
 	/**
@@ -54,7 +54,15 @@ module.exports = {
 		var u = this;
 
 		describe('returns', function() {
-			u.describeValues(testFn);
+			u.describeValues(function(makeValue) {
+				// Wrap `makeValue` so it takes no arguments as this will be used as a handler
+				// which receives arbitrary input which should be ignored.
+				var makeValueWrapped = function() {
+					return makeValue();
+				};
+				u.inheritRejectStatus(makeValueWrapped, makeValue);
+				testFn(makeValueWrapped);
+			});
 		});
 
 		describe('throws error', function() {
@@ -174,7 +182,7 @@ module.exports = {
 	 * If running in next tick, and promise attaching to is going to reject, it suppresses unhandled rejections
 	 * on the promise.
 	 *
-	 * @param {Function} testFn - Function to call for each `describe`. Called with function that.
+	 * @param {Function} testFn - Function to call for each `describe`
 	 * @returns {undefined}
 	 */
 	describeAttachSyncAsync: function(testFn) {
