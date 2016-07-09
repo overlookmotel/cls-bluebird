@@ -141,18 +141,25 @@ module.exports = {
 	describePromiseOfArrays: function(testFn, options) {
 		var u = this;
 		u.describeResolveRejectSyncAsync(function(makeValue) {
-			if (u.getRejectStatus(makeValue)) return testFn(makeValue);
+			if (u.getRejectStatus(makeValue)) {
+				describe('with error', function() {
+					testFn(makeValue);
+				});
+				return;
+			}
 
-			u.describeArrays(function(makeArray) {
-				// TODO Remove this wrapping once issue with unhandled rejections is solved
-				makeArray = wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u);
+			describe('with', function() {
+				u.describeArrays(function(makeArray) {
+					// TODO Remove this wrapping once issue with unhandled rejections is solved
+					makeArray = wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u);
 
-				var makePromise = function() {
-					return makeValue(makeArray);
-				};
+					var makePromise = function() {
+						return makeValue(makeArray);
+					};
 
-				testFn(makePromise);
-			}, options);
+					testFn(makePromise);
+				}, options);
+			});
 		}, u.Promise, {continues: true, catches: true});
 	},
 
@@ -324,8 +331,22 @@ module.exports = {
 
 		describe('async', function() {
 			testFn(function(fn, p) {
+				// If promise chaining onto is rejecting, suppress unhandled rejections
 				if (u.getRejectStatus(p)) u.suppressUnhandledRejections(p);
-				setImmediate(fn);
+
+				// If promise chaining onto resolves to array,
+				// suppress unhandled rejections on any promises in the array.
+				if (p.isFulfilled && p.isFulfilled()) {
+					var value = p.value();
+					if (Array.isArray(value)) {
+						value.forEach(function(item) {
+							if (isPromise(item)) u.suppressUnhandledRejections(item);
+						});
+					}
+				}
+
+				// Await promise's resolution before calling back
+				u.awaitPromise(p, fn);
 			});
 		});
 	}

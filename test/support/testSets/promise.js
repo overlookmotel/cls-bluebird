@@ -342,17 +342,23 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	// TODO test for attaching sync or async
 	testSetProtoMethodOnArrayReceivingNothingReturnsPromise: function(fn, options) {
 		var u = this;
 
-		describe('returns instance of patched Promise constructor when passed', function() {
+		describe('returns instance of patched Promise constructor when chained on promise', function() {
 			u.describePromiseOfArrays(function(makePromise) {
-				u.testIsPromise(function(cb) {
-					var p = makePromise();
-					var newP = fn(p);
-					u.inheritRejectStatus(newP, p);
-					cb(newP);
+				describe('and method attached', function() {
+					u.describeAttachSyncAsync(function(attach) {
+						u.testIsPromise(function(cb) {
+							var p = makePromise();
+
+							attach(function() {
+								var newP = fn(p);
+								u.inheritRejectStatus(newP, p);
+								cb(newP);
+							}, p);
+						});
+					});
 				});
 			}, options);
 		});
