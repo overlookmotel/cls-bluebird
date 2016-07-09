@@ -17,7 +17,11 @@ module.exports = {
 	 */
 	// TODO revert to returning number and find better way to deal with collection methods
 	makeValue: function(makeValue) {
-		if (makeValue) return makeValue();
+		if (makeValue) {
+			var value = makeValue();
+			return this.inheritRejectStatus(value, makeValue);
+		}
+
 		return [1, 2, 3];
 	},
 
@@ -51,14 +55,14 @@ module.exports = {
 	 * Promises are created from specified Promise constructor.
 	 */
 	resolveSync: function(Promise, makeValue) {
-		if (!makeValue) makeValue = this.makeValue;
+		if (!makeValue) makeValue = this.valueCreator();
 		return new Promise(function(resolve) {
 			resolve(makeValue());
 		});
 	},
 
 	resolveAsync: function(Promise, makeValue) {
-		if (!makeValue) makeValue = this.makeValue;
+		if (!makeValue) makeValue = this.valueCreator();
 		return new Promise(function(resolve) {
 			setImmediate(function() {
 				resolve(makeValue());
@@ -93,16 +97,21 @@ module.exports = {
 	 */
 	resolveSyncHandler: function(Promise) {
 		var u = this;
-		return function() {
+		var makePromise = function() {
 			return u.resolveSync(Promise);
 		};
+		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
+		return makePromise;
 	},
 
 	resolveAsyncHandler: function(Promise) {
 		var u = this;
-		return function() {
+		var makePromise = function() {
 			return u.resolveAsync(Promise);
 		};
+		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
+		makePromise.__async = true; // TODO Remove this once issue with unhandled rejections is solved
+		return makePromise;
 	},
 
 	rejectSyncHandler: function(Promise) {
@@ -131,15 +140,32 @@ module.exports = {
 	 */
 	resolveSyncCreator: function(Promise) {
 		var u = this;
-		return function(makeValue) {
-			return u.resolveSync(Promise, makeValue);
+		var makePromise = function(makeValue) {
+			var p = u.resolveSync(Promise, makeValue);
+			return u.inheritRejectStatus(p, makeValue);
 		};
+		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
+		return makePromise;
 	},
 
 	resolveAsyncCreator: function(Promise) {
 		var u = this;
+		var makePromise = function(makeValue) {
+			var p = u.resolveAsync(Promise, makeValue);
+			return u.inheritRejectStatus(p, makeValue);
+		};
+		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
+		makePromise.__async = true; // TODO Remove this once issue with unhandled rejections is solved
+		return makePromise;
+	},
+
+	/**
+	 * Function to create function that creates value
+	 */
+	valueCreator: function() {
+		var u = this;
 		return function(makeValue) {
-			return u.resolveAsync(Promise, makeValue);
+			return u.makeValue(makeValue);
 		};
 	},
 
@@ -147,7 +173,7 @@ module.exports = {
 	 * Function that returns function which throws error when called.
 	 * @returns {Function}
 	 */
-	throwMethod: function() {
+	throwHandler: function() {
 		var u = this;
 		var fn = function() {
 			u.makeThrow();

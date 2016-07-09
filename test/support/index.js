@@ -22,6 +22,10 @@ var bluebirdVersion = process.env.BLUEBIRD_VERSION * 1;
 var PatchedBluebird2 = patch(Bluebird2);
 var PatchedBluebird3 = patch(Bluebird3);
 
+// Add unhandled rejection handlers to alternative bluebird version
+addUnhandledRejectionHandler(Bluebird2);
+addUnhandledRejectionHandler(Bluebird3);
+
 // Get bluebird version to use for these tests
 var Promise, UnpatchedPromise, versionName, altPromises;
 if (bluebirdVersion === 2) {
@@ -31,7 +35,7 @@ if (bluebirdVersion === 2) {
 	altPromises = [
 		{name: 'this', Promise: PatchedBluebird2},
 		{name: 'bluebird v2 unpatched', Promise: Bluebird2},
-		//{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
+		{name: 'bluebird v3 patched', Promise: PatchedBluebird3},
 		{name: 'bluebird v3 unpatched', Promise: Bluebird3},
 		{name: 'native', Promise: global.Promise}
 	];
@@ -42,7 +46,7 @@ if (bluebirdVersion === 2) {
 	altPromises = [
 		{name: 'this', Promise: PatchedBluebird3},
 		{name: 'bluebird v3 unpatched', Promise: Bluebird3},
-		//{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
+		{name: 'bluebird v2 patched', Promise: PatchedBluebird2},
 		{name: 'bluebird v2 unpatched', Promise: Bluebird2},
 		{name: 'native', Promise: global.Promise}
 	];
@@ -88,13 +92,22 @@ function patch(Promise) {
 	// Patch bluebird with cls-bluebird
 	clsBluebird(ns, Promise);
 
-	// Register `onPossiblyUnhandledRejection` handler to exit with error
-	// if there is an unhandled promise rejection.
+	// Add unhandled rejection handler
+	addUnhandledRejectionHandler(Promise);
+
+	// Return bluebird constructor
+	return Promise;
+}
+
+/*
+ * Add unhandled rejection handler on this instance of Bluebird.
+ * Process will exit with error if there is an unhandled promise rejection.
+ * @param {Function} Promise - bluebird constructor
+ * @returns {undefined}
+ */
+function addUnhandledRejectionHandler(Promise) {
 	Promise.onPossiblyUnhandledRejection(function(err) {
 		console.log('Unhandled rejection:', err);
 		process.exit(1);
 	});
-
-	// Return bluebird constructor
-	return Promise;
 }

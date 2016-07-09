@@ -14,24 +14,29 @@ module.exports = {
 	 * e.g. `Promise.resolve(value)`.
 	 * Calls `testFn` with `makeValue` function that creates different values when called.
 	 *
-	 * Values returned by `makeValue` are:
+	 * `makeValue` returns:
 	 *   - literal value
 	 *   - undefined
-	 *   - promises of different types, resolved or rejected, async or sync
+	 *   - promises of different types, resolved or rejected, sync or async
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	describeValues: function(testFn) {
+	describeValues: function(testFn, options) {
 		var u = this;
+		options = options || {};
 
 		describe('literal value', function() {
-			testFn(u.makeValue);
+			testFn(u.valueCreator());
 		});
 
-		describe('undefined', function() {
-			testFn(u.makeUndefined);
-		});
+		if (!options.noUndefined) {
+			describe('undefined', function() {
+				testFn(u.makeUndefined);
+			});
+		}
 
 		u.describePromiseConstructorsResolveRejectSyncAsync(testFn, {continues: true, catches: true, creator: true});
 	},
@@ -45,7 +50,7 @@ module.exports = {
 	 *   - literal value
 	 *   - undefined
 	 *   - thrown error
-	 *   - promises of different types, resolved or rejected, async or sync
+	 *   - promises of different types, resolved or rejected, sync or async
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
 	 * @returns {undefined}
@@ -66,8 +71,134 @@ module.exports = {
 		});
 
 		describe('throws error', function() {
-			testFn(u.throwMethod());
+			testFn(u.throwHandler());
 		});
+	},
+
+	/**
+	 * Create `describe` test groups for array values that can be consumed by methods that take an array value.
+	 * e.g. `Promise.all(array)`.
+	 * Calls `testFn` with `makeArray` function that creates different arrays when called.
+	 *
+	 * `makeArray` returns:
+	 *   - undefined
+	 *   - array with members:
+	 *     - literal value
+	 *     - undefined
+	 *     - promises of different types, resolved or rejected, sync or async
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @returns {undefined}
+	 */
+	describeArrays: function(testFn, options) {
+		var u = this;
+		options = options || {};
+
+		if (!options.noUndefined) {
+			describe('undefined', function() {
+				testFn(u.makeUndefined);
+			});
+		}
+
+		describe('array containing', function() {
+			u.describeValues(function(makeValue) {
+				var makeArray = function() {
+					var value = [makeValue(), makeValue(), makeValue()];
+					u.inheritRejectStatus(value, makeValue);
+					return value;
+				};
+				u.inheritRejectStatus(makeArray, makeValue);
+
+				testFn(makeArray);
+			});
+		});
+	},
+
+	/**
+	 * Create `describe` test groups for promises of arrays that can be chained onto
+	 * by prototype methods that expect promise to resolve to an array value.
+	 * e.g. `promise.all()`.
+	 * Calls `testFn` with `makePromise` function that creates promises of different arrays when called.
+	 *
+	 * `makePromise` returns promises:
+	 *   - resolved sync or async with
+	 *     - undefined
+	 *     - array
+	 *   - rejected sync or async with error
+	 *
+	 * Arrays can have members:
+	 *   - literal value
+	 *   - undefined
+	 *   - promises of different types, resolved or rejected, sync or async
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @returns {undefined}
+	 */
+	describePromiseOfArrays: function(testFn, options) {
+		var u = this;
+		u.describeResolveRejectSyncAsync(function(makeValue) {
+			if (u.getRejectStatus(makeValue)) return testFn(makeValue);
+
+			u.describeArrays(function(makeArray) {
+				// TODO Remove this wrapping once issue with unhandled rejections is solved
+				makeArray = wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u);
+
+				var makePromise = function() {
+					return makeValue(makeArray);
+				};
+
+				testFn(makePromise);
+			}, options);
+		}, u.Promise, {continues: true, catches: true, creator: true});
+	},
+
+	/**
+	 * Create `describe` test groups for array values that can be consumed by methods that take an array value.
+	 * e.g. `Promise.all(array)`.
+	 * Calls `testFn` with `makePromise` function that creates different promises of arrays when called.
+	 *
+	 * `makePromise` returns:
+	 *   - undefined
+	 *   - array
+	 *   - promises of different types
+	 *     - resolved sync or async with
+	 *       - undefined
+	 *       - array
+	 *     - rejected sync or async with error
+	 *
+	 * Arrays can have members:
+	 *   - literal value
+	 *   - undefined
+	 *   - promises of different types, resolved or rejected, sync or async
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @returns {undefined}
+	 */
+	describeArrayOrPromiseOfArrays: function(testFn, options) {
+		var u = this;
+		options = options || {};
+
+		u.describeValues(function(makeValue) {
+			if (makeValue === u.makeUndefined || u.getRejectStatus(makeValue)) return testFn(makeValue);
+
+			u.describeArrays(function(makeArray) {
+				// TODO Remove this wrapping once issue with unhandled rejections is solved
+				makeArray = wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u);
+
+				var makePromise = function() {
+					return makeValue(makeArray);
+				};
+				u.inheritRejectStatus(makePromise, makeArray);
+
+				testFn(makePromise);
+			}, options);
+		}, options);
 	},
 
 	/**
@@ -148,6 +279,7 @@ module.exports = {
 	 * @param {boolean} [options.creator=false] - true if `makePromise` should accept a `makeValue` argument
 	 * @returns {undefined}
 	 */
+	// TODO check if can just use `resolveSyncCreator` and `resolveAsyncCreator` all the time
 	describeResolveRejectSyncAsync: function(testFn, Promise, options) {
 		var u = this;
 
@@ -202,3 +334,77 @@ module.exports = {
 		});
 	}
 };
+
+/*
+ * All code below relates to working around bug in bluebird where unhandled rejections are thrown
+ * inncorrectly in some cases.
+ * https://github.com/petkaantonov/bluebird/issues/1158
+ * TODO Remove this once issue with unhandled rejections is solved
+ */
+
+function wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u) {
+	var makeArrayWrapped = function() {
+		var array = makeArray();
+
+		if (Array.isArray(array) && makeValue.__constructor) {
+			array.forEach(function(item) {
+				if (createsUnhandledRejection(makeValue, item, u)) u.suppressUnhandledRejections(item);
+			});
+		}
+
+		return array;
+	};
+	u.inheritRejectStatus(makeArrayWrapped, makeArray);
+	return makeArrayWrapped;
+}
+
+function createsUnhandledRejection(makeValue, item, u) {
+	if (!isPromise(item) || !isBluebirdPromise(item) || !u.getRejectStatus(item)) return false;
+
+	if (makeValue.__constructor === u.Promise) {
+		return (u.bluebirdVersion !== 2 || !isBluebird2Promise(item))
+			&& !(item instanceof u.Promise)
+			&& makeValue.__async
+			&& !item.isPending();
+	}
+
+	if (isBluebirdCtor(makeValue.__constructor)) {
+		if (u.bluebirdVersion === 2) {
+			if (isBluebird2Ctor(makeValue.__constructor)) {
+				return isBluebirdPromise(item) && !isBluebird2Promise(item) && !item.isPending();
+			}
+
+			if (isBluebird2Promise(item)) return !item.isPending();
+		}
+
+		return !(item instanceof u.Promise) || !item.isPending();
+	}
+
+	return !(item instanceof u.Promise)
+		&& (u.bluebirdVersion !== 2 || !isBluebird2Promise(item))
+		&& !item.isPending();
+}
+
+function isPromise(p) {
+	if (!p) return false;
+	return typeof p.then === 'function';
+}
+
+function isBluebirdPromise(p) {
+	if (!isPromise(p)) return false;
+	return isBluebirdCtor(p.constructor);
+}
+
+function isBluebirdCtor(Promise) {
+	return typeof Promise === 'function' && !!Promise.prototype && typeof Promise.prototype._addCallbacks === 'function';
+}
+
+function isBluebird2Promise(p) {
+	if (!isBluebirdPromise(p)) return false;
+	return isBluebird2Ctor(p.constructor);
+}
+
+function isBluebird2Ctor(Promise) {
+	if (!isBluebirdCtor(Promise)) return false;
+	return Promise.version.slice(0, 2) === '2.';
+}

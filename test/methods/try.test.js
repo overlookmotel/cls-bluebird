@@ -16,7 +16,7 @@ var runTests = require('../support');
 runTests('Promise.try()', function(u, Promise) {
 	u.testSetStaticMethodSyncHandler(function(handler) {
 		return Promise.try(handler);
-	});
+	}, {noUndefined: true});
 });
 
 runTests('Promise.attempt()', function(u, Promise) { // jshint ignore:line

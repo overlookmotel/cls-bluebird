@@ -22,11 +22,15 @@ module.exports = {
 	 * e.g. `return Promise.try(handler)`
 	 *
 	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined handler
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodSyncHandler: function(fn) {
+	testSetStaticMethodSyncHandler: function(fn, options) {
 		var u = this;
-		u.testSetStaticMethodReceivingHandlerReturnsPromise(fn);
+		options = options || {};
+
+		u.testSetStaticMethodReceivingHandlerReturnsPromise(fn, options);
 		u.testSetStaticCallbackSync(fn);
 		u.testSetStaticCallbackNotBound(fn);
 	},
@@ -72,7 +76,7 @@ module.exports = {
 		_.defaults(options, {continues: !options.catches});
 
 		// Run tests
-		u.testSetProtoMethodReturnsPromise(fn, options);
+		u.testSetProtoMethodReceivingHandlerReturnsPromise(fn, options);
 		if (!options.noAsyncTest) u.testSetProtoCallbackAsync(fn, options);
 		if (!options.noBindTest) u.testSetProtoCallbackBound(fn, options);
 		u.testSetProtoCallbackContext(fn, options);
