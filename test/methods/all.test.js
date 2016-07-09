@@ -8,7 +8,7 @@ var runTests = require('../support');
 
 // Run tests
 runTests('Promise.all()', function(u, Promise) {
-	u.testSetStaticMethodReceivingArrayReturnsPromise(function(value) {
+	u.testSetStaticMethodReceivingArrayOrPromiseOfArrayReturnsPromise(function(value) {
 		return Promise.all(value);
 	}, {noUndefined: true});
 });

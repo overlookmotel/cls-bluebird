@@ -237,8 +237,44 @@ module.exports = {
 	},
 
 	/**
-	 * Run set of tests on a static method that takes an array to ensure always returns a promise
-	 * inherited from correct Promise constructor.
+	 * Run set of tests on a static method that takes an array (not promise of an array)
+	 * to ensure always returns a promise inherited from correct Promise constructor.
+	 *
+	 * Test function `fn` is called with an `array`.
+	 * `fn` should call the method being tested with `array`, and return resulting promise.
+	 * e.g. `return Promise.join.apply(Promise, array)`
+	 *
+	 * A different `array` is provided in each test, containing members:
+	 *   - literal value
+	 *   - undefined
+	 *   - promises of different types, resolved or rejected, sync or async
+	 *
+	 * If `options.noUndefined` is not true, a test is included for an undefined array.
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @returns {undefined}
+	 */
+	testSetStaticMethodReceivingArrayReturnsPromise: function(fn, options) {
+		var u = this;
+		options = options || {};
+
+		describe('returns instance of patched Promise constructor when passed', function() {
+			u.describeArrays(function(makeValue) {
+				u.testIsPromise(function(cb) {
+					var value = makeValue();
+					var p = fn(value);
+					u.inheritRejectStatus(p, value);
+					cb(p);
+				});
+			}, options);
+		});
+	},
+
+	/**
+	 * Run set of tests on a static method that takes an array or promise of an array
+	 * to ensure always returns a promise inherited from correct Promise constructor.
 	 *
 	 * Test function `fn` is called with a `value`.
 	 * `fn` should call the method being tested with `value`, and return resulting promise.
@@ -265,7 +301,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodReceivingArrayReturnsPromise: function(fn, options) {
+	testSetStaticMethodReceivingArrayOrPromiseOfArrayReturnsPromise: function(fn, options) {
 		var u = this;
 		options = options || {};
 
@@ -306,6 +342,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
+	// TODO test for attaching sync or async
 	testSetProtoMethodOnArrayReceivingNothingReturnsPromise: function(fn, options) {
 		var u = this;
 
