@@ -11,10 +11,34 @@
 
 module.exports = {
 	/**
-	 * Run set of tests on a method to ensure callback is always run in correct CLS context.
-	 * Function `fn` should take provided `promise` and call the method being tested on it.
+	 * Run set of tests on a static method to ensure callback is always run in correct CLS context.
+	 * Function `fn` should call the static method being tested and return resulting promise.
 	 * `fn` is called with a `promise` and a `handler` function which should be attached as the callback to the method under test.
-	 * e.g. `promise.then(handler)`
+	 * e.g. `Promise.try(handler)`
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {Function} [options.handler] - Handler function
+	 * @param {Function} [options.preFn] - Handler function
+	 * @returns {undefined}
+	 */
+	testSetCallbackContextStatic: function(fn, options) {
+		var u = this;
+		options = options || {};
+
+		describe('callback runs in context', function() {
+			u.testRunContext(function(handler, preResult, cb) {
+				var p = fn(handler, preResult);
+				cb(p);
+			}, options.preFn, options.handler);
+		});
+	},
+
+	/**
+	 * Run set of tests on a prototype method to ensure callback is always run in correct CLS context.
+	 * Function `fn` should take provided `promise` and call the method being tested on it and return resulting promise.
+	 * `fn` is called with a `promise` and a `handler` function which should be attached as the callback to the method under test.
+	 * e.g. `return promise.then(handler)`
 	 *
 	 * If handler is being attached to catch rejections, `options.catches` should be `true`
 	 *

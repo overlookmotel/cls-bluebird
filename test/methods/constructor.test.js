@@ -74,4 +74,6 @@ runTests('new Promise()', function(u, Promise) {
 	u.testSetCallbackSyncStatic(testFn, {handler: function(resolve) { resolve(); }});
 
 	u.testSetNotBoundStatic(testFn, {handler: function(resolve) { resolve(); }});
+
+	u.testSetCallbackContextStatic(testFn, {handler: function(resolve) { resolve(); }});
 });

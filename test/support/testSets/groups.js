@@ -24,6 +24,7 @@ module.exports = {
 	 * @param {Function} fn - Test function
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined handler
+	 * @param {boolean} [options.noContextTest=false] - Skip handler called in context test if true
 	 * @returns {undefined}
 	 */
 	testGroupStaticSyncHandler: function(fn, options) {
@@ -33,6 +34,7 @@ module.exports = {
 		u.testSetReturnsPromiseStaticReceivingHandler(fn, options);
 		u.testSetCallbackSyncStatic(fn);
 		u.testSetNotBoundStatic(fn);
+		if (!options.noContextTest) u.testSetCallbackContextStatic(fn);
 	},
 
 	/**
