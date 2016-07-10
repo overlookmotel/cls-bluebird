@@ -29,7 +29,7 @@ module.exports = {
 	testSetProtoCallbackContext: function(fn, options) {
 		var u = this;
 		describe('callback runs in context on a promise', function() {
-			u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
+			u.describeMainPromisesAttach(function(makePromise, attach) {
 				u.testRunContext(function(handler, p, cb) {
 					attach(function() {
 						var newP = fn(p, handler);
@@ -37,7 +37,7 @@ module.exports = {
 						cb(newP);
 					}, p);
 				}, makePromise, options.handler);
-			}, u.Promise, options);
+			}, options);
 		});
 	}
 };

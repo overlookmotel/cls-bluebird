@@ -13,7 +13,8 @@ var addCtors = require('./ctors'),
 	checks = require('./checks'),
 	tests = require('./tests'),
 	describeSets = require('./describeSets'),
-	testSetPromise = require('./testSets/promise'),
+	testSetPromiseStatic = require('./testSets/promiseStatic'),
+	testSetPromiseProto = require('./testSets/promiseProto'),
 	testSetSyncAsync = require('./testSets/syncAsync'),
 	testSetBinding = require('./testSets/binding'),
 	testSetContext = require('./testSets/context'),
@@ -146,7 +147,8 @@ _.extend(Utils.prototype, promises);
 _.extend(Utils.prototype, checks);
 _.extend(Utils.prototype, tests);
 _.extend(Utils.prototype, describeSets);
-_.extend(Utils.prototype, testSetPromise);
+_.extend(Utils.prototype, testSetPromiseStatic);
+_.extend(Utils.prototype, testSetPromiseProto);
 _.extend(Utils.prototype, testSetSyncAsync);
 _.extend(Utils.prototype, testSetBinding);
 _.extend(Utils.prototype, testSetContext);

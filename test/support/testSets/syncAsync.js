@@ -28,7 +28,7 @@ module.exports = {
 	testSetProtoCallbackAsync: function(fn, options) {
 		var u = this;
 		describe('calls callback asynchronously when called on promise', function() {
-			u.describeResolveRejectSyncAsyncAttachSyncAsync(function(makePromise, attach) {
+			u.describeMainPromisesAttach(function(makePromise, attach) {
 				u.testAsync(function(handler, cb) {
 					var p = makePromise();
 
@@ -38,7 +38,7 @@ module.exports = {
 						cb(newP);
 					}, p);
 				});
-			}, u.Promise, options);
+			}, options);
 		});
 	},
 

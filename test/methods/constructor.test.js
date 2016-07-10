@@ -12,12 +12,12 @@ var runTests = require('../support');
 
 runTests('new Promise()', function(u, Promise) {
 	describe('returns instance of patched Promise constructor when', function() {
-		u.describeResolveRejectSyncAsync(function(makePromise) {
+		u.describeMainPromises(function(makePromise) {
 			u.testIsPromise(function(cb) {
 				var p = makePromise();
 				cb(p);
 			});
-		}, Promise, {continues: true, catches: true});
+		}, {continues: true, catches: true});
 
 		/*
 		// TODO test for when resolved with promise e.g. `new Promise(function(resolve) { resolve(Promise.resolve(); )})`

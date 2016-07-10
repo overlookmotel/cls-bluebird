@@ -41,7 +41,7 @@ module.exports = {
 			});
 		}
 
-		u.describePromiseConstructorsResolveRejectSyncAsync(testFn, {continues: true, catches: true});
+		u.describeAllPromises(testFn, {continues: true, catches: true});
 	},
 
 	/**
@@ -63,8 +63,8 @@ module.exports = {
 
 		describe('returns', function() {
 			u.describeValues(function(makeValue) {
-				// Wrap `makeValue` so it takes no arguments as this will be used as a handler
-				// which receives arbitrary input which should be ignored.
+				// Wrap `makeValue` so it takes no arguments as this will be used as a handler.
+				// (Handlers receive arbitrary input which should be ignored)
 				var makeValueWrapped = function() {
 					return makeValue();
 				};
@@ -128,7 +128,7 @@ module.exports = {
 	},
 
 	/**
-	 * Create `describe` test groups for promises of arrays that can be chained onto
+	 * Create `describe` test groups for promises from main constructor of arrays that can be chained onto
 	 * by prototype methods that expect promise to resolve to an array value.
 	 * e.g. `promise.all()`.
 	 * Calls `testFn` with `makePromise` function that creates promises of different arrays when called.
@@ -149,9 +149,9 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	describePromiseOfArrays: function(testFn, options) {
+	describeMainPromisesArray: function(testFn, options) {
 		var u = this;
-		u.describeResolveRejectSyncAsync(function(makeValue) {
+		u.describeMainPromises(function(makeValue) {
 			if (u.getRejectStatus(makeValue)) {
 				describe('with error', function() {
 					testFn(makeValue);
@@ -168,7 +168,7 @@ module.exports = {
 					testFn(makePromise);
 				}, _.defaults({suppressRejections: true}, options));
 			});
-		}, u.Promise, {continues: true, catches: true});
+		}, {continues: true, catches: true});
 	},
 
 	/**
@@ -228,11 +228,51 @@ module.exports = {
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
 	 * @returns {undefined}
 	 */
-	describePromiseConstructorsResolveRejectSyncAsync: function(testFn, options) {
+	describeAllPromises: function(testFn, options) {
 		var u = this;
 		u.describePromiseConstructors(function(Promise) {
-			u.describeResolveRejectSyncAsync(testFn, Promise, options);
+			u.describePromisesFromCtor(testFn, Promise, options);
 		});
+	},
+
+	/**
+	 * Create `describe` test groups for main promise resolved/rejected sync/async.
+	 * Calls `testFn` with a function `makePromise` to create a promise.
+	 *
+	 * Cases cover:
+	 *   - promises resolved or rejected
+	 *   - promises resolved/rejected sync or async
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`.
+	 * @param {Object} options - Options object
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @returns {undefined}
+	 */
+	describeMainPromises: function(testFn, options) {
+		var u = this;
+		u.describePromisesFromCtor(testFn, u.Promise, options);
+	},
+
+	/**
+	 * Create `describe` test groups for promise resolved/rejected sync/async and handler attached sync/async.
+	 * Calls `testFn` with a function `makePromise` to create a promise.
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`.
+	 * @param {Object} options - Options object
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @returns {undefined}
+	 */
+	describeMainPromisesAttach: function(testFn, options) {
+		var u = this;
+		u.describeMainPromises(function(makePromise) {
+			describe('and method attached', function() {
+				u.describeAttach(function(attach) {
+					testFn(makePromise, attach);
+				});
+			});
+		}, options);
 	},
 
 	/**
@@ -254,28 +294,6 @@ module.exports = {
 	},
 
 	/**
-	 * Create `describe` test groups for promise resolved/rejected sync/async and handler attached sync/async.
-	 * Calls `testFn` with a function `makePromise` to create a promise.
-	 *
-	 * @param {Function} testFn - Function to call for each `describe`.
-	 * @param {Function} Promise - Promise constructor to create promises with
-	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
-	 * @returns {undefined}
-	 */
-	describeResolveRejectSyncAsyncAttachSyncAsync: function(testFn, Promise, options) {
-		var u = this;
-		u.describeResolveRejectSyncAsync(function(makePromise) {
-			describe('and method attached', function() {
-				u.describeAttachSyncAsync(function(attach) {
-					testFn(makePromise, attach);
-				});
-			});
-		}, Promise, options);
-	},
-
-	/**
 	 * Create `describe` test groups for promise resolved/rejected sync/async.
 	 * Calls `testFn` with:
 	 *   - a function `makePromise` to create a promise
@@ -288,7 +306,7 @@ module.exports = {
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
 	 * @returns {undefined}
 	 */
-	describeResolveRejectSyncAsync: function(testFn, Promise, options) {
+	describePromisesFromCtor: function(testFn, Promise, options) {
 		var u = this;
 
 		if (options.continues) {
@@ -325,7 +343,7 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`
 	 * @returns {undefined}
 	 */
-	describeAttachSyncAsync: function(testFn) {
+	describeAttach: function(testFn) {
 		var u = this;
 
 		describe('sync', function() {
