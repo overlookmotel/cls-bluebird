@@ -10,6 +10,7 @@ var runTests = require('../support');
 
 // Run tests
 
+// TODO Add tests for when both handlers provided
 runTests('.then()', function(u) {
 	describe('resolve handler', function() {
 		u.testGroupProtoAsyncHandler(function(p, handler) {
