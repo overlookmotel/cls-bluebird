@@ -4,7 +4,7 @@
  */
 
 // Imports
-var runTests = require('../support');
+var runTests = require('../../support');
 
 // Run tests
 

@@ -9,7 +9,7 @@
 var expect = require('chai').expect;
 
 // Imports
-var runTests = require('../support');
+var runTests = require('../../support');
 
 // Run tests
 

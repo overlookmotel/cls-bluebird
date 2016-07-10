@@ -8,7 +8,7 @@
     "test-all": "npm run test-bluebird2 && npm run test-bluebird3",
     "test-bluebird2": "BLUEBIRD_VERSION=2 npm run test-main",
     "test-bluebird3": "BLUEBIRD_VERSION=3 npm run test-main",
-    "test-main": "mocha test/**/*.test.js",
+    "test-main": "mocha 'test/**/*.test.js'",
     "jshint": "jshint lib test",
     "cover": "npm run cover-main && rm -rf coverage",
     "coveralls": "npm run cover-main && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",

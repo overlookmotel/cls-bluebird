@@ -6,7 +6,7 @@
 /* global describe */
 
 // Imports
-var runTests = require('../support');
+var runTests = require('../../support');
 
 // Run tests
 runTests('Promise.join()', function(u, Promise) {
