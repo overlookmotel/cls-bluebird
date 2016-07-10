@@ -8,12 +8,13 @@
 // Modules
 var Bluebird2 = require('bluebird2'),
 	Bluebird3 = require('bluebird3'),
-	clsBluebird = require('../../lib'),
-	mochaShim = require('./mochaShim');
+	clsBluebird = require('../../lib');
 
 // Imports
 var ns = require('./ns'),
-	Utils = require('./utils');
+	Utils = require('./utils'),
+	mochaShim = require('./mochaShim'),
+	catchRejections = require('./catchRejections');
 
 // Get bluebird version to test from environment vars
 var bluebirdVersion = process.env.BLUEBIRD_VERSION * 1;
@@ -21,10 +22,6 @@ var bluebirdVersion = process.env.BLUEBIRD_VERSION * 1;
 // Patch bluebird2 + bluebird3
 var PatchedBluebird2 = patch(Bluebird2);
 var PatchedBluebird3 = patch(Bluebird3);
-
-// Add unhandled rejection handlers to alternative bluebird version
-addUnhandledRejectionHandler(Bluebird2);
-addUnhandledRejectionHandler(Bluebird3);
 
 // Get bluebird version to use for these tests
 var Promise, UnpatchedPromise, versionName, altPromises;
@@ -70,7 +67,10 @@ var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersio
  */
 module.exports = function(name, testFn) {
 	// Apply mocha shim to collapse single `it` statements into parent `describe`
-	if (!describe.__shimmed) mochaShim();
+	mochaShim();
+
+	// Catch unhandled rejections
+	catchRejections();
 
 	// Run tests
 	describe(name + ' (' + versionName + ')', function() {
@@ -92,22 +92,6 @@ function patch(Promise) {
 	// Patch bluebird with cls-bluebird
 	clsBluebird(ns, Promise);
 
-	// Add unhandled rejection handler
-	addUnhandledRejectionHandler(Promise);
-
 	// Return bluebird constructor
 	return Promise;
-}
-
-/*
- * Add unhandled rejection handler on this instance of Bluebird.
- * Process will exit with error if there is an unhandled promise rejection.
- * @param {Function} Promise - bluebird constructor
- * @returns {undefined}
- */
-function addUnhandledRejectionHandler(Promise) {
-	Promise.onPossiblyUnhandledRejection(function(err) {
-		console.log('Unhandled rejection:', err);
-		process.exit(1);
-	});
 }

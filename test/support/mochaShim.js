@@ -2,7 +2,7 @@
  * cls-bluebird tests
  * Shim mocha to treat `describe` with single `it` inside as an `it`.
  * i.e. `describe('foo', function() { it('bar', function() {}); })`
- * is treated as `it('foo bar', function() {})`
+ * is treated as `it('foo bar', function() {})`.
  */
 
 /* global describe, it, before, beforeEach, after, afterEach */
@@ -23,6 +23,9 @@ var originals = {
 // Exports
 
 module.exports = function() {
+	// Exit if methods already shimmed
+	if (describe.__shimmed) return;
+
 	// Init call tracker var
 	var calls = null;
 

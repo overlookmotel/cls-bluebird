@@ -127,12 +127,16 @@ Utils.prototype = {
 	},
 
 	/**
-	 * Attach empty catch handler to promise to prevent unhandled rejections
+	 * Attach empty catch handler to promise to prevent unhandled rejections.
+	 * Only catches test errors - all other errors are re-thrown.
 	 * @param {Promise} promise - Promise to attach catch handler to
 	 * @returns {undefined}
 	 */
 	suppressUnhandledRejections: function(promise) {
-		promise.catch(function() {});
+		var u = this;
+		promise.catch(function(err) {
+			if (!(err instanceof u.TestError)) throw err;
+		});
 	}
 };
 

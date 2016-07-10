@@ -7,6 +7,9 @@
 
 /* global describe */
 
+// Modules
+var _ = require('lodash');
+
 // Exports
 module.exports = {
 	/**
@@ -90,6 +93,7 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.suppressRejections=false] - true to suppress unhandled rejections
 	 * @returns {undefined}
 	 */
 	describeArrays: function(testFn, options) {
@@ -107,6 +111,13 @@ module.exports = {
 				var makeArray = function() {
 					var value = [makeValue(), makeValue(), makeValue()];
 					u.inheritRejectStatus(value, makeValue);
+
+					if (options.suppressRejections && u.getRejectStatus(makeValue)) {
+						value.forEach(function(p) {
+							u.suppressUnhandledRejections(p);
+						});
+					}
+
 					return value;
 				};
 				u.inheritRejectStatus(makeArray, makeValue);
@@ -150,15 +161,12 @@ module.exports = {
 
 			describe('with', function() {
 				u.describeArrays(function(makeArray) {
-					// TODO Remove this wrapping once issue with unhandled rejections is solved
-					makeArray = wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u);
-
 					var makePromise = function() {
 						return makeValue(makeArray);
 					};
 
 					testFn(makePromise);
-				}, options);
+				}, _.defaults({suppressRejections: true}, options));
 			});
 		}, u.Promise, {continues: true, catches: true});
 	},
@@ -195,16 +203,13 @@ module.exports = {
 			if (makeValue === u.makeUndefined || u.getRejectStatus(makeValue)) return testFn(makeValue);
 
 			u.describeArrays(function(makeArray) {
-				// TODO Remove this wrapping once issue with unhandled rejections is solved
-				makeArray = wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u);
-
 				var makePromise = function() {
 					return makeValue(makeArray);
 				};
 				u.inheritRejectStatus(makePromise, makeArray);
 
 				testFn(makePromise);
-			}, options);
+			}, _.defaults({suppressRejections: true}, options));
 		}, options);
 	},
 
@@ -334,17 +339,6 @@ module.exports = {
 				// If promise chaining onto is rejecting, suppress unhandled rejections
 				if (u.getRejectStatus(p)) u.suppressUnhandledRejections(p);
 
-				// If promise chaining onto resolves to array,
-				// suppress unhandled rejections on any promises in the array.
-				if (p.isFulfilled && p.isFulfilled()) {
-					var value = p.value();
-					if (Array.isArray(value)) {
-						value.forEach(function(item) {
-							if (isPromise(item)) u.suppressUnhandledRejections(item);
-						});
-					}
-				}
-
 				// Await promise's resolution before calling back
 				u.awaitPromise(p, fn);
 			});
@@ -356,9 +350,10 @@ module.exports = {
  * All code below relates to working around bug in bluebird where unhandled rejections are thrown
  * inncorrectly in some cases.
  * https://github.com/petkaantonov/bluebird/issues/1158
- * TODO Remove this once issue with unhandled rejections is solved
+ * No longer used - all rejected promises in arrays are suppressed from becoming unhandled rejections
+ * TODO Remove this!
  */
-
+/*
 function wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u) {
 	var makeArrayWrapped = function() {
 		var array = makeArray();
@@ -425,3 +420,4 @@ function isBluebird2Ctor(Promise) {
 	if (!isBluebirdCtor(Promise)) return false;
 	return Promise.version.slice(0, 2) === '2.';
 }
+*/
