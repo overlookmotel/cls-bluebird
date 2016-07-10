@@ -71,7 +71,7 @@ runTests('new Promise()', function(u, Promise) {
 		return new Promise(handler);
 	};
 
-	u.testSetStaticCallbackSync(testFn, {handler: function(resolve) { resolve(); }});
+	u.testSetCallbackSyncStatic(testFn, {handler: function(resolve) { resolve(); }});
 
-	u.testSetStaticCallbackNotBound(testFn, {handler: function(resolve) { resolve(); }});
+	u.testSetNotBoundStatic(testFn, {handler: function(resolve) { resolve(); }});
 });

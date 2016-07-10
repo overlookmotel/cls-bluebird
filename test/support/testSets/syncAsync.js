@@ -25,7 +25,7 @@ module.exports = {
 	 * @param {boolean} [options.passThrough=false] - true if method passes through errors even if handler fires
 	 * @returns {undefined}
 	 */
-	testSetProtoCallbackAsync: function(fn, options) {
+	testSetCallbackAsyncProto: function(fn, options) {
 		var u = this;
 		describe('calls callback asynchronously when called on promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
@@ -52,7 +52,7 @@ module.exports = {
 	 * @param {Function} [options.handler] - Optional handler function
 	 * @returns {undefined}
 	 */
-	testSetStaticCallbackSync: function(fn, options) {
+	testSetCallbackSyncStatic: function(fn, options) {
 		var u = this;
 		options = options || {};
 

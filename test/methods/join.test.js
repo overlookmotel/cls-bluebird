@@ -11,7 +11,7 @@ var runTests = require('../support');
 // Run tests
 runTests('.join()', function(u, Promise) {
 	describe('with no handler', function() {
-		u.testSetStaticMethodReceivingArrayReturnsPromise(function(array) {
+		u.testSetReturnsPromiseStaticReceivingArrayLiteral(function(array) {
 			if (!array) array = [];
 			return Promise.join.apply(Promise, array);
 		});
@@ -26,7 +26,7 @@ runTests('.join()', function(u, Promise) {
 		 * TODO Change test once issue is fixed (if it is considered a bug).
 		 */
 		// TODO Use array test set instead. NB no sense in testing for "handler attached async".
-		u.testSetProtoMethodAsyncHandler(function(p, handler) {
+		u.testGroupProtoAsyncHandler(function(p, handler) {
 			return Promise.join(p, p, p, handler);
 		}, {noUndefined: true, noAsyncTest: true});
 

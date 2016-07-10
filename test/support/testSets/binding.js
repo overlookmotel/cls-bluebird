@@ -26,7 +26,7 @@ module.exports = {
 	 * @param {Function} [options.handler] - Handler function
 	 * @returns {undefined}
 	 */
-	testSetProtoCallbackBound: function(fn, options) {
+	testSetBoundProto: function(fn, options) {
 		var u = this;
 		describe('binds callback on a promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
@@ -51,7 +51,7 @@ module.exports = {
 	 * @param {Function} [options.handler] - Optional handler function
 	 * @returns {undefined}
 	 */
-	testSetStaticCallbackNotBound: function(fn, options) {
+	testSetNotBoundStatic: function(fn, options) {
 		var u = this;
 		options = options || {};
 

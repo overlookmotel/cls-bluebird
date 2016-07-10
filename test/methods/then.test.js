@@ -12,13 +12,13 @@ var runTests = require('../support');
 
 runTests('.then()', function(u) {
 	describe('resolve handler', function() {
-		u.testSetProtoMethodAsyncHandler(function(p, handler) {
+		u.testGroupProtoAsyncHandler(function(p, handler) {
 			return p.then(handler);
 		});
 	});
 
 	describe('reject handler', function() {
-		u.testSetProtoMethodAsyncHandler(function(p, handler) {
+		u.testGroupProtoAsyncHandler(function(p, handler) {
 			return p.then(undefined, handler);
 		}, {catches: true});
 	});

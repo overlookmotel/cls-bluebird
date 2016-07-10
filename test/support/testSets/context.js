@@ -26,7 +26,7 @@ module.exports = {
 	 * @param {Function} [options.handler] - Handler function
 	 * @returns {undefined}
 	 */
-	testSetProtoCallbackContext: function(fn, options) {
+	testSetCallbackContextProto: function(fn, options) {
 		var u = this;
 		describe('callback runs in context on a promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {

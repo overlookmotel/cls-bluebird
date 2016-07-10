@@ -14,7 +14,7 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.try()', function(u, Promise) {
-	u.testSetStaticMethodSyncHandler(function(handler) {
+	u.testGroupStaticSyncHandler(function(handler) {
 		return Promise.try(handler);
 	}, {noUndefined: true});
 });

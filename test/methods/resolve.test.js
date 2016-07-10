@@ -14,7 +14,7 @@ var runTests = require('../support');
 // Run tests
 
 runTests('Promise.resolve()', function(u, Promise) {
-	u.testSetStaticMethodReceivingValueReturnsPromise(function(value) {
+	u.testSetReturnsPromiseStaticReceivingValue(function(value) {
 		return Promise.resolve(value);
 	});
 });

@@ -14,7 +14,7 @@ var runTests = require('../support');
 // Run tests
 
 runTests('.finally()', function(u) {
-	u.testSetProtoMethodAsyncHandler(function(p, handler) {
+	u.testGroupProtoAsyncHandler(function(p, handler) {
 		return p.finally(handler);
 	}, {catches: true, continues: true, passThrough: true});
 });

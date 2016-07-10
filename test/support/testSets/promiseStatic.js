@@ -26,7 +26,7 @@ module.exports = {
 	 * @param {Function} fn - Test function
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodReceivingValueReturnsPromise: function(fn) {
+	testSetReturnsPromiseStaticReceivingValue: function(fn) {
 		var u = this;
 		describe('returns instance of patched Promise constructor when passed', function() {
 			u.describeValues(function(makeValue) {
@@ -59,7 +59,7 @@ module.exports = {
 	 * @param {boolean} options.noUndefined - true if method does not accept undefined handler
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodReceivingHandlerReturnsPromise: function(fn, options) {
+	testSetReturnsPromiseStaticReceivingHandler: function(fn, options) {
 		var u = this;
 		describe('returns instance of patched Promise constructor when callback', function() {
 			// Test undefined handler
@@ -120,7 +120,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodReceivingArrayReturnsPromise: function(fn, options) {
+	testSetReturnsPromiseStaticReceivingArrayLiteral: function(fn, options) {
 		var u = this;
 		options = options || {};
 
@@ -165,7 +165,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodReceivingArrayOrPromiseOfArrayReturnsPromise: function(fn, options) {
+	testSetReturnsPromiseStaticReceivingArray: function(fn, options) {
 		var u = this;
 		options = options || {};
 

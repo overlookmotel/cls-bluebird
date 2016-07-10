@@ -12,7 +12,7 @@ var runTests = require('../support');
 
 runTests('Promise.method()', function(u, Promise) {
 	describe('returns a function that', function() {
-		u.testSetStaticMethodSyncHandler(function(handler) {
+		u.testGroupStaticSyncHandler(function(handler) {
 			return (Promise.method(handler))();
 		}, {noUndefined: true});
 	});

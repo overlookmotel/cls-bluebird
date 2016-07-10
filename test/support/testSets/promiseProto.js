@@ -26,7 +26,7 @@ module.exports = {
 	 * @param {Function} fn - Test function
 	 * @returns {undefined}
 	 */
-	testSetProtoMethodReceivingValueReturnsPromise: function(fn) {
+	testSetReturnsPromiseProtoReceivingValue: function(fn) {
 		var u = this;
 		describe('returns instance of patched Promise constructor when attached to promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
@@ -69,7 +69,7 @@ module.exports = {
 	 * @param {boolean} options.noUndefined - true if method does not accept undefined handler
 	 * @returns {undefined}
 	 */
-	testSetProtoMethodReceivingHandlerReturnsPromise: function(fn, options) {
+	testSetReturnsPromiseProtoReceivingHandler: function(fn, options) {
 		var u = this;
 		describe('returns instance of patched Promise constructor when called on promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
@@ -171,7 +171,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
-	testSetProtoMethodOnArrayReceivingNothingReturnsPromise: function(fn, options) {
+	testSetReturnsPromiseProtoOnArrayReceivingNothing: function(fn, options) {
 		var u = this;
 
 		describe('returns instance of patched Promise constructor when chained on promise', function() {

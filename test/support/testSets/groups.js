@@ -26,13 +26,13 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined handler
 	 * @returns {undefined}
 	 */
-	testSetStaticMethodSyncHandler: function(fn, options) {
+	testGroupStaticSyncHandler: function(fn, options) {
 		var u = this;
 		options = options || {};
 
-		u.testSetStaticMethodReceivingHandlerReturnsPromise(fn, options);
-		u.testSetStaticCallbackSync(fn);
-		u.testSetStaticCallbackNotBound(fn);
+		u.testSetReturnsPromiseStaticReceivingHandler(fn, options);
+		u.testSetCallbackSyncStatic(fn);
+		u.testSetNotBoundStatic(fn);
 	},
 
 	/**
@@ -61,7 +61,7 @@ module.exports = {
 	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
 	 * @returns {undefined}
 	 */
-	testSetProtoMethodAsyncHandler: function(fn, options) {
+	testGroupProtoAsyncHandler: function(fn, options) {
 		var u = this;
 
 		// Conform options
@@ -76,9 +76,9 @@ module.exports = {
 		_.defaults(options, {continues: !options.catches});
 
 		// Run tests
-		u.testSetProtoMethodReceivingHandlerReturnsPromise(fn, options);
-		if (!options.noAsyncTest) u.testSetProtoCallbackAsync(fn, options);
-		if (!options.noBindTest) u.testSetProtoCallbackBound(fn, options);
-		u.testSetProtoCallbackContext(fn, options);
+		u.testSetReturnsPromiseProtoReceivingHandler(fn, options);
+		if (!options.noAsyncTest) u.testSetCallbackAsyncProto(fn, options);
+		if (!options.noBindTest) u.testSetBoundProto(fn, options);
+		u.testSetCallbackContextProto(fn, options);
 	}
 };
