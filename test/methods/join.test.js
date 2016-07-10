@@ -9,7 +9,7 @@
 var runTests = require('../support');
 
 // Run tests
-runTests('.join()', function(u, Promise) {
+runTests('Promise.join()', function(u, Promise) {
 	describe('with no handler', function() {
 		u.testSetReturnsPromiseStaticReceivingArrayLiteral(function(array) {
 			if (!array) array = [];
