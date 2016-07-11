@@ -116,7 +116,7 @@ module.exports = {
 			return u.resolveAsync(Promise, makeValue);
 		};
 
-		// `_constructor` and `_async` properties needed for `Promise.map()` test
+		// `_constructor` and `_async` properties needed for `Promise.map()`/`.map()` tests
 		makePromise._constructor = Promise;
 		makePromise._async = true;
 

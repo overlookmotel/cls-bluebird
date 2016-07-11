@@ -24,12 +24,13 @@ var addCtors = require('./ctors'),
 var REJECT_STATUS_KEY = '__clsBluebirdTestRejectStatus';
 
 // Exports
-function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion) {
+function Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion, nodeVersion) {
 	this.Promise = Promise;
 	this.UnpatchedPromise = UnpatchedPromise;
 	this.ns = ns;
 	this.altPromises = altPromises;
 	this.bluebirdVersion = bluebirdVersion;
+	this.nodeVersion = nodeVersion;
 
 	addCtors(this);
 }

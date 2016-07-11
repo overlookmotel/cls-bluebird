@@ -19,6 +19,9 @@ var ns = require('./ns'),
 // Get bluebird version to test from environment vars
 var bluebirdVersion = process.env.BLUEBIRD_VERSION * 1;
 
+// Get node version
+var nodeVersion = process.version.match(/^v(\d\d+|[1-9]|0\.\d+)\./)[1];
+
 // Patch bluebird2 + bluebird3
 var PatchedBluebird2 = patch(Bluebird2);
 var PatchedBluebird3 = patch(Bluebird3);
@@ -52,7 +55,7 @@ if (bluebirdVersion === 2) {
 }
 
 // Create utils object based on Promise, UnpatchedPromise, ns and altPromises
-var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion);
+var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersion, nodeVersion);
 
 // Exports
 

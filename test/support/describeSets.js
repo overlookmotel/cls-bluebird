@@ -127,6 +127,9 @@ module.exports = {
 				};
 				u.inheritRejectStatus(makeArray, makeValue);
 
+				// `_async` property needed for `Promise.map()`/`.map()` test
+				makeArray._async = makeValue._async;
+
 				testFn(makeArray);
 			});
 		});
@@ -170,6 +173,10 @@ module.exports = {
 						return makeValue(makeArray);
 					};
 					u.inheritRejectStatus(makePromise, makeArray);
+
+					// `_async` and `_asyncArray` properties needed for `Promise.map()`/`.map()` test
+					makePromise._async = makeValue._async;
+					makePromise._asyncArray = makeArray._async;
 
 					testFn(makePromise);
 				}, _.defaults({suppressRejections: true}, options));
@@ -247,6 +254,9 @@ module.exports = {
 					return makeValue(makeArray);
 				};
 				u.inheritRejectStatus(makePromise, makeArray);
+
+				// `_asyncArray` property needed for `Promise.map()`/`.map()` test
+				makePromise._asyncArray = makeArray._async;
 
 				makePromise._array = true; // TODO Remove this once issue with unhandled rejections is solved
 				makePromise._async = makeValue._async; // TODO Remove this once issue with unhandled rejections is solved
@@ -397,13 +407,18 @@ module.exports = {
 		});
 
 		describe('async', function() {
-			testFn(function(fn, p) {
+			var attach = function(fn, p) {
 				// If promise chaining onto is rejecting, suppress unhandled rejections
 				if (u.getRejectStatus(p)) u.suppressUnhandledRejections(p);
 
 				// Await promise's resolution before calling back
 				u.awaitPromise(p, fn);
-			});
+			};
+
+			// _async` property needed for `.map()` test
+			attach._async = true;
+
+			testFn(attach);
 		});
 	}
 };

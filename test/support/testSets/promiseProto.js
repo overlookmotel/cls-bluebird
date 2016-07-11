@@ -240,10 +240,18 @@ module.exports = {
 				// Handler should fire on this promise
 				// Test all handlers
 				u.describeHandlers(function(handler) {
+					// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
 					var oneCall = handler._throws || (
 						u.getRejectStatus(handler)
-						&& handler._constructor === u.Promise
 						&& !handler._async
+						&& (
+							handler._constructor === u.Promise
+							|| (
+								u.nodeVersion === '0.10'
+								&& makePromise._asyncArray
+								&& (makePromise._async || !attach._async)
+							)
+						)
 					);
 
 					u.testIsPromiseFromHandler(function(handler, cb) {
