@@ -103,7 +103,10 @@ module.exports = {
 		var makePromise = function(makeValue) {
 			return u.resolveSync(Promise, makeValue);
 		};
-		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
+
+		// `_constructor` property needed for `Promise.map()` test
+		makePromise._constructor = Promise;
+
 		return makePromise;
 	},
 
@@ -112,27 +115,39 @@ module.exports = {
 		var makePromise = function(makeValue) {
 			return u.resolveAsync(Promise, makeValue);
 		};
-		makePromise.__constructor = Promise; // TODO Remove this once issue with unhandled rejections is solved
-		makePromise.__async = true; // TODO Remove this once issue with unhandled rejections is solved
+
+		// `_constructor` and `_async` properties needed for `Promise.map()` test
+		makePromise._constructor = Promise;
+		makePromise._async = true;
+
 		return makePromise;
 	},
 
 	rejectSyncHandler: function(Promise) {
 		var u = this;
-		var fn = function() {
+		var makePromise = function() {
 			return u.rejectSync(Promise);
 		};
-		this.setRejectStatus(fn);
-		return fn;
+		this.setRejectStatus(makePromise);
+
+		// `_constructor` property needed for `Promise.map()` test
+		makePromise._constructor = Promise;
+
+		return makePromise;
 	},
 
 	rejectAsyncHandler: function(Promise) {
 		var u = this;
-		var fn = function() {
+		var makePromise = function() {
 			return u.rejectAsync(Promise);
 		};
-		this.setRejectStatus(fn);
-		return fn;
+		this.setRejectStatus(makePromise);
+
+		// `_constructor` and `_async` properties needed for `Promise.map()` test
+		makePromise._constructor = Promise;
+		makePromise._async = true;
+
+		return makePromise;
 	},
 
 	/**
@@ -155,6 +170,10 @@ module.exports = {
 			u.makeThrow();
 		};
 		this.setRejectStatus(fn);
+
+		// `_throws` property needed for `Promise.map()` test
+		fn._throws = true;
+
 		return fn;
 	}
 };

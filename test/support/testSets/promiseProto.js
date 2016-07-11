@@ -173,5 +173,101 @@ module.exports = {
 				});
 			}, options);
 		});
+	},
+
+	/**
+	 * Run set of tests on a prototype method that chains on promise of an array
+	 * to ensure always returns a promise inherited from correct Promise constructor.
+	 *
+	 * Test function `fn` is called with a `promise` and a `handler`.
+	 * `fn` should call the method being tested on `promise`, attaching `handler` and return resulting promise.
+	 * e.g. `return promise.map(handler)`
+	 *
+	 * A different `promise` is provided in each test:
+	 *   - resolved sync or async with
+	 *     - undefined
+	 *     - array
+	 *   - rejected sync or async with error
+	 *
+	 * Arrays can have members:
+	 *   - literal value
+	 *   - undefined
+	 *   - promises of different types, resolved or rejected, sync or async
+	 *
+	 * Handlers return a resolved/rejected sync/asyc promise, literal value, undefined, or throw.
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} options - Options object
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires rejected promise
+	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
+	 * @returns {undefined}
+	 */
+	testSetReturnsPromiseProtoOnArrayReceivingHandler: function(fn, options) {
+		var u = this;
+		u.describeMainPromisesArray(function(makePromise) {
+			describe('and method attached', function() {
+				u.describeAttach(function(attach) {
+					describe('and handler', function() {
+						// Test undefined handler
+						if (!options.noUndefinedHandler) {
+							u.test('is undefined', function(t) {
+								var p = makePromise();
+
+								attach(function() {
+									var newP = fn(p, undefined);
+									u.inheritRejectStatus(newP, p);
+
+									t.error(u.checkIsPromise(newP));
+									t.done(newP);
+								}, p);
+							});
+						}
+
+						// If handler should not be fired on this promise, check is not fired
+						// TODO File issue on bluebird for inconsistent behavior between `Promise.map()` and `.map`
+						var handlerShouldBeCalled = (u.getRejectStatus(makePromise) || makePromise._arrayValuesReject) ? options.catches : options.continues;
+
+						if (!handlerShouldBeCalled) {
+							describe('is ignored', function() {
+								u.testIsPromiseFromHandler(function(handler, cb) {
+									var p = makePromise();
+
+									attach(function() {
+										var newP = fn(p, handler);
+										u.inheritRejectStatus(newP, p);
+										cb(newP);
+									}, p);
+								}, undefined, {expectedCalls: 0});
+							});
+							return;
+						}
+
+						// Handler should fire on this promise
+						// Test all handlers
+						u.describeHandlers(function(handler) {
+							var oneCall = handler._throws || (
+								u.getRejectStatus(handler)
+								&& handler._constructor === u.Promise
+								&& !handler._async
+							);
+
+							u.testIsPromiseFromHandler(function(handler, cb) {
+								// Create promise
+								var p = makePromise();
+
+								// Run method on promise and pass handler
+								attach(function() {
+									var newP = fn(p, handler);
+									u.inheritRejectStatus(newP, handler);
+									cb(newP);
+								}, p);
+							}, handler, {expectedCalls: oneCall ? 1 : 3});
+						});
+					});
+				});
+			});
+		}, {noUndefined: options.noUndefinedValue});
 	}
 };

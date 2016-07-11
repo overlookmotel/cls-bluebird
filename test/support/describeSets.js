@@ -69,6 +69,11 @@ module.exports = {
 					return makeValue();
 				};
 				u.inheritRejectStatus(makeValueWrapped, makeValue);
+
+				// `_constructor` and `_async` properties needed for `Promise.map()` test
+				makeValueWrapped._constructor = makeValue._constructor;
+				makeValueWrapped._async = makeValue._async;
+
 				testFn(makeValueWrapped);
 			});
 		});
@@ -165,6 +170,9 @@ module.exports = {
 						return makeValue(makeArray);
 					};
 
+					// `_arrayValuesReject` property needed for `.map()` test
+					makePromise._arrayValuesReject = u.getRejectStatus(makeArray);
+
 					testFn(makePromise);
 				}, _.defaults({suppressRejections: true}, options));
 			});
@@ -207,6 +215,9 @@ module.exports = {
 					return makeValue(makeArray);
 				};
 				u.inheritRejectStatus(makePromise, makeArray);
+
+				makePromise._array = true; // TODO Remove this once issue with unhandled rejections is solved
+				makePromise._async = makeValue._async; // TODO Remove this once issue with unhandled rejections is solved
 
 				testFn(makePromise);
 			}, _.defaults({suppressRejections: true}, options));
@@ -376,7 +387,7 @@ function wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u) {
 	var makeArrayWrapped = function() {
 		var array = makeArray();
 
-		if (Array.isArray(array) && makeValue.__constructor) {
+		if (Array.isArray(array) && makeValue._constructor) {
 			array.forEach(function(item) {
 				if (createsUnhandledRejection(makeValue, item, u)) u.suppressUnhandledRejections(item);
 			});
@@ -391,16 +402,16 @@ function wrapMakeArrayToFixUnhandledRejections(makeArray, makeValue, u) {
 function createsUnhandledRejection(makeValue, item, u) {
 	if (!isPromise(item) || !isBluebirdPromise(item) || !u.getRejectStatus(item)) return false;
 
-	if (makeValue.__constructor === u.Promise) {
+	if (makeValue._constructor === u.Promise) {
 		return (u.bluebirdVersion !== 2 || !isBluebird2Promise(item))
 			&& !(item instanceof u.Promise)
-			&& makeValue.__async
+			&& makeValue._async
 			&& !item.isPending();
 	}
 
-	if (isBluebirdCtor(makeValue.__constructor)) {
+	if (isBluebirdCtor(makeValue._constructor)) {
 		if (u.bluebirdVersion === 2) {
-			if (isBluebird2Ctor(makeValue.__constructor)) {
+			if (isBluebird2Ctor(makeValue._constructor)) {
 				return isBluebirdPromise(item) && !isBluebird2Promise(item) && !item.isPending();
 			}
 

@@ -76,6 +76,34 @@ Utils.prototype = {
 	},
 
 	/**
+	 * Returns whether input is a promise (of any kind).
+	 * @param {*} value
+	 * @returns {boolean} - true if is promise
+	 */
+	isPromise: function(value) {
+		return !!value && typeof value.then === 'function';
+	},
+
+	/**
+	 * Returns whether input is a bluebird promise.
+	 * @param {*} value
+	 * @returns {boolean} - true if is promise
+	 */
+	isBluebirdPromise: function(value) {
+		if (!this.isPromise) return false;
+		return this.isBluebirdCtor(value.constructor);
+	},
+
+	/**
+	 * Returns whether input is a bluebird promise constructor.
+	 * @param {*} Promise
+	 * @returns {boolean} - true if is promise
+	 */
+	isBluebirdCtor: function(Promise) {
+		return typeof Promise === 'function' && !!Promise.prototype && typeof Promise.prototype._addCallbacks === 'function';
+	},
+
+	/**
 	 * Await settling of promise and call callback when settled.
 	 * Callback is called regardless of whether promise resolves or rejects.
 	 * Always calls callback asynchronously even if promise is already settled at time function is called.
@@ -123,7 +151,7 @@ Utils.prototype = {
 	 * @returns {Promise} - Target promise
 	 */
 	inheritRejectStatus: function(target, source) {
-		target[REJECT_STATUS_KEY] = this.getRejectStatus(source);
+		if (target) target[REJECT_STATUS_KEY] = this.getRejectStatus(source);
 		return target;
 	},
 
