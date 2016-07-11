@@ -74,28 +74,11 @@ module.exports = {
 
 			// Test handlers
 			u.describeHandlers(function(handler) {
-				u.test(function(t) {
-					// Create handler
-					var called = 0;
-
-					var handlerWrapped = function() {
-						called++;
-						return handler.apply(this, arguments);
-					};
-
-					// Run test function with handler
-					var p = fn(handlerWrapped);
+				u.testIsPromiseFromHandler(function(handler, cb) {
+					var p = fn(handler);
 					u.inheritRejectStatus(p, handler);
-
-					// Check result is Promise
-					t.error(u.checkIsPromise(p));
-
-					// Check handler was called once
-					t.done(p, function() {
-						if (!called) t.error(new Error('Callback not called'));
-						if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
-					});
-				});
+					cb(p);
+				}, handler);
 			});
 		});
 	},

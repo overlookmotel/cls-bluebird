@@ -93,18 +93,16 @@ module.exports = {
 					var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 
 					if (!handlerShouldBeCalled) {
-						u.test('is ignored', function(t) {
-							var p = makePromise();
+						describe('is ignored', function() {
+							u.testIsPromiseFromHandler(function(handler, cb) {
+								var p = makePromise();
 
-							attach(function() {
-								var newP = fn(p, function() {
-									t.error(new Error('Handler should not be called'));
-								});
-								u.inheritRejectStatus(newP, p);
-
-								t.error(u.checkIsPromise(newP));
-								t.done(newP);
-							}, p);
+								attach(function() {
+									var newP = fn(p, handler);
+									u.inheritRejectStatus(newP, p);
+									cb(newP);
+								}, p);
+							}, undefined, {expectedCalls: 0});
 						});
 						return;
 					}
@@ -112,34 +110,18 @@ module.exports = {
 					// Handler should fire on this promise
 					// Test all handlers
 					u.describeHandlers(function(handler) {
-						u.test(function(t) {
-							// Create handler
-							var called = 0;
-
-							var handlerWrapped = function() {
-								called++;
-								return handler.apply(this, arguments);
-							};
-
+						u.testIsPromiseFromHandler(function(handler, cb) {
 							// Create promise
 							var p = makePromise();
 
 							// Run method on promise and pass handler
 							attach(function() {
-								var newP = fn(p, handlerWrapped);
+								var newP = fn(p, handler);
 								u.inheritRejectStatus(newP, handler);
 								if (options.passThrough && u.getRejectStatus(p)) u.setRejectStatus(newP);
-
-								// Check result is promise
-								t.error(u.checkIsPromise(newP));
-
-								// Check handler was called once
-								t.done(newP, function() {
-									if (!called) t.error(new Error('Callback not called'));
-									if (called !== 1) t.error(new Error('Callback called ' + called + ' times'));
-								});
+								cb(newP);
 							}, p);
-						});
+						}, handler);
 					});
 				});
 			}, {continues: true, catches: true});
