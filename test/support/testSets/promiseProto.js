@@ -157,19 +157,15 @@ module.exports = {
 		var u = this;
 
 		describe('returns instance of patched Promise constructor when chained on promise', function() {
-			u.describeMainPromisesArray(function(makePromise) {
-				describe('and method attached', function() {
-					u.describeAttach(function(attach) {
-						u.testIsPromise(function(cb) {
-							var p = makePromise();
+			u.describeMainPromisesArrayAttach(function(makePromise, attach) {
+				u.testIsPromise(function(cb) {
+					var p = makePromise();
 
-							attach(function() {
-								var newP = fn(p);
-								u.inheritRejectStatus(newP, p);
-								cb(newP);
-							}, p);
-						});
-					});
+					attach(function() {
+						var newP = fn(p);
+						u.inheritRejectStatus(newP, p);
+						cb(newP);
+					}, p);
 				});
 			}, options);
 		});
@@ -206,65 +202,61 @@ module.exports = {
 	 */
 	testSetReturnsPromiseProtoOnArrayReceivingHandler: function(fn, options) {
 		var u = this;
-		u.describeMainPromisesArray(function(makePromise) {
-			describe('and method attached', function() {
-				u.describeAttach(function(attach) {
-					describe('and handler', function() {
-						// Test undefined handler
-						if (!options.noUndefinedHandler) {
-							u.test('is undefined', function(t) {
-								var p = makePromise();
+		u.describeMainPromisesArrayAttach(function(makePromise, attach) {
+			describe('and handler', function() {
+				// Test undefined handler
+				if (!options.noUndefinedHandler) {
+					u.test('is undefined', function(t) {
+						var p = makePromise();
 
-								attach(function() {
-									var newP = fn(p, undefined);
-									u.inheritRejectStatus(newP, p);
+						attach(function() {
+							var newP = fn(p, undefined);
+							u.inheritRejectStatus(newP, p);
 
-									t.error(u.checkIsPromise(newP));
-									t.done(newP);
-								}, p);
-							});
-						}
-
-						// If handler should not be fired on this promise, check is not fired
-						var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
-
-						if (!handlerShouldBeCalled) {
-							describe('is ignored', function() {
-								u.testIsPromiseFromHandler(function(handler, cb) {
-									var p = makePromise();
-
-									attach(function() {
-										var newP = fn(p, handler);
-										u.inheritRejectStatus(newP, p);
-										cb(newP);
-									}, p);
-								}, undefined, {expectedCalls: 0});
-							});
-							return;
-						}
-
-						// Handler should fire on this promise
-						// Test all handlers
-						u.describeHandlers(function(handler) {
-							var oneCall = handler._throws || (
-								u.getRejectStatus(handler)
-								&& handler._constructor === u.Promise
-								&& !handler._async
-							);
-
-							u.testIsPromiseFromHandler(function(handler, cb) {
-								// Create promise
-								var p = makePromise();
-
-								// Run method on promise and pass handler
-								attach(function() {
-									var newP = fn(p, handler);
-									u.inheritRejectStatus(newP, handler);
-									cb(newP);
-								}, p);
-							}, handler, {expectedCalls: oneCall ? 1 : 3});
-						});
+							t.error(u.checkIsPromise(newP));
+							t.done(newP);
+						}, p);
 					});
+				}
+
+				// If handler should not be fired on this promise, check is not fired
+				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+
+				if (!handlerShouldBeCalled) {
+					describe('is ignored', function() {
+						u.testIsPromiseFromHandler(function(handler, cb) {
+							var p = makePromise();
+
+							attach(function() {
+								var newP = fn(p, handler);
+								u.inheritRejectStatus(newP, p);
+								cb(newP);
+							}, p);
+						}, undefined, {expectedCalls: 0});
+					});
+					return;
+				}
+
+				// Handler should fire on this promise
+				// Test all handlers
+				u.describeHandlers(function(handler) {
+					var oneCall = handler._throws || (
+						u.getRejectStatus(handler)
+						&& handler._constructor === u.Promise
+						&& !handler._async
+					);
+
+					u.testIsPromiseFromHandler(function(handler, cb) {
+						// Create promise
+						var p = makePromise();
+
+						// Run method on promise and pass handler
+						attach(function() {
+							var newP = fn(p, handler);
+							u.inheritRejectStatus(newP, handler);
+							cb(newP);
+						}, p);
+					}, handler, {expectedCalls: oneCall ? 1 : 3});
 				});
 			});
 		}, {noUndefined: options.noUndefinedValue});

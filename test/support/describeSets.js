@@ -178,6 +178,40 @@ module.exports = {
 	},
 
 	/**
+	 * Create `describe` test groups for promises from main constructor of arrays that can be chained onto
+	 * by prototype methods that expect promise to resolve to an array value.
+	 * e.g. `promise.all()`.
+	 * Calls `testFn` with `makePromise` function that creates promises of different arrays when called
+	 * and function `attach` that schedules a function to run immediately or in next tick.
+	 *
+	 * `makePromise` returns promises:
+	 *   - resolved sync or async with
+	 *     - undefined
+	 *     - array
+	 *   - rejected sync or async with error
+	 *
+	 * Arrays can have members:
+	 *   - literal value
+	 *   - undefined
+	 *   - promises of different types, resolved or rejected, sync or async
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @returns {undefined}
+	 */
+	describeMainPromisesArrayAttach: function(testFn, options) {
+		var u = this;
+		u.describeMainPromisesArray(function(makePromise) {
+			describe('and method attached', function() {
+				u.describeAttach(function(attach) {
+					testFn(makePromise, attach);
+				});
+			});
+		}, options);
+	},
+
+	/**
 	 * Create `describe` test groups for array values that can be consumed by methods that take an array value.
 	 * e.g. `Promise.all(array)`.
 	 * Calls `testFn` with `makePromise` function that creates different promises of arrays when called.
@@ -265,7 +299,8 @@ module.exports = {
 
 	/**
 	 * Create `describe` test groups for promise resolved/rejected sync/async and handler attached sync/async.
-	 * Calls `testFn` with a function `makePromise` to create a promise.
+	 * Calls `testFn` with a function `makePromise` to create a promise
+	 * and function `attach` that schedules a function to run immediately or in next tick.
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
 	 * @param {Object} options - Options object
