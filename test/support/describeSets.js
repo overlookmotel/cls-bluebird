@@ -169,9 +169,7 @@ module.exports = {
 					var makePromise = function() {
 						return makeValue(makeArray);
 					};
-
-					// `_arrayValuesReject` property needed for `.map()` test
-					makePromise._arrayValuesReject = u.getRejectStatus(makeArray);
+					u.inheritRejectStatus(makePromise, makeArray);
 
 					testFn(makePromise);
 				}, _.defaults({suppressRejections: true}, options));

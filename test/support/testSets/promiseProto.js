@@ -226,8 +226,7 @@ module.exports = {
 						}
 
 						// If handler should not be fired on this promise, check is not fired
-						// TODO File issue on bluebird for inconsistent behavior between `Promise.map()` and `.map`
-						var handlerShouldBeCalled = (u.getRejectStatus(makePromise) || makePromise._arrayValuesReject) ? options.catches : options.continues;
+						var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 
 						if (!handlerShouldBeCalled) {
 							describe('is ignored', function() {
