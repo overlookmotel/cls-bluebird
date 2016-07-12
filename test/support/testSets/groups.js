@@ -102,6 +102,8 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
+	 * @param {boolean} [options.literal=false] - true if method receives only array not promise of array (`Promise.join()`)
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`Promise.join()`)
 	 * @returns {undefined}
 	 */
 	testGroupStaticAsyncArrayHandler: function(fn, options) {
@@ -132,6 +134,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
 	 * @returns {undefined}
 	 */
 	testGroupProtoAsyncArrayHandler: function(fn, options) {

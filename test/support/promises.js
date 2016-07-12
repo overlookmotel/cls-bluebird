@@ -10,19 +10,17 @@
 module.exports = {
 	/**
 	 * Function to create default literal value.
-	 * NB Returns array so works with collection methods.
 	 *
 	 * @param {Function} [makeValue] - If provided, function is called to create value
-	 * @returns {Array}
+	 * @returns {number}
 	 */
-	// TODO revert to returning number and find better way to deal with collection methods
 	makeValue: function(makeValue) {
 		if (makeValue) {
 			var value = makeValue();
 			return this.inheritRejectStatus(value, makeValue);
 		}
 
-		return [1, 2, 3];
+		return 1;
 	},
 
 	/**

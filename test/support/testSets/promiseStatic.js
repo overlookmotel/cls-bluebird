@@ -103,6 +103,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @returns {undefined}
 	 */
+	// TODO Delete this function - no longer used
 	testSetReturnsPromiseStaticReceivingArrayLiteral: function(fn, options) {
 		var u = this;
 		options = options || {};
@@ -199,13 +200,15 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
+	 * @param {boolean} [options.literal=false] - true if method receives only array not promise of array (`Promise.join()`)
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`Promise.join()`)
 	 * @returns {undefined}
 	 */
 	testSetReturnsPromiseStaticReceivingArrayAndHandler: function(fn, options) {
 		var u = this;
 
 		describe('returns instance of patched Promise constructor when passed', function() {
-			u.describeArrayOrPromiseOfArrays(function(makeValue) {
+			u[options.literal ? 'describeArrays' : 'describeArrayOrPromiseOfArrays'](function(makeValue) {
 				describe('and handler', function() {
 					// Test undefined handler
 					if (!options.noUndefinedHandler) {
@@ -246,7 +249,7 @@ module.exports = {
 					// Test all handlers
 					u.describeHandlers(function(handler) {
 						// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
-						var oneCall = handler._throws || (
+						var oneCall = handler._throws || options.oneCallback || (
 							u.getRejectStatus(handler)
 							&& (
 								options.series

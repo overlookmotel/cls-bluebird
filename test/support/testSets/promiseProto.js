@@ -201,6 +201,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
 	 * @returns {undefined}
 	 */
 	testSetReturnsPromiseProtoOnArrayReceivingHandler: function(fn, options) {
@@ -244,7 +245,7 @@ module.exports = {
 				// Test all handlers
 				u.describeHandlers(function(handler) {
 					// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
-					var oneCall = handler._throws || (
+					var oneCall = handler._throws || options.oneCallback || (
 						u.getRejectStatus(handler)
 						&& (
 							options.series
