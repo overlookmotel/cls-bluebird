@@ -13,7 +13,7 @@ runTests('Promise.any()', function(u, Promise) {
 	}, {noUndefined: true, aggregateError: true});
 });
 
-runTests('.some()', function(u) {
+runTests('.any()', function(u) {
 	u.testSetReturnsPromiseProtoOnArrayReceivingNothing(function(p) {
 		return p.any();
 	}, {noUndefined: true, aggregateError: true});
