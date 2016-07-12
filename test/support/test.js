@@ -19,18 +19,21 @@ module.exports = {
 	 *
 	 * @param {string} name - Test case name
 	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.aggregateError] - true if method produces `AggregateError`s on rejection
 	 * @returns {undefined}
 	 */
-	test: function(name, fn) {
+	test: function(name, fn, options) {
 		var u = this;
 
 		if (typeof name === 'function') {
+			options = fn;
 			fn = name;
 			name = '';
 		}
 
 		it(name, function(done) {
-			u._runTest(fn, done);
+			u._runTest(fn, done, options);
 		});
 	},
 
@@ -44,12 +47,15 @@ module.exports = {
 	 *
 	 * @param {string} name - Name of test
 	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.aggregateError] - true if method produces `AggregateError`s on rejection
 	 * @returns {undefined}
 	 */
-	testMultiple: function(name, fn) {
+	testMultiple: function(name, fn, options) {
 		var u = this;
 
 		if (typeof name === 'function') {
+			options = fn;
 			fn = name;
 			name = '';
 		}
@@ -58,7 +64,7 @@ module.exports = {
 			done = callbackAggregator(TEST_MULTIPLE_ROUNDS, done);
 
 			for (var i = 0; i < TEST_MULTIPLE_ROUNDS; i++) {
-				u._runTest(fn, done);
+				u._runTest(fn, done, options);
 			}
 		});
 	},
@@ -71,10 +77,12 @@ module.exports = {
 	 *
 	 * @param {Function} fn - Test function
 	 * @param {Function} done - Callback function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.aggregateError] - true if method produces `AggregateError`s on rejection
 	 */
-	_runTest: function(fn, done) {
+	_runTest: function(fn, done, options) {
 		var Test = this.Test;
-		var t = new Test(done);
+		var t = new Test(done, options);
 		try {
 			fn(t);
 		} catch (err) {

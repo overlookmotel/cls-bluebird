@@ -18,16 +18,18 @@ module.exports = {
 	 * Any failed check errors are registered on test object, and `t.done()` is called.
 	 *
 	 * @param {Function} fn - Function to run.
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.aggregateError] - true if method produces `AggregateError`s on rejection
 	 * @returns {undefined}
 	 */
-	testIsPromise: function(fn) {
+	testIsPromise: function(fn, options) {
 		var u = this;
 		u.test(function(t) {
 			fn(function(p) {
 				t.error(u.checkIsPromise(p));
 				t.done(p);
 			});
-		});
+		}, options);
 	},
 
 	/**

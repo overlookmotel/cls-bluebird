@@ -31,9 +31,12 @@ module.exports = function(u) {
 	 * Test object constructor.
 	 * @constructor
 	 * @param {Function} done - Callback to be called when test is complete (i.e. `test.done()` is called)
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.aggregateError] - true if `AggregateError`s are acceptable
 	 */
-	function Test(done) {
+	function Test(done, options) {
 		this._done = done;
+		this._aggregateError = (options || {}).aggregateError;
 	}
 
 	Test.prototype = {
@@ -67,7 +70,16 @@ module.exports = function(u) {
 				test._done(test._err);
 			}, function(err) {
 				if (final) final();
-				if (!u.getRejectStatus(promise) || !(err instanceof TestError)) test.error(err || new Error('Empty rejection'));
+
+				if (!u.getRejectStatus(promise)) {
+					test.error(err || new Error('Empty rejection'));
+				} else if (err instanceof Promise.AggregateError && test._aggregateError) {
+					err.forEach(function(thisErr) {
+						if (!(thisErr instanceof TestError)) test.error(thisErr);
+					});
+				} else if (!(err instanceof TestError)) {
+					test.error(err);
+				}
 				test._done(test._err);
 			});
 		}

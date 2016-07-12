@@ -147,6 +147,7 @@ module.exports = {
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `Promise.props()`
+	 * @param {boolean} [options.aggregateError] - true if method produces `AggregateError`s on rejection
 	 * @returns {undefined}
 	 */
 	testSetReturnsPromiseStaticReceivingArray: function(fn, options) {
@@ -160,7 +161,7 @@ module.exports = {
 					var p = fn(value);
 					u.inheritRejectStatus(p, value);
 					cb(p);
-				});
+				}, {aggregateError: options.aggregateError});
 			}, options);
 		});
 	},
