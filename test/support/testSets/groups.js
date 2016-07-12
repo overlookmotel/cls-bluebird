@@ -16,6 +16,7 @@ module.exports = {
 	 *   - always returns a Promise which is instance of patched Promise constructor
 	 *   - callback is called synchronously
 	 *   - callback is not bound to CLS context
+	 *   - callback is run in correct CLS context
 	 *
 	 * `fn` is called with a `handler` function which should be attached as the callback to the method under test.
 	 * `fn` should return the resulting promise.
@@ -42,6 +43,7 @@ module.exports = {
 	 *   - always returns a Promise which is instance of patched Promise constructor
 	 *   - callback is called asynchronously
 	 *   - callback is bound to CLS context
+	 *   - callback is run in correct CLS context
 	 *
 	 * `fn` is called with a `promise` and a `handler` function.
 	 * `fn` should:
