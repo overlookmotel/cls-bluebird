@@ -84,5 +84,62 @@ module.exports = {
 		if (!options.noAsyncTest) u.testSetCallbackAsyncProto(fn, options);
 		if (!options.noBindTest) u.testSetBoundProto(fn, options);
 		u.testSetCallbackContextProto(fn, options);
+	},
+
+	/**
+	 * Run set of tests on a static method that takes an array/promise of an array and callback to ensure:
+	 *   - always returns a Promise which is instance of patched Promise constructor
+	 *   - callback is called asynchronously
+	 *   - callback is bound to CLS context
+	 *   - callback is run in correct CLS context
+	 *
+	 * `fn` is called with an `array` and `handler` function.
+	 * `fn` should run the method under test providing array and callback, and return the resulting promise.
+	 * e.g. `return Promise.map(array, handler)`
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
+	 * @param {boolean} [options.series=false] - true if method iterates through array in series
+	 * @returns {undefined}
+	 */
+	testGroupStaticAsyncArrayHandler: function(fn, options) {
+		var u = this;
+		options = _.defaults({continues: true}, options);
+
+		u.testSetReturnsPromiseStaticReceivingArrayAndHandler(fn, options);
+
+		// TODO add tests for running callback async, binding to CLS context and running in CLS context
+	},
+
+	/**
+	 * Run set of tests on a prototype method chaining onto promise of an array that takes a callback.
+	 * Tests ensure:
+	 *   - always returns a Promise which is instance of patched Promise constructor
+	 *   - callback is called asynchronously
+	 *   - callback is bound to CLS context
+	 *   - callback is run in correct CLS context
+	 *
+	 * `fn` is called with a `promise` and a `handler` function.
+	 * `fn` should:
+	 *   - call the method under test on `promise` with `handler` as callback
+	 *   - return the resulting promise.
+	 * e.g. `return promise.map(handler)`
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
+	 * @param {boolean} [options.series=false] - true if method iterates through array in series
+	 * @returns {undefined}
+	 */
+	testGroupProtoAsyncArrayHandler: function(fn, options) {
+		var u = this;
+		options = _.defaults({continues: true}, options);
+
+		u.testSetReturnsPromiseProtoOnArrayReceivingHandler(fn, options);
+
+		// TODO add tests for running callback async, binding to CLS context and running in CLS context
 	}
 };

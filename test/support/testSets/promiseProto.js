@@ -200,6 +200,7 @@ module.exports = {
 	 * @param {boolean} [options.catches=false] - true if handler fires rejected promise
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
+	 * @param {boolean} [options.series=false] - true if method iterates through array in series
 	 * @returns {undefined}
 	 */
 	testSetReturnsPromiseProtoOnArrayReceivingHandler: function(fn, options) {
@@ -245,13 +246,18 @@ module.exports = {
 					// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
 					var oneCall = handler._throws || (
 						u.getRejectStatus(handler)
-						&& !handler._async
 						&& (
-							handler._constructor === u.Promise
+							options.series
 							|| (
-								u.nodeVersion === '0.10'
-								&& makePromise._asyncArray
-								&& (makePromise._async || !attach._async)
+								!handler._async
+								&& (
+									handler._constructor === u.Promise
+									|| (
+										u.nodeVersion === '0.10'
+										&& makePromise._asyncArray
+										&& (makePromise._async || !attach._async)
+									)
+								)
 							)
 						)
 					);

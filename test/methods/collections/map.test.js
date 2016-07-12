@@ -3,22 +3,36 @@
  * Tests for Promise.map() / .map()
  */
 
+/* global describe */
+
 // Imports
 var runTests = require('../../support');
 
 // Run tests
-// TODO Add tests with `concurrency` option
-
 runTests('Promise.map()', function(u, Promise) {
-	// TODO tests for binding, sync/async and CLS context
-	u.testSetReturnsPromiseStaticReceivingArrayAndHandler(function(value, handler) {
-		return Promise.map(value, handler);
-	}, {continues: true, noUndefinedValue: true, noUndefinedHandler: true});
+	describe('default concurrency', function() {
+		u.testGroupStaticAsyncArrayHandler(function(value, handler) {
+			return Promise.map(value, handler);
+		}, {noUndefinedValue: true, noUndefinedHandler: true});
+	});
+
+	describe('with concurrency option', function() {
+		u.testGroupStaticAsyncArrayHandler(function(value, handler) {
+			return Promise.map(value, handler, {concurrency: 1});
+		}, {noUndefinedValue: true, noUndefinedHandler: true, series: true});
+	});
 });
 
 runTests('.map()', function(u) {
-	// TODO tests for binding, sync/async and CLS context
-	u.testSetReturnsPromiseProtoOnArrayReceivingHandler(function(p, handler) {
-		return p.map(handler);
-	}, {continues: true, noUndefinedValue: true, noUndefinedHandler: true});
+	describe('default concurrency', function() {
+		u.testGroupProtoAsyncArrayHandler(function(p, handler) {
+			return p.map(handler);
+		}, {noUndefinedValue: true, noUndefinedHandler: true});
+	});
+
+	describe('with concurrency option', function() {
+		u.testGroupProtoAsyncArrayHandler(function(p, handler) {
+			return p.map(handler, {concurrency: 1});
+		}, {noUndefinedValue: true, noUndefinedHandler: true, series: true});
+	});
 });
