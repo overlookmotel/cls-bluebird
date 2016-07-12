@@ -151,6 +151,7 @@ module.exports = {
 	 * @param {Function} fn - Test function
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `.props()`
 	 * @returns {undefined}
 	 */
 	testSetReturnsPromiseProtoOnArrayReceivingNothing: function(fn, options) {

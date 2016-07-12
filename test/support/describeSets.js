@@ -98,6 +98,7 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `Promise.props()`
 	 * @param {boolean} [options.suppressRejections=false] - true to suppress unhandled rejections
 	 * @returns {undefined}
 	 */
@@ -115,7 +116,6 @@ module.exports = {
 			u.describeValues(function(makeValue) {
 				var makeArray = function() {
 					var value = [makeValue(), makeValue(), makeValue()];
-					u.inheritRejectStatus(value, makeValue);
 
 					if (options.suppressRejections && u.getRejectStatus(makeValue)) {
 						value.forEach(function(p) {
@@ -123,6 +123,9 @@ module.exports = {
 						});
 					}
 
+					if (options.object) value = {a: value[0], b: value[1], c: value[2]};
+
+					u.inheritRejectStatus(value, makeValue);
 					return value;
 				};
 				u.inheritRejectStatus(makeArray, makeValue);
@@ -155,6 +158,7 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `Promise.props()`
 	 * @returns {undefined}
 	 */
 	describeMainPromisesArray: function(testFn, options) {
@@ -205,6 +209,7 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `Promise.props()`
 	 * @returns {undefined}
 	 */
 	describeMainPromisesArrayAttach: function(testFn, options) {
@@ -240,6 +245,7 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with `makePromise` function.
 	 * @param {Object} [options] - Options object
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `Promise.props()`
 	 * @returns {undefined}
 	 */
 	describeArrayOrPromiseOfArrays: function(testFn, options) {
