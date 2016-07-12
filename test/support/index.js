@@ -66,17 +66,24 @@ var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersio
  *
  * @param {string} name - Name of test group
  * @param {Function} testFn - Function that runs tests
+ * @param {Function} [skipConditionFn] - If provided, function is run and tests skipped if returns true
+ * @param {Object} [options] - Options object
+ * @param {boolean} [options.skip] - true if tests should be skipped
  * @returns {undefined}
  */
-module.exports = function(name, testFn) {
+module.exports = function(name, testFn, skipConditionFn) {
 	// Apply mocha shim to collapse single `it` statements into parent `describe`
 	mochaShim();
 
 	// Catch unhandled rejections
 	catchRejections();
 
+	// Run skipConditionFn to see if tests should be skipped
+	var skip = false;
+	if (skipConditionFn) skip = skipConditionFn(utils, Promise);
+
 	// Run tests
-	describe(name + ' (' + versionName + ')', function() {
+	(skip ? describe.skip : describe)(name + ' (' + versionName + ')', function() {
 		testFn(utils, Promise);
 	}, true);
 };
