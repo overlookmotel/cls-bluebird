@@ -63,6 +63,34 @@ module.exports = {
 	},
 
 	/**
+	 * Run a function with handler and check it returns a promise from patched constructor.
+	 * Also checks handler is called expected number of times.
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Function} makePromise - Function that makes the promise to chain onto
+	 * @param {Function} attach - Function to either execute callback now or in next tick
+	 * @param {Function} [handler] - Function to be used as handler (optional)
+	 * @param {number} expectedCalls - Number of times expect handler to be called
+	 * @param {boolean} [passThrough=false] - true if resulting promise will reject if promise chained to rejects
+	 * @returns {undefined}
+	 */
+	testIsPromiseFromProtoMethod: function(fn, makePromise, attach, handler, expectedCalls, passThrough) {
+		var u = this;
+		u.testIsPromiseFromHandler(function(handler, cb) {
+			// Create promise
+			var p = makePromise();
+
+			// Run method on promise and pass handler
+			attach(function() {
+				var newP = fn(p, handler);
+				u.inheritRejectStatus(newP, handler);
+				if (passThrough && u.getRejectStatus(p)) u.setRejectStatus(newP);
+				cb(newP);
+			}, p);
+		}, handler, {expectedCalls: expectedCalls});
+	},
+
+	/**
 	 * Runs a function and checks it calls back a handler asynchronously.
 	 * `fn` is called immediately, and passed a handler.
 	 *
