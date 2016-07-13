@@ -16,7 +16,7 @@ module.exports = {
 	 * It works around various kinks in bluebird's behavior.
 	 *
 	 * @param {Function} makeValue - Function to call to make the value method acts upon
-	 * @param {Function} handler - Handler function
+	 * @param {Function} [handler] - Handler function
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (e.g. `Promise.join()`)
@@ -24,6 +24,8 @@ module.exports = {
 	 */
 	helperStaticArrayNumHandlerCalls: function(makeValue, handler, options) {
 		var u = this;
+
+		if (!handler) handler = function() {};
 
 		// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
 		var oneCall = handler._throws || options.oneCallback || (
@@ -53,7 +55,7 @@ module.exports = {
 	 *
 	 * @param {Function} makePromise - Function to call to make the promise method chain on to
 	 * @param {Function} attach - Function to either execute callback now or in next tick
-	 * @param {Function} handler - Handler function
+	 * @param {Function} [handler] - Handler function
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
@@ -61,6 +63,8 @@ module.exports = {
 	 */
 	helperProtoArrayNumHandlerCalls: function(makePromise, attach, handler, options) {
 		var u = this;
+
+		if (!handler) handler = function() {};
 
 		// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
 		var oneCall = handler._throws || options.oneCallback || (
