@@ -185,38 +185,40 @@ module.exports = {
 	 */
 	testSetReturnsPromiseProtoOnArrayReceivingHandler: function(fn, options) {
 		var u = this;
-		u.describeMainPromisesArrayAttach(function(makePromise, attach) {
-			describe('and handler', function() {
-				// Test undefined handler
-				if (!options.noUndefinedHandler) {
-					u.test('is undefined', function(t) {
-						var p = makePromise();
+		describe('returns instance of patched Promise constructor when chained on promise', function() {
+			u.describeMainPromisesArrayAttach(function(makePromise, attach) {
+				describe('and handler', function() {
+					// Test undefined handler
+					if (!options.noUndefinedHandler) {
+						u.test('is undefined', function(t) {
+							var p = makePromise();
 
-						attach(function() {
-							var newP = fn(p, undefined);
-							u.inheritRejectStatus(newP, p);
+							attach(function() {
+								var newP = fn(p, undefined);
+								u.inheritRejectStatus(newP, p);
 
-							t.error(u.checkIsPromise(newP));
-							t.done(newP);
-						}, p);
-					});
-				}
+								t.error(u.checkIsPromise(newP));
+								t.done(newP);
+							}, p);
+						});
+					}
 
-				// Test handlers
-				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
-				if (handlerShouldBeCalled) {
-					// Handler should fire on this promise - test all handlers
-					u.describeHandlers(function(handler) {
-						var expectedCalls = u.helperProtoArrayNumHandlerCalls(makePromise, attach, handler, options);
-						u.testIsPromiseFromProtoMethod(fn, makePromise, attach, handler, expectedCalls, false);
-					});
-				} else {
-					// Handler should not fire on this promise
-					describe('is ignored', function() {
-						u.testIsPromiseFromProtoMethod(fn, makePromise, attach, undefined, 0, true);
-					});
-				}
-			});
-		}, {noUndefined: options.noUndefinedValue});
+					// Test handlers
+					var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+					if (handlerShouldBeCalled) {
+						// Handler should fire on this promise - test all handlers
+						u.describeHandlers(function(handler) {
+							var expectedCalls = u.helperProtoArrayNumHandlerCalls(makePromise, attach, handler, options);
+							u.testIsPromiseFromProtoMethod(fn, makePromise, attach, handler, expectedCalls, false);
+						});
+					} else {
+						// Handler should not fire on this promise
+						describe('is ignored', function() {
+							u.testIsPromiseFromProtoMethod(fn, makePromise, attach, undefined, 0, true);
+						});
+					}
+				});
+			}, {noUndefined: options.noUndefinedValue});
+		});
 	}
 };
