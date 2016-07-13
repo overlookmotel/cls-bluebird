@@ -108,8 +108,21 @@ module.exports = {
 	 */
 	testGroupStaticAsyncArrayHandler: function(fn, options) {
 		var u = this;
-		options = _.defaults({continues: true}, options);
 
+		// Conform options
+		options = _.defaults({
+			continues: true,
+			catches: false,
+			passThrough: false
+		}, options, {
+			noUndefinedValue: false,
+			noUndefinedHandler: false,
+			series: false,
+			literal: false,
+			oneCallback: false
+		});
+
+		// Run tests
 		u.testSetReturnsPromiseStaticReceivingArrayAndHandler(fn, options);
 
 		// TODO add tests for running callback async, binding to CLS context and running in CLS context
@@ -139,8 +152,20 @@ module.exports = {
 	 */
 	testGroupProtoAsyncArrayHandler: function(fn, options) {
 		var u = this;
-		options = _.defaults({continues: true}, options);
 
+		// Conform options
+		options = _.defaults({
+			continues: true,
+			catches: false,
+			passThrough: false
+		}, options, {
+			noUndefinedValue: false,
+			noUndefinedHandler: false,
+			series: false,
+			oneCallback: false
+		});
+
+		// Run tests
 		u.testSetReturnsPromiseProtoOnArrayReceivingHandler(fn, options);
 
 		// TODO add tests for running callback async, binding to CLS context and running in CLS context
