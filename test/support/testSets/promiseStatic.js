@@ -248,27 +248,14 @@ module.exports = {
 					// Handler should fire on this value
 					// Test all handlers
 					u.describeHandlers(function(handler) {
-						// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
-						var oneCall = handler._throws || options.oneCallback || (
-							u.getRejectStatus(handler)
-							&& (
-								options.series
-								|| (
-									!handler._async
-									&& (
-										handler._constructor === u.Promise
-										|| (u.nodeVersion === '0.10' && makeValue._asyncArray)
-									)
-								)
-							)
-						);
+						var expectedCalls = u.helperStaticArrayNumHandlerCalls(makeValue, handler, options);
 
 						u.testIsPromiseFromHandler(function(handler, cb) {
 							var value = makeValue();
 							var p = fn(value, handler);
 							u.inheritRejectStatus(p, handler);
 							cb(p);
-						}, handler, {expectedCalls: oneCall ? 1 : 3});
+						}, handler, {expectedCalls: expectedCalls});
 					});
 				});
 			}, {noUndefined: options.noUndefinedValue});

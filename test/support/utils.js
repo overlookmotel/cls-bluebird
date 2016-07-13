@@ -18,7 +18,8 @@ var addCtors = require('./ctors'),
 	testSetSyncAsync = require('./testSets/syncAsync'),
 	testSetBinding = require('./testSets/binding'),
 	testSetContext = require('./testSets/context'),
-	testSetGroups = require('./testSets/groups');
+	testSetGroups = require('./testSets/groups'),
+	helpers = require('./helpers');
 
 // Constants
 var REJECT_STATUS_KEY = '__clsBluebirdTestRejectStatus';
@@ -182,5 +183,6 @@ _.extend(Utils.prototype, testSetSyncAsync);
 _.extend(Utils.prototype, testSetBinding);
 _.extend(Utils.prototype, testSetContext);
 _.extend(Utils.prototype, testSetGroups);
+_.extend(Utils.prototype, helpers);
 
 module.exports = Utils;

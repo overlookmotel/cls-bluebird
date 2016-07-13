@@ -207,26 +207,8 @@ module.exports = {
 				if (handlerShouldBeCalled) {
 					// Handler should fire on this promise - test all handlers
 					u.describeHandlers(function(handler) {
-						// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
-						var oneCall = handler._throws || options.oneCallback || (
-							u.getRejectStatus(handler)
-							&& (
-								options.series
-								|| (
-									!handler._async
-									&& (
-										handler._constructor === u.Promise
-										|| (
-											u.nodeVersion === '0.10'
-											&& makePromise._asyncArray
-											&& (makePromise._async || !attach._async)
-										)
-									)
-								)
-							)
-						);
-
-						u.testIsPromiseFromProtoMethod(fn, makePromise, attach, handler, oneCall ? 1 : 3, false);
+						var expectedCalls = u.helperProtoArrayNumHandlerCalls(makePromise, attach, handler, options);
+						u.testIsPromiseFromProtoMethod(fn, makePromise, attach, handler, expectedCalls, false);
 					});
 				} else {
 					// Handler should not fire on this promise
