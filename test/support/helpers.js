@@ -56,7 +56,7 @@ module.exports = {
 	 * @param {Function} handler - Handler function
 	 * @param {Object} options - Options object
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
-	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (e.g. `Promise.join()`)
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
 	 * @returns {number} - Number of times handler should be run.
 	 */
 	helperProtoArrayNumHandlerCalls: function(makePromise, attach, handler, options) {

@@ -11,7 +11,7 @@
 
 module.exports = {
 	/**
-	 * Run set of tests on a method to ensure callback is always bound to CLS context.
+	 * Run set of tests on a prototype method to ensure callback is always bound to CLS context.
 	 * Function `fn` should take provided `promise` and call the method being tested on it.
 	 * `fn` is called with a `promise` and a `handler` function which should be attached as the callback to the method under test.
 	 * e.g. `return promise.then(handler)`
