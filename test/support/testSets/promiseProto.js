@@ -114,7 +114,7 @@ module.exports = {
 	 *
 	 * Test function `fn` is called with a `promise`.
 	 * `fn` should call the method being tested on `promise`, and return resulting promise.
-	 * e.g. `return Promise.all(value)`
+	 * e.g. `return promise.all()`
 	 *
 	 * A different `promise` is provided in each test:
 	 *   - resolved sync or async with
@@ -153,7 +153,7 @@ module.exports = {
 	},
 
 	/**
-	 * Run set of tests on a prototype method that chains on promise of an array
+	 * Run set of tests on a prototype method that chains on promise of an array and receives a handler
 	 * to ensure always returns a promise inherited from correct Promise constructor.
 	 *
 	 * Test function `fn` is called with a `promise` and a `handler`.

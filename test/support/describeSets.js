@@ -283,8 +283,8 @@ module.exports = {
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
 	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.continues=false] - true to include resolved promises
+	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
 	describeAllPromises: function(testFn, options) {
@@ -304,8 +304,8 @@ module.exports = {
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
 	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.continues=false] - true to include resolved promises
+	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
 	describeMainPromises: function(testFn, options) {
@@ -320,8 +320,8 @@ module.exports = {
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
 	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.continues=false] - true to include resolved promises
+	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
 	describeMainPromisesAttach: function(testFn, options) {
@@ -362,8 +362,8 @@ module.exports = {
 	 * @param {Function} testFn - Function to call for each `describe`. Called with function to create a promise.
 	 * @param {Function} Promise - Promise constructor to create promises with
 	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
-	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.continues=false] - true to include resolved promises
+	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
 	describePromisesFromCtor: function(testFn, Promise, options) {

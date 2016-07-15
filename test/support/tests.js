@@ -312,7 +312,8 @@ module.exports = {
 	 * @param {Function} fn - Function to run.
 	 * @param {Function} [handler] - Handler function - will be wrapped and passed to `fn`
 	 * @param {number} [expectedCalls=1] - Number of times expect handler to be called
-	 * @param {boolean} [options.multiple] - Set `true` to use `u.testMultiple` rather than `u.test`
+	 * @param {boolean} [options] - Options object
+	 * @param {boolean} [options.multiple=false] - Set `true` to use `u.testMultiple` rather than `u.test`
 	 * @returns {undefined}
 	 */
 	testHandlerCalled: function(fn, handler, expectedCalls, options) {
