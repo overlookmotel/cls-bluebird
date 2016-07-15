@@ -29,16 +29,19 @@ module.exports = {
 		var u = this;
 		describe('calls callback asynchronously when called on promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
+				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+				var expectedCalls = handlerShouldBeCalled ? 1 : 0;
+
 				u.testAsync(function(handler, cb) {
 					var p = makePromise();
 
 					attach(function() {
 						var newP = fn(p, handler);
-						if (options.passThrough) u.inheritRejectStatus(newP, p);
+						if (options.passThrough || !handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
-				});
-			}, options);
+				}, undefined, {expectedCalls: expectedCalls});
+			}, {continues: true, catches: true});
 		});
 	},
 

@@ -30,14 +30,17 @@ module.exports = {
 		var u = this;
 		describe('binds callback on a promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
+				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+				var expectedCalls = handlerShouldBeCalled ? 1 : 0;
+
 				u.testBound(function(handler, p, cb) {
 					attach(function() {
 						var newP = fn(p, handler);
-						if (options.passThrough) u.inheritRejectStatus(newP, p);
+						if (options.passThrough || !handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
-				}, makePromise, options.handler);
-			}, options);
+				}, makePromise, options.handler, {expectedCalls: expectedCalls});
+			}, {continues: true, catches: true});
 		});
 	},
 

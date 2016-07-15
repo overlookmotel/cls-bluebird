@@ -171,7 +171,7 @@ module.exports = {
 				sync = false;
 				cb(p);
 			});
-		}, handler, options.expectedCalls);
+		}, handler, options.expectedCalls, {testNameIfNotCalled: true});
 	},
 
 	/**
@@ -220,7 +220,7 @@ module.exports = {
 					cb(p);
 				});
 			});
-		}, handler, options.expectedCalls);
+		}, handler, options.expectedCalls, {testNameIfNotCalled: true});
 	},
 
 	/**
@@ -301,7 +301,7 @@ module.exports = {
 					cb(p);
 				});
 			});
-		}, handler, options.expectedCalls, {multiple: true});
+		}, handler, options.expectedCalls, {multiple: true, testNameIfNotCalled: true});
 	},
 
 	/**
@@ -314,6 +314,7 @@ module.exports = {
 	 * @param {number} [expectedCalls=1] - Number of times expect handler to be called
 	 * @param {boolean} [options] - Options object
 	 * @param {boolean} [options.multiple=false] - Set `true` to use `u.testMultiple` rather than `u.test`
+	 * @param {boolean} [options.testNameIfNotCalled=false] - Set `true` to name test when handler not called
 	 * @returns {undefined}
 	 */
 	testHandlerCalled: function(fn, handler, expectedCalls, options) {
@@ -321,7 +322,9 @@ module.exports = {
 		options = options || {};
 		if (expectedCalls === undefined) expectedCalls = 1;
 
-		u[options.multiple ? 'testMultiple' : 'test'](function(t) {
+		var testName = (options.testNameIfNotCalled && !expectedCalls) ? '(handler not called)' : '';
+
+		u[options.multiple ? 'testMultiple' : 'test'](testName, function(t) {
 			// Create handler
 			var called = 0;
 
