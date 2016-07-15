@@ -44,7 +44,7 @@ module.exports = {
 						});
 					});
 				});
-			}, {continues: true, catches: true});
+			});
 		});
 	},
 
@@ -103,7 +103,7 @@ module.exports = {
 						});
 					}
 				});
-			}, {continues: true, catches: true});
+			});
 		});
 	},
 

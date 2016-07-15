@@ -41,7 +41,7 @@ module.exports = {
 						cb(newP);
 					}, p);
 				}, undefined, {expectedCalls: expectedCalls});
-			}, {continues: true, catches: true});
+			});
 		});
 	},
 

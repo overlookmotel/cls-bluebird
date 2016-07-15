@@ -17,7 +17,7 @@ runTests('new Promise()', function(u, Promise) {
 				var p = makePromise();
 				cb(p);
 			});
-		}, {continues: true, catches: true});
+		});
 
 		/*
 		// TODO test for when resolved with promise e.g. `new Promise(function(resolve) { resolve(Promise.resolve(); )})`

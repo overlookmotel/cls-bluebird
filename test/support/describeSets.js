@@ -41,7 +41,7 @@ module.exports = {
 			});
 		}
 
-		u.describeAllPromises(testFn, {continues: true, catches: true});
+		u.describeAllPromises(testFn);
 	},
 
 	/**
@@ -185,7 +185,7 @@ module.exports = {
 					testFn(makePromise);
 				}, _.defaults({suppressRejections: true}, options));
 			});
-		}, {continues: true, catches: true});
+		});
 	},
 
 	/**
@@ -282,15 +282,12 @@ module.exports = {
 	 *   - promises resolved/rejected sync or async
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
-	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true to include resolved promises
-	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
-	describeAllPromises: function(testFn, options) {
+	describeAllPromises: function(testFn) {
 		var u = this;
 		u.describePromiseConstructors(function(Promise) {
-			u.describePromisesFromCtor(testFn, Promise, options);
+			u.describePromisesFromCtor(testFn, Promise);
 		});
 	},
 
@@ -303,14 +300,11 @@ module.exports = {
 	 *   - promises resolved/rejected sync or async
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
-	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true to include resolved promises
-	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
-	describeMainPromises: function(testFn, options) {
+	describeMainPromises: function(testFn) {
 		var u = this;
-		u.describePromisesFromCtor(testFn, u.Promise, options);
+		u.describePromisesFromCtor(testFn, u.Promise);
 	},
 
 	/**
@@ -319,12 +313,9 @@ module.exports = {
 	 * and function `attach` that schedules a function to run immediately or in next tick.
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`.
-	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true to include resolved promises
-	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
-	describeMainPromisesAttach: function(testFn, options) {
+	describeMainPromisesAttach: function(testFn) {
 		var u = this;
 		u.describeMainPromises(function(makePromise) {
 			describe('and method attached', function() {
@@ -332,7 +323,7 @@ module.exports = {
 					testFn(makePromise, attach);
 				});
 			});
-		}, options);
+		});
 	},
 
 	/**
@@ -361,37 +352,30 @@ module.exports = {
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`. Called with function to create a promise.
 	 * @param {Function} Promise - Promise constructor to create promises with
-	 * @param {Object} options - Options object
-	 * @param {boolean} [options.continues=false] - true to include resolved promises
-	 * @param {boolean} [options.catches=false] - true to include rejected promises
 	 * @returns {undefined}
 	 */
-	describePromisesFromCtor: function(testFn, Promise, options) {
+	describePromisesFromCtor: function(testFn, Promise) {
 		var u = this;
 
-		if (options.continues) {
-			describe('resolved', function() {
-				describe('sync', function() {
-					testFn(u.resolveSyncHandler(Promise));
-				});
-
-				describe('async', function() {
-					testFn(u.resolveAsyncHandler(Promise));
-				});
+		describe('resolved', function() {
+			describe('sync', function() {
+				testFn(u.resolveSyncHandler(Promise));
 			});
-		}
 
-		if (options.catches) {
-			describe('rejected', function() {
-				describe('sync', function() {
-					testFn(u.rejectSyncHandler(Promise));
-				});
-
-				describe('async', function() {
-					testFn(u.rejectAsyncHandler(Promise));
-				});
+			describe('async', function() {
+				testFn(u.resolveAsyncHandler(Promise));
 			});
-		}
+		});
+
+		describe('rejected', function() {
+			describe('sync', function() {
+				testFn(u.rejectSyncHandler(Promise));
+			});
+
+			describe('async', function() {
+				testFn(u.rejectAsyncHandler(Promise));
+			});
+		});
 	},
 
 	/**

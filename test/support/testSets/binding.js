@@ -40,7 +40,7 @@ module.exports = {
 						cb(newP);
 					}, p);
 				}, makePromise, options.handler, {expectedCalls: expectedCalls});
-			}, {continues: true, catches: true});
+			});
 		});
 	},
 
