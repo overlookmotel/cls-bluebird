@@ -56,8 +56,6 @@ runTests('Patch', function(u, Promise) {
 
 		describe('prototype method', function() {
 			var ignore = [
-				'catch', // TODO only ignore on bluebird v3
-				'caught', // TODO only ignore on bluebird v3
 				'error',
 				'all',
 				'props',
@@ -92,6 +90,10 @@ runTests('Patch', function(u, Promise) {
 				'toString',
 				'toJSON'
 			];
+
+			// `.catch()` + `.caught()` are only patched on bluebird v2
+			if (u.bluebirdVersion !== 2) ignore.push('catch', 'caught');
+
 			checkPatched(Promise.prototype, ignore);
 		});
 	});
