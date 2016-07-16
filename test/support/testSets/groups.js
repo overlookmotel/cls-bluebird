@@ -65,6 +65,7 @@ module.exports = {
 	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
 	 * @returns {undefined}
 	 */
+	// TODO Remove `noAsyncTest` option - is not used
 	testGroupProtoAsyncHandler: function(fn, options) {
 		var u = this;
 
