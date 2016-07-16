@@ -46,6 +46,43 @@ module.exports = {
 	},
 
 	/**
+	 * Run set of tests on a prototype method that chains onto a promise of an array
+	 * to ensure always calls callback asynchronously.
+	 * Function `fn` should take provided `promise` and call the method being tested on it,
+	 * attaching `handler` as the callback.
+	 * e.g. `return promise.map(handler)`
+	 *
+	 * If handler is being attached to catch rejections, `options.catches` should be `true`
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} options - Options object
+	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
+	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
+	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @returns {undefined}
+	 */
+	testSetCallbackAsyncProtoArray: function(fn, options) {
+		var u = this;
+		describe('calls callback asynchronously when called on promise', function() {
+			u.describeMainPromisesArrayAttach(function(makePromise, attach) {
+				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+				var expectedCalls = handlerShouldBeCalled ? (options.oneCallback ? 1 : 3) : 0;
+
+				u.testAsync(function(handler, cb) {
+					var p = makePromise();
+
+					attach(function() {
+						var newP = fn(p, handler);
+						if (!handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
+						cb(newP);
+					}, p);
+				}, undefined, {expectedCalls: expectedCalls});
+			}, {noUndefined: options.noUndefinedValue});
+		});
+	},
+
+	/**
 	 * Run set of tests on a static method to ensure always calls callback synchronously.
 	 * Function `fn` should call the method being tested, attaching `handler` as the callback.
 	 * e.g. `return Promise.try(handler)`

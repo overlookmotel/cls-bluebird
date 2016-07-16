@@ -66,5 +66,41 @@ module.exports = {
 				}, makePromise, options.handler, {expectedCalls: expectedCalls});
 			});
 		});
+	},
+
+	/**
+	 * Run set of tests on a prototype method that chains onto a promise of an array
+	 * to ensure callback is always run in correct CLS context.
+	 * Function `fn` should take provided `promise` and call the method being tested on it with `handler`
+	 * and return resulting promise.
+	 * e.g. `return promise.map(handler)`
+	 *
+	 * If handler is being attached to catch rejections, `options.catches` should be `true`
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} options - Options object
+	 * @param {boolean} options.continues - true if handler fires on resolved promise
+	 * @param {boolean} options.catches - true if handler fires on rejected promise
+	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @param {Function} [options.handler] - Handler function
+	 * @returns {undefined}
+	 */
+	testSetCallbackContextProtoArray: function(fn, options) {
+		var u = this;
+		describe('callback runs in context on a promise', function() {
+			u.describeMainPromisesArrayAttach(function(makePromise, attach) {
+				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+				var expectedCalls = handlerShouldBeCalled ? (options.oneCallback ? 1 : 3) : 0;
+
+				u.testRunContext(function(handler, p, cb) {
+					attach(function() {
+						var newP = fn(p, handler);
+						if (!handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
+						cb(newP);
+					}, p);
+				}, makePromise, options.handler, {expectedCalls: expectedCalls});
+			}, {noUndefined: options.noUndefinedValue});
+		});
 	}
 };

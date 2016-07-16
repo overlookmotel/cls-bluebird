@@ -148,6 +148,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @param {boolean} [options.noAsyncTest] - Skip handler called async test if true (default `false`)
 	 * @returns {undefined}
 	 */
 	testGroupProtoAsyncArrayHandler: function(fn, options) {
@@ -162,12 +163,14 @@ module.exports = {
 			noUndefinedValue: false,
 			noUndefinedHandler: false,
 			series: false,
-			oneCallback: false
+			oneCallback: false,
+			noAsyncTest: false
 		});
 
 		// Run tests
 		u.testSetReturnsPromiseProtoOnArrayReceivingHandler(fn, options);
-
-		// TODO add tests for running callback async, binding to CLS context and running in CLS context
+		if (!options.noAsyncTest) u.testSetCallbackAsyncProtoArray(fn, options);
+		u.testSetBoundProtoArray(fn, options);
+		u.testSetCallbackContextProtoArray(fn, options);
 	}
 };
