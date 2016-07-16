@@ -30,7 +30,12 @@ module.exports = {
 	 */
 	testGroupStaticSyncHandler: function(fn, options) {
 		var u = this;
-		options = options || {};
+
+		// Conform options
+		options = _.extend({
+			noUndefined: false,
+			noContextTest: false
+		}, options);
 
 		u.testSetReturnsPromiseStaticReceivingHandler(fn, options);
 		u.testSetCallbackSyncStatic(fn);
