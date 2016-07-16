@@ -91,8 +91,8 @@ runTests('Patch', function(u, Promise) {
 				'toJSON'
 			];
 
-			// `.catch()` + `.caught()` are only patched on bluebird v2
-			if (u.bluebirdVersion !== 2) ignore.push('catch', 'caught');
+			// `.catch()`, `.caught()` + `.each()` are only patched on bluebird v2
+			if (u.bluebirdVersion !== 2) ignore.push('catch', 'caught', 'each');
 
 			checkPatched(Promise.prototype, ignore);
 		});
