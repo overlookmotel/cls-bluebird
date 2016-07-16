@@ -1,4 +1,5 @@
 test
 coverage
+bin
 .jshintrc
 .npmignore
