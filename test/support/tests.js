@@ -343,18 +343,5 @@ module.exports = {
 				});
 			});
 		});
-	},
-
-	/**
-	 * Run a function with handler and checks handler is not called.
-	 * Calls `fn` immediately passing wrapped `handler`, test object `t` and callback `cb`.
-	 * `fn` should call callback `cb` with created promise.
-	 *
-	 * @param {Function} fn - Function to run.
-	 * @returns {undefined}
-	 */
-	// TODO Remove this - not used at present
-	testHandlerNotCalled: function(fn) {
-		this.testHandlerCalled(fn, null, 0);
 	}
 };
