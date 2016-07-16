@@ -13,7 +13,7 @@ runTests('Promise.each()', function(u, Promise) {
 	}, {noUndefinedValue: true, noUndefinedHandler: true, series: true});
 });
 
-runTests('.reduce()', function(u) {
+runTests('.each()', function(u) {
 	u.testGroupProtoAsyncArrayHandler(function(p, handler) {
 		return p.each(handler);
 	}, {noUndefinedValue: true, noUndefinedHandler: true, series: true});
