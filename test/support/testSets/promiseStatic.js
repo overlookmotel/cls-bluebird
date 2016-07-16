@@ -225,38 +225,30 @@ module.exports = {
 					// If handler should not be fired on this promise, check is not fired
 					var handlerShouldBeCalled = u.getRejectStatus(makeValue) ? options.catches : options.continues;
 
-					if (!handlerShouldBeCalled) {
-						describe('is ignored', function() {
-							u.testIsPromiseFromHandler(function(handler, cb) {
-								var value = makeValue();
-
-								// Workaround for bug in bluebird v2 where a non-bluebird 2 promise
-								// which is rejected synchronously results in an unhandled rejection
-								// on `Promise.map()`.
-								// TODO Remove this when bug is fixed
-								// TODO Check this is required for methods other than `Promise.map()`
-								if (u.bluebirdVersion === 2 && (u.isBluebirdPromise(value) ? value.constructor.version.slice(0, 2) !== '2.' : true) && u.getRejectStatus(value) && u.isPromise(value) && !makeValue._array && !makeValue._async) u.suppressUnhandledRejections(value);
-
-								var p = fn(value, handler);
-								u.inheritRejectStatus(p, value);
-								cb(p);
-							}, undefined, {expectedCalls: 0});
+					if (handlerShouldBeCalled) {
+						u.describeHandlers(function(handler) {
+							var expectedCalls = u.helperStaticArrayNumHandlerCalls(makeValue, handler, options);
+							test(handler, expectedCalls, false);
 						});
-						return;
+					} else {
+						describe('is ignored', function() {
+							test(undefined, 0, true);
+						});
 					}
 
-					// Handler should fire on this value
-					// Test all handlers
-					u.describeHandlers(function(handler) {
-						var expectedCalls = u.helperStaticArrayNumHandlerCalls(makeValue, handler, options);
-
+					function test(handler, expectedCalls, passThrough) {
 						u.testIsPromiseFromHandler(function(handler, cb) {
 							var value = makeValue();
+
+							// Workaround for bug in bluebird v2
+							u.helperSuppressUnhandledRejectionsStaticArray(value, makeValue);
+
 							var p = fn(value, handler);
 							u.inheritRejectStatus(p, handler);
+							if (passThrough && u.getRejectStatus(value)) u.setRejectStatus(p);
 							cb(p);
 						}, handler, {expectedCalls: expectedCalls});
-					});
+					}
 				});
 			}, {noUndefined: options.noUndefinedValue});
 		});

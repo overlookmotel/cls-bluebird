@@ -86,5 +86,31 @@ module.exports = {
 		);
 
 		return oneCall ? 1 : 3;
+	},
+
+	/**
+	 * Suppress unhandled rejections on a promise in a static method that receives a promise of an array.
+	 *
+	 * This is a workaround for bug in bluebird v2 where a non-bluebird 2 promise
+	 * which is rejected synchronously results in an unhandled rejection
+	 * on `Promise.map()`.
+	 *
+	 * @param {*} value - Value being passed to method
+	 * @param {Function} makeValue - Function that creates values
+	 * @returns {undefined}
+	 *
+	 * TODO Raise issue on bluebird for this or include link to existing issue
+	 * TODO Remove this when bug is fixed
+	 * TODO Check this is required for methods other than `Promise.map()`
+	 */
+	helperSuppressUnhandledRejectionsStaticArray: function(value, makeValue) {
+		var u = this;
+		var suppress = u.bluebirdVersion === 2
+			&& u.isPromise(value)
+			&& (u.isBluebirdPromise(value) ? value.constructor.version.slice(0, 2) !== '2.' : true)
+			&& u.getRejectStatus(value)
+			&& !makeValue._array
+			&& !makeValue._async;
+		if (suppress) u.suppressUnhandledRejections(value);
 	}
 };
