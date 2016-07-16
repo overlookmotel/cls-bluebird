@@ -23,7 +23,6 @@ module.exports = {
 	 * @param {boolean} options.continues - true if handler fires on resolved promise
 	 * @param {boolean} options.catches - true if handler fires on rejected promise
 	 * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
-	 * @param {Function} [options.handler] - Handler function
 	 * @returns {undefined}
 	 */
 	testSetBoundProto: function(fn, options) {
@@ -39,7 +38,7 @@ module.exports = {
 						if (options.passThrough || !handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
-				}, makePromise, options.handler, {expectedCalls: expectedCalls});
+				}, makePromise, undefined, {expectedCalls: expectedCalls});
 			});
 		});
 	},
@@ -57,7 +56,6 @@ module.exports = {
 	 * @param {boolean} options.catches - true if handler fires on rejected promise
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
-	 * @param {Function} [options.handler] - Handler function
 	 * @returns {undefined}
 	 */
 	testSetBoundProtoArray: function(fn, options) {
@@ -73,7 +71,7 @@ module.exports = {
 						if (!handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 	                    cb(newP);
 	                }, p);
-	            }, makePromise, options.handler, {expectedCalls: expectedCalls});
+	            }, makePromise, undefined, {expectedCalls: expectedCalls});
 	        }, {noUndefined: options.noUndefinedValue});
 	    });
 	},
