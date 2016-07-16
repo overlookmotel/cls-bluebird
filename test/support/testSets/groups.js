@@ -110,6 +110,7 @@ module.exports = {
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
 	 * @param {boolean} [options.literal=false] - true if method receives only array not promise of array (`Promise.join()`)
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`Promise.join()`)
+	 * @param {boolean} [options.noAsyncTest] - Skip handler called async test if true (default `false`)
 	 * @returns {undefined}
 	 */
 	testGroupStaticAsyncArrayHandler: function(fn, options) {
@@ -125,13 +126,15 @@ module.exports = {
 			noUndefinedHandler: false,
 			series: false,
 			literal: false,
-			oneCallback: false
+			oneCallback: false,
+			noAsyncTest: false
 		});
 
 		// Run tests
 		u.testSetReturnsPromiseStaticReceivingArrayAndHandler(fn, options);
-
-		// TODO add tests for running callback async, binding to CLS context and running in CLS context
+		if (!options.noAsyncTest) u.testSetCallbackAsyncStaticArray(fn, options);
+		u.testSetBoundStaticArray(fn, options);
+		u.testSetCallbackContextStaticArray(fn, options);
 	},
 
 	/**

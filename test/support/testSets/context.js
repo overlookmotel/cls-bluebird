@@ -68,6 +68,45 @@ module.exports = {
 	},
 
 	/**
+	 * Run set of tests on a static method that takes an array or promise of an array and a handler
+	 * to ensure callback is always run in correct CLS context.
+	 *
+	 * Test function `fn` is called with a `value` and a `handler`.
+	 * `fn` should call the method being tested with `value`, attaching `handler` and return resulting promise.
+	 * e.g. `return Promise.map(value, handler)`
+	 *
+	 * If handler is being attached to catch rejections, `options.catches` should be `true`
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} options - Options object
+	 * @param {boolean} options.continues - true if handler fires on resolved promise
+	 * @param {boolean} options.catches - true if handler fires on rejected promise
+	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.literal=false] - true if method receives only array not promise of array (`Promise.join()`)
+	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @returns {undefined}
+	 */
+	testSetCallbackContextStaticArray: function(fn, options) {
+		var u = this;
+		describe('callback runs in context on a promise', function() {
+			u[options.literal ? 'describeArrays' : 'describeArrayOrPromiseOfArrays'](function(makeValue) {
+				// If handler should not be fired on this promise, check is not fired
+				var handlerShouldBeCalled = u.getRejectStatus(makeValue) ? options.catches : options.continues;
+				var expectedCalls = handlerShouldBeCalled ? (options.oneCallback ? 1 : 3) : 0;
+
+				u.testRunContext(function(handler, value, cb) {
+					// Workaround for bug in bluebird v2
+					u.helperSuppressUnhandledRejectionsStaticArray(value, makeValue);
+
+					var p = fn(value, handler);
+					if (!handlerShouldBeCalled) u.inheritRejectStatus(p, value);
+	                cb(p);
+	            }, makeValue, undefined, {expectedCalls: expectedCalls});
+			}, {noUndefined: options.noUndefinedValue});
+		});
+	},
+
+	/**
 	 * Run set of tests on a prototype method that chains onto a promise of an array
 	 * to ensure callback is always run in correct CLS context.
 	 * Function `fn` should take provided `promise` and call the method being tested on it with `handler`
