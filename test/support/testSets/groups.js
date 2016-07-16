@@ -66,11 +66,9 @@ module.exports = {
 	 * @param {boolean} [options.catches] - true if handler fires on rejected promise (default `false`)
 	 * @param {boolean} [options.passThrough] - true if method passes through errors even if handler fires (default `false`)
 	 * @param {boolean} [options.noUndefined] - true if method does not accept undefined handler (default `false`)
-	 * @param {boolean} [options.noAsyncTest] - Skip handler called async test if true (default `false`)
 	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
 	 * @returns {undefined}
 	 */
-	// TODO Remove `noAsyncTest` option - is not used
 	testGroupProtoAsyncHandler: function(fn, options) {
 		var u = this;
 
@@ -79,7 +77,6 @@ module.exports = {
 			catches: false,
 			passThrough: false,
 			noUndefined: false,
-			noAsyncTest: false,
 			noBindTest: false
 		}, options);
 
@@ -87,7 +84,7 @@ module.exports = {
 
 		// Run tests
 		u.testSetReturnsPromiseProtoReceivingHandler(fn, options);
-		if (!options.noAsyncTest) u.testSetCallbackAsyncProto(fn, options);
+		u.testSetCallbackAsyncProto(fn, options);
 		if (!options.noBindTest) u.testSetBoundProto(fn, options);
 		u.testSetCallbackContextProto(fn, options);
 	},
