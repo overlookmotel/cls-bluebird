@@ -45,5 +45,17 @@ module.exports = {
 	 */
 	checkNotBound: function(fn) {
 		if (fn._bound) return new Error('Function bound');
+	},
+
+	/**
+	 * Checks is called in expected CLS context.
+	 * Returns error object if not running in correct context.
+	 *
+	 * @param {Object} context - CLS context object which `fn` should be bound to
+	 * @returns {Error|undefined} - Error if not run in correct context, undefined if fine
+	 */
+	checkRunContext: function(context) {
+		var u = this;
+		if (u.ns.active !== context) return new Error('Function run in wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(u.ns.active) + ')');
 	}
 };

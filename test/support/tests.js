@@ -291,7 +291,7 @@ module.exports = {
 			u.runInContext(function(context) {
 				// Create handler
 				var handlerWrapped = function() {
-					if (u.ns.active !== context) t.error(new Error('Function run in wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(u.ns.active) + ')'));
+					t.error(u.checkRunContext(context));
 					return handler.apply(this, arguments);
 				};
 				u.inheritRejectStatus(handlerWrapped, handler);
