@@ -336,7 +336,7 @@ module.exports = {
 
 			// Run test function with handler
 			fn(handlerWrapped, t, function(p) {
-				// Check handler was called once
+				// Check handler was called as expected
 				t.done(p, function() {
 					if (!called && expectedCalls !== 0) t.error(new Error('Callback not called'));
 					if (called !== expectedCalls) t.error(new Error('Callback called ' + called + ' times'));
