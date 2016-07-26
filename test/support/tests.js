@@ -160,14 +160,11 @@ module.exports = {
 
 		u.testHandlerCalled(function(handler, t, cb) {
 			var sync = true;
-			// TODO create general function to do wrapping and inheriting of reject status to wrapped function
-			var handlerWrapped = function() {
+			handler = u.wrapHandler(handler, function() {
 				if (sync !== expectSync) t.error(new Error('Callback called ' + (expectSync ? 'asynchronously' : 'synchronously')));
-				return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
+			});
 
-			fn(handlerWrapped, function(p) {
+			fn(handler, function(p) {
 				sync = false;
 				cb(p);
 			});
@@ -207,16 +204,14 @@ module.exports = {
 
 			u.runInContext(function(context) {
 				// Create handler
-				var handlerWrapped = function() {
-					t.error(u.checkBound(handlerWrapped, context));
-					return handler.apply(this, arguments);
-				};
-				u.inheritRejectStatus(handlerWrapped, handler);
+				handler = u.wrapHandler(handler, function() {
+					t.error(u.checkBound(handler, context));
+				});
 
 				// Run test function with handler
-				fn(handlerWrapped, preResult, function(p) {
+				fn(handler, preResult, function(p) {
 					// Check that bound synchronously
-					t.error(u.checkBound(handlerWrapped, context));
+					t.error(u.checkBound(handler, context));
 					cb(p);
 				});
 			});
@@ -248,14 +243,12 @@ module.exports = {
 
 		u.testHandlerCalled(function(handler, t, cb) {
 			// Create handler
-			var handlerWrapped = function() {
-				t.error(u.checkNotBound(handlerWrapped));
-				return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
+			handler = u.wrapHandler(handler, function() {
+				t.error(u.checkNotBound(handler));
+			});
 
 			// Run test function with handler
-			var p = fn(handlerWrapped);
+			var p = fn(handler);
 			t.error(u.checkNotBound(handler));
 			cb(p);
 		}, handler, options.expectedCalls);
@@ -291,14 +284,12 @@ module.exports = {
 
 			u.runInContext(function(context) {
 				// Create handler
-				var handlerWrapped = function() {
+				handler = u.wrapHandler(handler, function() {
 					t.error(u.checkRunContext(context));
-					return handler.apply(this, arguments);
-				};
-				u.inheritRejectStatus(handlerWrapped, handler);
+				});
 
 				// Run test function with handler
-				fn(handlerWrapped, preResult, function(p) {
+				fn(handler, preResult, function(p) {
 					cb(p);
 				});
 			});
@@ -329,11 +320,9 @@ module.exports = {
 			// Create handler
 			var called = 0;
 
-			var handlerWrapped = function() {
+			var handlerWrapped = u.wrapHandler(handler, function() {
 				called++;
-				if (handler) return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
+			});
 
 			// Run test function with handler
 			fn(handlerWrapped, t, function(p) {

@@ -112,5 +112,26 @@ module.exports = {
 			&& !makeValue._array
 			&& !makeValue._async;
 		if (suppress) u.suppressUnhandledRejections(value);
+	},
+
+	/**
+	 * Wrap a handler function.
+	 * `wrapper` is executed first, then the original `handler` (if provided).
+	 * Wrapped handler inherits the original handler's reject status.
+	 *
+	 * @param {Function} [handler] - Handler function to be wrapped
+	 * @param {Function} wrapper - Function to run inside the wrapped handler
+	 * @returns {Function} - Wrapped handler
+	 */
+	wrapHandler: function(handler, wrapper) {
+		var u = this;
+
+		var handlerWrapped = function() {
+			wrapper();
+			if (handler) return handler.apply(this, arguments);
+		};
+		u.inheritRejectStatus(handlerWrapped, handler);
+
+		return handlerWrapped;
 	}
 };

@@ -157,11 +157,9 @@ function testHandlersCalled(fn, handler, disposerHandlers, expectedCalls, u, opt
 		// Create wrapped handler
 		var called = 0;
 
-		var handlerWrapped = function() {
+		var handlerWrapped = u.wrapHandler(handler, function() {
 			called++;
-			if (handler) return handler.apply(this, arguments);
-		};
-		u.inheritRejectStatus(handlerWrapped, handler);
+		});
 
 		// Create wrapped disposer handlers
 		var disposerCalled = [];
@@ -169,12 +167,9 @@ function testHandlersCalled(fn, handler, disposerHandlers, expectedCalls, u, opt
 		var disposerHandlersWrapped = disposerHandlers.map(function(handler, i) {
 			disposerCalled[i] = 0;
 
-			var handlerWrapped = function() {
+			return u.wrapHandler(handler, function() {
 				disposerCalled[i]++;
-				if (handler) return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
-			return handlerWrapped;
+			});
 		});
 
 		// Run test function with handler and disposer handlers
@@ -213,14 +208,12 @@ function testUsingCallbackAsync(fn, makePromise, handler, attach, expectedCalls,
 		var disposers = makeDisposers(makePromise, disposerHandlers, u, Promise);
 
 		var sync = true;
-		var handlerWrapped = function() {
+		handler = u.wrapHandler(handler, function() {
 			if (sync) t.error(new Error('Callback called synchronously'));
-			return handler.apply(this, arguments);
-		};
-		u.inheritRejectStatus(handlerWrapped, handler);
+		});
 
 		attach(function() {
-			var p = fn(disposers, handlerWrapped);
+			var p = fn(disposers, handler);
 			u.inheritRejectStatus(p, expectedCalls ? handler : makePromise);
 			sync = false;
 			cb(p);
@@ -234,15 +227,11 @@ function testDisposerCallbackAsync(fn, makePromise, handler, attach, expectedCal
 
 		var sync = true;
 		var disposers = promises.map(function(p, i) {
-			var handler = disposerHandlers[i];
-
-			var handlerWrapped = function() {
+			var handler = u.wrapHandler(disposerHandlers[i], function() {
 				if (sync) t.error(new Error('Callback called synchronously'));
-				return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
+			});
 
-			return p.disposer(handlerWrapped);
+			return p.disposer(handler);
 		});
 
 		var handlerWrapped = function() {
@@ -270,18 +259,15 @@ function testUsingBound(fn, makePromise, handler, attach, expectedCalls, u, Prom
 		var disposers = makeDisposers(makePromise, disposerHandlers, u, Promise);
 
 		u.runInContext(function(context) {
-			// Create handler
-			var handlerWrapped = function() {
-				t.error(u.checkBound(handlerWrapped, context));
-				return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
+			handler = u.wrapHandler(handler, function() {
+				t.error(u.checkBound(handler, context));
+			});
 
 			attach(function() {
-				var p = fn(disposers, handlerWrapped);
+				var p = fn(disposers, handler);
 				u.inheritRejectStatus(p, expectedCalls ? handler : makePromise);
 
-				t.error(u.checkBound(handlerWrapped, context));
+				t.error(u.checkBound(handler, context));
 
 				cb(p);
 			}, disposers._promise);
@@ -295,17 +281,13 @@ function testDisposerBound(fn, makePromise, handler, attach, expectedCalls, u, P
 
 		var disposers = promises.map(function(p, i) {
 			return u.runInContext(function(context) {
-				var handler = disposerHandlers[i];
+				var handler = u.wrapHandler(disposerHandlers[i], function() {
+					t.error(u.checkBound(handler, context));
+				});
 
-				var handlerWrapped = function() {
-					t.error(u.checkBound(handlerWrapped, context));
-					return handler.apply(this, arguments);
-				};
-				u.inheritRejectStatus(handlerWrapped, handler);
+				var disposer = p.disposer(handler);
 
-				var disposer = p.disposer(handlerWrapped);
-
-				t.error(u.checkBound(handlerWrapped, context));
+				t.error(u.checkBound(handler, context));
 
 				return disposer;
 			});
@@ -324,15 +306,12 @@ function testUsingContext(fn, makePromise, handler, attach, expectedCalls, u, Pr
 		var disposers = makeDisposers(makePromise, disposerHandlers, u, Promise);
 
 		u.runInContext(function(context) {
-			// Create handler
-			var handlerWrapped = function() {
+			handler = u.wrapHandler(handler, function() {
 				t.error(u.checkRunContext(context));
-				return handler.apply(this, arguments);
-			};
-			u.inheritRejectStatus(handlerWrapped, handler);
+			});
 
 			attach(function() {
-				var p = fn(disposers, handlerWrapped);
+				var p = fn(disposers, handler);
 				u.inheritRejectStatus(p, expectedCalls ? handler : makePromise);
 				cb(p);
 			}, disposers._promise);
@@ -346,17 +325,11 @@ function testDisposerContext(fn, makePromise, handler, attach, expectedCalls, u,
 
 		var disposers = promises.map(function(p, i) {
 			return u.runInContext(function(context) {
-				var handler = disposerHandlers[i];
-
-				var handlerWrapped = function() {
+				var handler = u.wrapHandler(disposerHandlers[i], function() {
 					t.error(u.checkRunContext(context));
-					return handler.apply(this, arguments);
-				};
-				u.inheritRejectStatus(handlerWrapped, handler);
+				});
 
-				var disposer = p.disposer(handlerWrapped);
-
-				return disposer;
+				return p.disposer(handler);
 			});
 		});
 
