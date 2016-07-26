@@ -22,10 +22,12 @@ runTests('Promise.method()', function(u, Promise) {
 		u.testSetCallbackContextStatic(function(handler, fn) {
 			// `fn` here is result of running `preFn` (i.e. Promise.method-ified handler)
 			return fn(handler);
-		}, {preFn: function() {
-			return Promise.method(function(handler) {
-				return handler();
-			});
-		}});
+		}, {
+			preFn: function() {
+				return Promise.method(function(handler) {
+					return handler();
+				});
+			}
+		});
 	});
 });
