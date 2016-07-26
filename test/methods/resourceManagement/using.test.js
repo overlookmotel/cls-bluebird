@@ -188,6 +188,10 @@ function testHandlersCalled(fn, handler, disposerHandlers, expectedCalls, u, opt
 	});
 }
 
+/*
+ * Test functions
+ */
+
 function testIsPromise(fn, makePromise, handler, disposerHandler, attach, expectedCalls, u, Promise) {
 	testHandlersCalled(function(handler, disposerHandlers, t, cb) {
 		var disposers = makeDisposers(makePromise, disposerHandlers, u, Promise);
@@ -340,6 +344,10 @@ function testDisposerContext(fn, makePromise, handler, attach, expectedCalls, u,
 		}, promises._promise);
 	}, handler, [undefined, undefined, undefined], expectedCalls, u, {multiple: true});
 }
+
+/*
+ * Helper functions
+ */
 
 function makePromises(makePromise, disposerHandlers, u, Promise) {
 	var promises = disposerHandlers.map(function() {
