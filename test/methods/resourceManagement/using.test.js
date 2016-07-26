@@ -146,10 +146,14 @@ function describeSet(testFn, u) {
  * @param {Array} disposerHandlers - Array of disposer handler function - will all be wrapped and passed to `fn`
  * @param {number} [expectedCalls=1] - Number of times expect handler to be called
  * @param {Object} u - Utils object
+ * @param {boolean} [options] - Options object
+ * @param {boolean} [options.multiple=false] - Set `true` to use `u.testMultiple` rather than `u.test`
  * @returns {undefined}
  */
-function testHandlersCalled(fn, handler, disposerHandlers, expectedCalls, u) {
-	u.test(function(t) {
+function testHandlersCalled(fn, handler, disposerHandlers, expectedCalls, u, options) {
+	options = options || {};
+
+	u[options.multiple ? 'testMultiple' : 'test'](function(t) {
 		// Create wrapped handler
 		var called = 0;
 
@@ -316,7 +320,6 @@ function testDisposerBound(fn, makePromise, handler, attach, expectedCalls, u, P
 }
 
 function testUsingContext(fn, makePromise, handler, attach, expectedCalls, u, Promise) {
-	// TODO use `u.testMultiple`
 	testHandlersCalled(function(handler, disposerHandlers, t, cb) {
 		var disposers = makeDisposers(makePromise, disposerHandlers, u, Promise);
 
@@ -334,7 +337,7 @@ function testUsingContext(fn, makePromise, handler, attach, expectedCalls, u, Pr
 				cb(p);
 			}, disposers._promise);
 		});
-	}, handler, [undefined, undefined, undefined], expectedCalls, u);
+	}, handler, [undefined, undefined, undefined], expectedCalls, u, {multiple: true});
 }
 
 function testDisposerContext(fn, makePromise, handler, attach, expectedCalls, u, Promise) {
@@ -362,7 +365,7 @@ function testDisposerContext(fn, makePromise, handler, attach, expectedCalls, u,
 			u.inheritRejectStatus(p, expectedCalls ? handler : makePromise);
 			cb(p);
 		}, promises._promise);
-	}, handler, [undefined, undefined, undefined], expectedCalls, u);
+	}, handler, [undefined, undefined, undefined], expectedCalls, u, {multiple: true});
 }
 
 function makePromises(makePromise, disposerHandlers, u, Promise) {
