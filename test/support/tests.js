@@ -256,6 +256,7 @@ module.exports = {
 
 			// Run test function with handler
 			var p = fn(handlerWrapped);
+			t.error(u.checkNotBound(handler));
 			cb(p);
 		}, handler, options.expectedCalls);
 	},
