@@ -11,11 +11,11 @@
 
 module.exports = {
 	/**
-	 * Run set of tests on a static method which receives a value to ensure always returns a promise
+	 * Run set of tests on a prototype method which receives a value to ensure always returns a promise
 	 * inherited from correct Promise constructor.
 	 *
-	 * Test function `fn` is called with a `value`.
-	 * `fn` should call the method being tested with `value`, and return resulting promise.
+	 * Test function `fn` is called with a `promise` and a `value`.
+	 * `fn` should call the method being tested on `promise` with `value`, and return resulting promise.
 	 * e.g. `return promise.bind(value)`
 	 *
 	 * A different `value` is provided in each test:
