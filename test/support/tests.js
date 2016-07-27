@@ -45,7 +45,7 @@ module.exports = {
 	 * Any failed check errors are registered on test object, and `t.done()` is called.
 	 *
 	 * @param {Function} fn - Function to run.
-	 * @param {Function} handler - Handler function - will be wrapped and passed to `fn`
+	 * @param {Function} [handler] - Handler function - will be wrapped and passed to `fn`
 	 * @param {Object} [options] - Options object
 	 * @param {number} [options.expectedCalls=1] - Number of times expect handler to be called
 	 * @returns {undefined}
