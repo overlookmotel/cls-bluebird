@@ -11,6 +11,42 @@
 
 module.exports = {
 	/**
+	 * Run set of tests on a prototype method which receives nothing ensure always returns a promise
+	 * inherited from correct Promise constructor.
+	 *
+	 * Test function `fn` is called with a `promise`.
+	 * `fn` should call the method being tested on `promise`, and return resulting promise.
+	 * e.g. `return promise.timeout()`
+	 *
+	 * A different `value` is provided in each test:
+	 *   - literal value
+	 *   - undefined
+	 *   - promise from various constructors, resolved or rejected, sync or async
+	 *
+	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
+	 * @param {boolean} [options.literal=false] - true if method only accepts literal value not promise (e.g. `.delay()`)
+	 * @returns {undefined}
+	 */
+	testSetReturnsPromiseProtoReceivingNothing: function(fn, options) {
+		var u = this;
+		describe('returns instance of patched Promise constructor when attached to promise', function() {
+			u.describeMainPromisesAttach(function(makePromise, attach) {
+				u.testIsPromise(function(cb) {
+					var p = makePromise();
+
+					attach(function() {
+						var newP = fn(p);
+						u.inheritRejectStatus(newP, p);
+						cb(newP);
+					}, p);
+				});
+			}, options);
+		});
+	},
+
+	/**
 	 * Run set of tests on a prototype method which receives a value to ensure always returns a promise
 	 * inherited from correct Promise constructor.
 	 *
