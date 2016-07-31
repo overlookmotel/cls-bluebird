@@ -405,7 +405,7 @@ module.exports = {
 				u.awaitPromise(p, fn);
 			};
 
-			// _async` property needed for `.map()` test
+			// `_async` property needed for `.map()` test
 			attach._async = true;
 
 			testFn(attach);
