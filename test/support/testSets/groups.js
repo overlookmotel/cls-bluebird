@@ -40,6 +40,7 @@ module.exports = {
 		u.testSetReturnsPromiseStaticReceivingHandler(fn, options);
 		u.testSetCallbackSyncStatic(fn);
 		u.testSetNotBoundStatic(fn);
+		// TODO use `describe.skip` rather than skipping entirely.
 		if (!options.noContextTest) u.testSetCallbackContextStatic(fn);
 	},
 
@@ -85,6 +86,7 @@ module.exports = {
 		// Run tests
 		u.testSetReturnsPromiseProtoReceivingHandler(fn, options);
 		u.testSetCallbackAsyncProto(fn, options);
+		// TODO use `describe.skip` rather than skipping entirely.
 		if (!options.noBindTest) u.testSetBoundProto(fn, options);
 		u.testSetCallbackContextProto(fn, options);
 	},
@@ -129,6 +131,7 @@ module.exports = {
 
 		// Run tests
 		u.testSetReturnsPromiseStaticReceivingArrayAndHandler(fn, options);
+		// TODO use `describe.skip` rather than skipping entirely.
 		if (!options.noAsyncTest) u.testSetCallbackAsyncStaticArray(fn, options);
 		u.testSetBoundStaticArray(fn, options);
 		u.testSetCallbackContextStaticArray(fn, options);
@@ -175,6 +178,7 @@ module.exports = {
 
 		// Run tests
 		u.testSetReturnsPromiseProtoOnArrayReceivingHandler(fn, options);
+		// TODO use `describe.skip` rather than skipping entirely.
 		if (!options.noAsyncTest) u.testSetCallbackAsyncProtoArray(fn, options);
 		u.testSetBoundProtoArray(fn, options);
 		u.testSetCallbackContextProtoArray(fn, options);
