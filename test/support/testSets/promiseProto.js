@@ -24,12 +24,9 @@ module.exports = {
 	 *   - promise from various constructors, resolved or rejected, sync or async
 	 *
 	 * @param {Function} fn - Test function
-	 * @param {Object} [options] - Options object
-	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
-	 * @param {boolean} [options.literal=false] - true if method only accepts literal value not promise (e.g. `.delay()`)
 	 * @returns {undefined}
 	 */
-	testSetReturnsPromiseProtoReceivingNothing: function(fn, options) {
+	testSetReturnsPromiseProtoReceivingNothing: function(fn) {
 		var u = this;
 		describe('returns instance of patched Promise constructor when attached to promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
@@ -42,7 +39,7 @@ module.exports = {
 						cb(newP);
 					}, p);
 				});
-			}, options);
+			});
 		});
 	},
 
