@@ -19,5 +19,5 @@ runTests('Promise.delay()', function(u, Promise) {
 runTests('.delay()', function(u) {
 	u.testSetReturnsPromiseProtoReceivingNothing(function(p) {
 		return p.delay(1);
-	});
+	}, {passThrough: true});
 });

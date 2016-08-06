@@ -17,7 +17,7 @@ runTests('.cancel()', function(u, Promise) {
 	thisDescribe('with cancellation disabled', function() {
 		u.testSetReturnsPromiseProtoReceivingNothing(function(p) {
 			return p.cancel();
-		});
+		}, {passThrough: true});
 	});
 
 	thisDescribe('with cancellation enabled', function() {

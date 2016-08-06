@@ -24,10 +24,14 @@ module.exports = {
 	 *   - promise from various constructors, resolved or rejected, sync or async
 	 *
 	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.passThrough] - true if method passes through errors even if handler fires
 	 * @returns {undefined}
 	 */
-	testSetReturnsPromiseProtoReceivingNothing: function(fn) {
+	testSetReturnsPromiseProtoReceivingNothing: function(fn, options) {
 		var u = this;
+		options = options || {};
+
 		describe('returns instance of patched Promise constructor when attached to promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
 				u.testIsPromise(function(cb) {
@@ -35,7 +39,7 @@ module.exports = {
 
 					attach(function() {
 						var newP = fn(p);
-						u.inheritRejectStatus(newP, p);
+						if (options.passThrough) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
 				});
@@ -57,10 +61,14 @@ module.exports = {
 	 *   - promise from various constructors, resolved or rejected, sync or async
 	 *
 	 * @param {Function} fn - Test function
+	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.catches] - true if handler fires rejected promise
 	 * @returns {undefined}
 	 */
-	testSetReturnsPromiseProtoReceivingValue: function(fn) {
+	testSetReturnsPromiseProtoReceivingValue: function(fn, options) {
 		var u = this;
+		options = options || {};
+
 		describe('returns instance of patched Promise constructor when attached to promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
 				describe('when value is', function() {
@@ -71,7 +79,11 @@ module.exports = {
 							attach(function() {
 								var value = makeValue();
 								var newP = fn(p, value);
-								if (u.getRejectStatus(p) || u.getRejectStatus(value)) u.setRejectStatus(newP);
+								if (options.catches) {
+									if (u.getRejectStatus(p) && u.getRejectStatus(value)) u.setRejectStatus(newP);
+								} else {
+									if (u.getRejectStatus(p) || u.getRejectStatus(value)) u.setRejectStatus(newP);
+								}
 								cb(newP);
 							}, p);
 						});

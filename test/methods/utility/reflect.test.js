@@ -1,6 +1,6 @@
 /*
  * cls-bluebird tests
- * Tests for .timeout()
+ * Tests for .reflect()
  */
 
 // Imports
@@ -8,8 +8,8 @@ var runTests = require('../../support');
 
 // Run tests
 
-runTests('.timeout()', function(u) {
+runTests('.reflect()', function(u) {
 	u.testSetReturnsPromiseProtoReceivingNothing(function(p) {
-		return p.timeout(1000);
-	}, {passThrough: true});
+		return p.reflect();
+	}, {passThrough: false}); // TODO find better way to deal with this
 });
