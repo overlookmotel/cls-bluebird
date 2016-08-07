@@ -47,8 +47,7 @@ runTests('Patch', function(u, Promise) {
 				'settle',
 				'delay',
 				'defer',
-				'pending',
-				'clone' // comes from bluebird2 / bluebird3 libraries not bluebird itself
+				'pending'
 			];
 
 			checkPatched(Promise, ignore);
