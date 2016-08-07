@@ -66,7 +66,9 @@ module.exports = {
 	 * @param {boolean} [options.continues] - true if handler fires on resolved promise (default `!options.catches`)
 	 * @param {boolean} [options.catches] - true if handler fires on rejected promise (default `false`)
 	 * @param {boolean} [options.passThrough] - true if method passes through errors even if handler fires (default `false`)
+	 * @param {boolean} [options.skipUncalled] - true if should skip cases where handler not called
 	 * @param {boolean} [options.noUndefined] - true if method does not accept undefined handler (default `false`)
+	 * @param {boolean} [options.noPromiseTest] - Skip returns promise test if true (default `false`)
 	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
 	 * @returns {undefined}
 	 */
@@ -77,14 +79,16 @@ module.exports = {
 		options = _.extend({
 			catches: false,
 			passThrough: false,
+			skipUncalled: false,
 			noUndefined: false,
+			noPromiseTest: false,
 			noBindTest: false
 		}, options);
 
 		_.defaults(options, {continues: !options.catches});
 
 		// Run tests
-		u.testSetReturnsPromiseProtoReceivingHandler(fn, options);
+		if (!options.noPromiseTest) u.testSetReturnsPromiseProtoReceivingHandler(fn, options);
 		u.testSetCallbackAsyncProto(fn, options);
 		// TODO use `describe.skip` rather than skipping entirely.
 		if (!options.noBindTest) u.testSetBoundProto(fn, options);

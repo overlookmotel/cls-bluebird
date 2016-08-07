@@ -23,6 +23,7 @@ module.exports = {
 	 * @param {boolean} [options.continues=false] - true if handler fires on resolved promise
 	 * @param {boolean} [options.catches=false] - true if handler fires on rejected promise
 	 * @param {boolean} [options.passThrough=false] - true if method passes through errors even if handler fires
+	 * @param {boolean} [options.skipUncalled=false] - true if should skip cases where handler not called
 	 * @returns {undefined}
 	 */
 	testSetCallbackAsyncProto: function(fn, options) {
@@ -30,6 +31,7 @@ module.exports = {
 		describe('calls callback asynchronously when called on promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
 				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+				if (options.skipUncalled && !handlerShouldBeCalled) return;
 				var expectedCalls = handlerShouldBeCalled ? 1 : 0;
 
 				u.testAsync(function(handler, cb) {

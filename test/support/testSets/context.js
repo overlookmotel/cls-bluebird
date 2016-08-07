@@ -47,6 +47,7 @@ module.exports = {
 	 * @param {boolean} options.continues - true if handler fires on resolved promise
 	 * @param {boolean} options.catches - true if handler fires on rejected promise
 	 * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
+	 * @param {boolean} options.skipUncalled - true if should skip cases where handler not called
 	 * @returns {undefined}
 	 */
 	testSetCallbackContextProto: function(fn, options) {
@@ -54,6 +55,7 @@ module.exports = {
 		describe('callback runs in context on a promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
 				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
+				if (options.skipUncalled && !handlerShouldBeCalled) return;
 				var expectedCalls = handlerShouldBeCalled ? 1 : 0;
 
 				u.testRunContext(function(handler, p, cb) {
