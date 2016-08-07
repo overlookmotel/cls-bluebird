@@ -1,9 +1,12 @@
 /*
  * cls-bluebird tests
- * Tests for .cancel()
+ * Tests for .cancel() / .break()
  */
 
-/* global describe */
+/* global describe, it */
+
+// Modules
+var expect = require('chai').expect;
 
 // Imports
 var runTests = require('../../support');
@@ -77,4 +80,12 @@ runTests('.cancel()', function(u, Promise) {
 			});
 		});
 	}
+});
+
+runTests('.break()', function(u, Promise) { // jshint ignore:line
+	// NB `.break()` does not exist in bluebird v2.
+	var thisIt = (u.bluebirdVersion === 2 ? it.skip : it);
+	thisIt('is alias of .cancel()', function() {
+		expect(Promise.prototype.break).to.equal(Promise.prototype.cancel);
+	});
 });
