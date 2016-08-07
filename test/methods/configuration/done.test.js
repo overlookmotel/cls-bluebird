@@ -11,6 +11,7 @@ var runTests = require('../../support');
 // Run tests
 
 // TODO Add tests for when both handlers provided
+// TODO Add tests for progression handler
 runTests('.done()', function(u, Promise) {
 	describe('resolve handler', function() {
 		u.testGroupProtoAsyncHandler(function(p, handler) {
