@@ -82,7 +82,7 @@ runTests('.cancel()', function(u, Promise) {
 	}
 });
 
-runTests('.break()', function(u, Promise) { // jshint ignore:line
+runTests('.break()', function(u, Promise) {
 	// NB `.break()` does not exist in bluebird v2.
 	var thisIt = (u.bluebirdVersion === 2 ? it.skip : it);
 	thisIt('is alias of .cancel()', function() {

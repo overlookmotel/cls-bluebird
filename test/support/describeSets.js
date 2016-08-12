@@ -391,7 +391,7 @@ module.exports = {
 		var u = this;
 
 		describe('sync', function() {
-			testFn(function(fn) { // jshint ignore:line
+			testFn(function(fn) {
 				fn();
 			});
 		});
