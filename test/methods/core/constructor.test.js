@@ -20,7 +20,7 @@ runTests('new Promise()', function(u, Promise) {
 		});
 
 		/*
-		// TODO test for when resolved with promise e.g. `new Promise(function(resolve) { resolve(Promise.resolve(); )})`
+		// TODO Add tests for when resolved with promise e.g. `new Promise(function(resolve) { resolve(Promise.resolve(); )})`
 		describe('resolves with', function() {
 			testValues(function(value) {
 				return new Promise(function(resolve) {

@@ -11,5 +11,5 @@ var runTests = require('../../support');
 runTests('.reflect()', function(u) {
 	u.testSetReturnsPromiseProtoReceivingNothing(function(p) {
 		return p.reflect();
-	}, {passThrough: false}); // TODO find better way to deal with this
+	}, {passThrough: false}); // TODO Find better way to deal with this
 });

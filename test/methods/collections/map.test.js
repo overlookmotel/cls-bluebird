@@ -16,7 +16,6 @@ var runTests = require('../../support');
  * only values or resolved promises, but async if any promises are pending.
  * So async calling test is skipped to allow for this.
  * TODO Change test once bug is fixed.
- * TODO Add specific tests for this.
  */
 
 runTests('Promise.map()', function(u, Promise) {

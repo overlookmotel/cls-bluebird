@@ -18,7 +18,7 @@ runTests('.throw()', function(u) {
 		var newP = p.throw(u.makeError());
 		u.setRejectStatus(newP);
 		return newP;
-	}, {passThrough: false}); // TODO find better way to deal with this
+	}, {passThrough: false}); // TODO Find better way to deal with this
 });
 
 runTests('.thenThrow()', function(u, Promise) { // jshint ignore:line

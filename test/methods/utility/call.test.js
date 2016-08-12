@@ -40,7 +40,7 @@ runTests('.call()', function(u) {
 		});
 	});
 
-	// TODO test for indirect binding
+	// TODO Add tests for indirect binding
 
 	/**
 	 * Create promise that resolves to an object and then attaches `.call()` method to it.

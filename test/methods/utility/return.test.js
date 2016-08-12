@@ -18,7 +18,7 @@ runTests('.return()', function(u) {
 		// Where value is a rejected promise created from another promise constructor,
 		// results in an unhandled rejection.
 		// https://github.com/petkaantonov/bluebird/issues/1186
-		// TODO remove this line if issue resolved
+		// TODO Remove this line if issue resolved
 		if (u.getRejectStatus(value)) u.suppressUnhandledRejections(value);
 
 		return p.return(value);

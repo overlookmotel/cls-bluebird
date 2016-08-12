@@ -27,7 +27,7 @@ module.exports = {
 
 		if (!handler) handler = function() {};
 
-		// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
+		// TODO Raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
 		var oneCall = handler._throws || options.oneCallback || (
 			u.getRejectStatus(handler)
 			&& (
@@ -66,7 +66,7 @@ module.exports = {
 
 		if (!handler) handler = function() {};
 
-		// TODO raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
+		// TODO Raise issue on bluebird about inconsistent behavior between node v0.10 and v0.12+
 		var oneCall = handler._throws || options.oneCallback || (
 			u.getRejectStatus(handler)
 			&& (
