@@ -182,6 +182,9 @@ module.exports = {
 					makePromise._async = makeValue._async;
 					makePromise._asyncArray = makeArray._async;
 
+					// `_array` property needed for `.settle()` test
+					makePromise._array = true;
+
 					testFn(makePromise);
 				}, _.defaults({suppressRejections: true}, options));
 			});
@@ -264,7 +267,9 @@ module.exports = {
 				// `_asyncArray` property needed for `Promise.map()`/`.map()` test
 				makePromise._asyncArray = makeArray._async;
 
-				makePromise._array = true; // TODO Remove this once issue with unhandled rejections is solved
+				// `_array` property needed for `Promise.settle()` test
+				makePromise._array = true;
+
 				makePromise._async = makeValue._async; // TODO Remove this once issue with unhandled rejections is solved
 
 				testFn(makePromise);

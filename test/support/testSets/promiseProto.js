@@ -177,6 +177,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.object=false] - true if method takes object not array i.e. `.props()`
 	 * @param {boolean} [options.aggregateError] - true if method produces `AggregateError`s on rejection
+	 * @param {boolean} [options.noReject] - true if method never produces a rejected promise i.e. `Promise.settle()`
 	 * @returns {undefined}
 	 */
 	testSetReturnsPromiseProtoOnArrayReceivingNothing: function(fn, options) {
@@ -187,9 +188,12 @@ module.exports = {
 				u.testIsPromise(function(cb) {
 					var p = makePromise();
 
+					// `_array` property needed for `.settle()` test
+					p._array = makePromise._array;
+
 					attach(function() {
 						var newP = fn(p);
-						u.inheritRejectStatus(newP, p);
+						if (!options.noReject) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
 				}, {aggregateError: options.aggregateError});
