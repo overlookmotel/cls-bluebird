@@ -9,7 +9,7 @@ var runTests = require('../../support');
 // Run tests
 runTests('Promise.join()', function(u, Promise) {
 	/*
-	 * NB Due to bug in both bluebird v2 and v3
+	 * NB Due to bug in bluebird v2
 	 * https://github.com/petkaantonov/bluebird/issues/1153
 	 * `Promise.join()` calls the callback synchronously if input is
 	 * only values or resolved promises, but async if any promises are pending.
@@ -19,5 +19,5 @@ runTests('Promise.join()', function(u, Promise) {
 	u.testGroupStaticAsyncArrayHandler(function(array, handler) {
 		array = array.concat([handler]);
 		return Promise.join.apply(Promise, array);
-	}, {noUndefinedValue: true, literal: true, oneCallback: true, noAsyncTest: true});
+	}, {noUndefinedValue: true, literal: true, oneCallback: true, noAsyncTest: u.bluebirdVersion === 2});
 });
