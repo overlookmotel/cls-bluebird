@@ -13,10 +13,7 @@ var runTests = require('../../support');
 // TODO Add tests for when both handlers provided
 // TODO Add tests for progression handler
 runTests('.fork()', function(u) {
-	// `.fork()` does not exist in bluebird v3.4.1 despite docs stating that it is.
-	// https://github.com/petkaantonov/bluebird/issues/1188
-	// TODO Enable tests for bluebird v3 if `.fork()` is reinstated to API.
-
+	// `.fork()` does not exist in bluebird v3
 	var thisDescribe = (u.bluebirdVersion === 2 ? describe : describe.skip);
 
 	thisDescribe('resolve handler', function() {
