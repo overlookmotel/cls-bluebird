@@ -3,3 +3,4 @@ coverage
 bin
 .jshintrc
 .npmignore
+.DS_Store
