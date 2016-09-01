@@ -208,7 +208,7 @@ module.exports = {
 						u.testIsPromiseFromHandler(function(handler, cb) {
 							var value = makeValue();
 
-							// Workaround for bug in bluebird v2
+							// Workaround for bug in bluebird
 							u.helperSuppressUnhandledRejectionsStaticArray(value, makeValue);
 
 							var p = fn(value, handler);

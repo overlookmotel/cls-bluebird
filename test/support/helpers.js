@@ -91,9 +91,8 @@ module.exports = {
 	/**
 	 * Suppress unhandled rejections on a promise in a static method that receives a promise of an array.
 	 *
-	 * This is a workaround for bug in bluebird v2 where a non-bluebird 2 promise
-	 * which is rejected synchronously results in an unhandled rejection
-	 * on `Promise.map()`.
+	 * This is a workaround for bug in bluebird where a promise from another constructor
+	 * which is rejected synchronously results in an unhandled rejection on `Promise.map()`.
 	 *
 	 * @param {*} value - Value being passed to method
 	 * @param {Function} makeValue - Function that creates values
@@ -105,9 +104,8 @@ module.exports = {
 	 */
 	helperSuppressUnhandledRejectionsStaticArray: function(value, makeValue) {
 		var u = this;
-		var suppress = u.bluebirdVersion === 2
-			&& u.isPromise(value)
-			&& (u.isBluebirdPromise(value) ? value.constructor.version.slice(0, 2) !== '2.' : true)
+		var suppress = u.isPromise(value)
+			&& value.constructor !== u.Promise
 			&& u.getRejectStatus(value)
 			&& !makeValue._array
 			&& !makeValue._async;
