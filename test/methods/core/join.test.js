@@ -14,7 +14,7 @@ runTests('Promise.join()', function(u, Promise) {
 	 * `Promise.join()` calls the callback synchronously if input is
 	 * only values or resolved promises, but async if any promises are pending.
 	 * So async calling test is skipped to allow for this.
-	 * TODO Change test once bug is fixed.
+	 * TODO Change test once bug is fixed
 	 */
 	u.testGroupStaticAsyncArrayHandler(function(array, handler) {
 		array = array.concat([handler]);
