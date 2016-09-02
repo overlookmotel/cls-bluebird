@@ -18,7 +18,7 @@ runTests('Promise.defer()', function(u, Promise) {
 		describe('resolved with', function() {
 			u.describeValues(function(makeValue) {
 				describe('and resolve called', function() {
-					describeAttach(function(attach) {
+					u.describeAttachSimple(function(attach) {
 						u.testIsPromise(function(cb) {
 							var deferred = Promise.defer();
 							var p = deferred.promise;
@@ -35,7 +35,7 @@ runTests('Promise.defer()', function(u, Promise) {
 		});
 
 		describe('rejected with error', function() {
-			describeAttach(function(attach) {
+			u.describeAttachSimple(function(attach) {
 				u.testIsPromise(function(cb) {
 					var deferred = Promise.defer();
 					var p = deferred.promise;
@@ -49,20 +49,6 @@ runTests('Promise.defer()', function(u, Promise) {
 			});
 		});
 	});
-
-	function describeAttach(testFn) {
-		describe('sync', function() {
-			testFn(function(fn) {
-				fn();
-			});
-		});
-
-		describe('async', function() {
-			testFn(function(fn) {
-				setImmediate(fn);
-			});
-		});
-	}
 });
 
 runTests('Promise.pending()', function(u, Promise) { // jshint ignore:line

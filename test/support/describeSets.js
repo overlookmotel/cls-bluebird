@@ -385,9 +385,10 @@ module.exports = {
 
 	/**
 	 * Create `describe` test groups for attaching a handler to a promise sync/async.
-	 * Calls `testFn` with an `attach` function that schedules a function to run immediately or in next tick.
-	 * If running in next tick, and promise attaching to is going to reject, it suppresses unhandled rejections
-	 * on the promise.
+	 * Calls `testFn` with an `attach` function that schedules a function to run immediately
+	 * or once promise attaching to resolves.
+	 * If awaiting resolution of promise attaching to, and promise is going to reject,
+	 * it suppresses unhandled rejections on the promise.
 	 *
 	 * @param {Function} testFn - Function to call for each `describe`
 	 * @returns {undefined}
@@ -414,6 +415,27 @@ module.exports = {
 			attach._async = true;
 
 			testFn(attach);
+		});
+	},
+
+	/**
+	 * Create `describe` test groups for executing sync/async.
+	 * Calls `testFn` with an `attach` function that schedules a function to run immediately or in next tick.
+	 *
+	 * @param {Function} testFn - Function to call for each `describe`
+	 * @returns {undefined}
+	 */
+	describeAttachSimple: function(testFn) {
+		describe('sync', function() {
+			testFn(function(fn) {
+				fn();
+			});
+		});
+
+		describe('async', function() {
+			testFn(function(fn) {
+				setImmediate(fn);
+			});
 		});
 	}
 };
