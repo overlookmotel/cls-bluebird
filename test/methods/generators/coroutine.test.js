@@ -12,7 +12,7 @@ var runTests = require('../../support');
 
 runTests('Promise.coroutine()', function(u, Promise) {
 	if (u.nodeVersion.slice(0, 2) !== '0.') {
-		require('./coroutine.inc')(u, Promise);
+		require('./coroutine.inc')(u, Promise.coroutine);
 	} else {
 		it.skip('not supported by node version ' + u.nodeVersion);
 	}

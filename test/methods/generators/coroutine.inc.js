@@ -1,7 +1,7 @@
 /*
  * cls-bluebird tests
- * Tests for Promise.coroutine()
- * File required by coroutine.test.js
+ * Tests for Promise.coroutine() / Promise.spawn()
+ * File required by coroutine.test.js + spawn.test.js
  */
 
 /* global describe */
@@ -11,11 +11,11 @@
 
 // TODO Add tests for indirect binding
 
-module.exports = function(u, Promise) {
+module.exports = function(u, co) {
 	describe('returns instance of patched Promise constructor when generator', function() {
 		describe('returns value', function() {
 			u.testIsPromiseFromHandler(function(handler, cb) {
-				var fn = Promise.coroutine(function*() {
+				var fn = co(function*() {
 					handler();
 					return u.makeValue();
 				}); // jshint ignore:line
@@ -27,7 +27,7 @@ module.exports = function(u, Promise) {
 
 		describe('throws error', function() {
 			u.testIsPromiseFromHandler(function(handler, cb) {
-				var fn = Promise.coroutine(function*() {
+				var fn = co(function*() {
 					handler();
 					throw u.makeError();
 				}); // jshint ignore:line
@@ -41,7 +41,7 @@ module.exports = function(u, Promise) {
 		describe('yields', function() {
 			u.describeAllPromises(function(makePromise) {
 				u.testIsPromiseFromHandler(function(handler, cb) {
-					var fn = Promise.coroutine(function*() {
+					var fn = co(function*() {
 						yield handler();
 					});
 
@@ -56,7 +56,7 @@ module.exports = function(u, Promise) {
 	describe('calls', function() {
 		describe('generator synchronously', function() {
 			u.testSync(function(handler, cb) {
-				var fn = Promise.coroutine(function*() {
+				var fn = co(function*() {
 					handler();
 				}); // jshint ignore:line
 
@@ -68,7 +68,7 @@ module.exports = function(u, Promise) {
 		describe('generator code asynchronously after yielding', function() {
 			u.describeAllPromises(function(makePromise) {
 				u.testAsync(function(handler, cb) {
-					var fn = Promise.coroutine(function*() {
+					var fn = co(function*() {
 						try {
 							yield makePromise();
 						} catch (err) {}
@@ -85,7 +85,7 @@ module.exports = function(u, Promise) {
 		describe('generator code in finally block asynchronously after yielding', function() {
 			u.describeAllPromises(function(makePromise) {
 				u.testAsync(function(handler, cb) {
-					var fn = Promise.coroutine(function*() {
+					var fn = co(function*() {
 						try {
 							yield makePromise();
 						} finally {
@@ -101,14 +101,16 @@ module.exports = function(u, Promise) {
 		});
 	});
 
+	// TODO Find better way to do this with `handler` being passed into preFn
+
 	describe('generator code runs in context', function() {
 		describe('prior to yield', function() {
 			u.testRunContext(function(handler, fn, cb) {
 				var p = fn(handler);
 				cb(p);
 			}, function() {
-				// pre-fn to create coroutine
-				return Promise.coroutine(function*(handler) {
+				// preFn to create coroutine
+				return co(function*(handler) {
 					handler();
 				}); // jshint ignore:line
 			});
@@ -120,8 +122,8 @@ module.exports = function(u, Promise) {
 					var p = fn(handler);
 					cb(p);
 				}, function() {
-					// pre-fn to create coroutine
-					return Promise.coroutine(function*(handler) {
+					// preFn to create coroutine
+					return co(function*(handler) {
 						try {
 							yield makePromise();
 						} catch (err) {}
@@ -139,8 +141,8 @@ module.exports = function(u, Promise) {
 					u.inheritRejectStatus(p, makePromise);
 					cb(p);
 				}, function() {
-					// pre-fn to create coroutine
-					return Promise.coroutine(function*(handler) {
+					// preFn to create coroutine
+					return co(function*(handler) {
 						try {
 							yield makePromise();
 						} finally {
