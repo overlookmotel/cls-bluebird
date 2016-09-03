@@ -27,13 +27,21 @@ module.exports = {
 	 *
 	 * @param {Function} fn - Function to check
 	 * @param {Object} context - CLS context object which `fn` should be bound to
+	 * @param {number} expectedBindings=1 - Number of times `fn` should be bound to CLS context
 	 * @returns {Error|undefined} - Error if not bound correctly, undefined if fine
 	 */
-	checkBound: function(fn, context) {
+	checkBound: function(fn, context, expectedBindings) {
+		if (!expectedBindings) expectedBindings = 1;
+
 		var bound = fn._bound;
 		if (!bound || !bound.length) return new Error('Function not bound');
-		if (bound.length > 1) return new Error('Function bound multiple times (' + bound.length + ')');
-		if (bound[0].context !== context) return new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
+		if (bound.length !== expectedBindings) return new Error('Function bound wrong number of times (' + bound.length + ')');
+
+		var wrongBound = bound.filter(function(bound) {
+			return bound.context !== context;
+		});
+
+		if (wrongBound.length) return new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
 	},
 
 	/**

@@ -192,6 +192,7 @@ module.exports = {
 	 * @param {Function} [handler] - Handler function
 	 * @param {Object} [options] - Options object
 	 * @param {number} [options.expectedCalls=1] - Number of times expect handler to be called
+	 * @param {number} [options.expectedBindings=1] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */
 	testBound: function(fn, preFn, handler, options) {
@@ -205,13 +206,13 @@ module.exports = {
 			u.runInContext(function(context) {
 				// Create handler
 				handler = u.wrapHandler(handler, function() {
-					t.error(u.checkBound(handler, context));
+					t.error(u.checkBound(handler, context, options.expectedBindings));
 				});
 
 				// Run test function with handler
 				fn(handler, preResult, function(p) {
 					// Check that bound synchronously
-					t.error(u.checkBound(handler, context));
+					t.error(u.checkBound(handler, context, options.expectedBindings));
 					cb(p);
 				});
 			});

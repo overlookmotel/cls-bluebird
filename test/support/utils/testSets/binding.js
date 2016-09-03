@@ -24,6 +24,7 @@ module.exports = {
 	 * @param {boolean} options.catches - true if handler fires on rejected promise
 	 * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
 	 * @param {boolean} options.skipUncalled - true if should skip cases where handler not called
+	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */
 	testSetBoundProto: function(fn, options) {
@@ -40,7 +41,7 @@ module.exports = {
 						if (options.passThrough || !handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
-				}, makePromise, undefined, {expectedCalls: expectedCalls});
+				}, makePromise, undefined, {expectedCalls: expectedCalls, expectedBindings: options.expectedBindings});
 			});
 		});
 	},
@@ -95,6 +96,7 @@ module.exports = {
 	 * @param {boolean} options.catches - true if handler fires on rejected promise
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */
 	testSetBoundProtoArray: function(fn, options) {
@@ -110,7 +112,7 @@ module.exports = {
 						if (!handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 	                    cb(newP);
 	                }, p);
-	            }, makePromise, undefined, {expectedCalls: expectedCalls});
+	            }, makePromise, undefined, {expectedCalls: expectedCalls, expectedBindings: options.expectedBindings});
 	        }, {noUndefined: options.noUndefinedValue});
 	    });
 	},

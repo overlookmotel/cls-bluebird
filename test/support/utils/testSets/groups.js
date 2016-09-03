@@ -69,6 +69,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined] - true if method does not accept undefined handler (default `false`)
 	 * @param {boolean} [options.noPromiseTest] - Skip returns promise test if true (default `false`)
 	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
+	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */
 	testGroupProtoAsyncHandler: function(fn, options) {
@@ -160,6 +161,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */
 	testGroupProtoAsyncArrayHandler: function(fn, options) {
