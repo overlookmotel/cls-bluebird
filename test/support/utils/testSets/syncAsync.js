@@ -64,12 +64,13 @@ module.exports = {
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.literal=false] - true if method receives only array not promise of array (`Promise.join()`)
 	 * @param {boolean} [options.oneCallback=false] - true if callback should only be called once (`.spread()`)
+	 * @param {boolean} [options.skip=false] - true if tests should be skipped
 	 * @returns {undefined}
 	 */
 	testSetCallbackAsyncStaticArray: function(fn, options) {
 		var u = this;
 
-		describe('calls callback asynchronously when called on', function() {
+		(options.skip ? describe.skip : describe)('calls callback asynchronously when called on', function() {
 			u[options.literal ? 'describeArrays' : 'describeArrayOrPromiseOfArrays'](function(makeValue) {
 				// If handler should not be fired on this promise, check is not fired
 				var handlerShouldBeCalled = u.getRejectStatus(makeValue) ? options.catches : options.continues;
