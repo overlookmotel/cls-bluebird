@@ -154,6 +154,8 @@ module.exports = {
 	 *
 	 * @param {Function} fn - Test function
 	 * @param {Object} [options] - Options object
+	 * @param {boolean} [options.continues] - true if handler fires on resolved promise (default `!options.catches`)
+	 * @param {boolean} [options.catches] - true if handler fires on rejected promise (default `false`)
 	 * @param {boolean} [options.noUndefinedValue=false] - true if method does not accept undefined value
 	 * @param {boolean} [options.noUndefinedHandler=false] - true if method does not accept undefined handler
 	 * @param {boolean} [options.series=false] - true if method iterates through array in series
@@ -164,16 +166,17 @@ module.exports = {
 		var u = this;
 
 		// Conform options
-		options = _.defaults({
-			continues: true,
+		options = _.extend({
 			catches: false,
-			passThrough: false
-		}, options, {
 			noUndefinedValue: false,
 			noUndefinedHandler: false,
 			series: false,
 			oneCallback: false
+		}, options, {
+			passThrough: false
 		});
+
+		_.defaults(options, {continues: !options.catches});
 
 		// Run tests
 		u.testSetReturnsPromiseProtoOnArrayReceivingHandler(fn, options);

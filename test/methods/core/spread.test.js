@@ -3,14 +3,24 @@
  * Tests for .spread()
  */
 
+/* global describe */
+
 // Imports
 var runTests = require('../../support');
 
 // Run tests
 
-// TODO Add tests for reject handler in bluebird v2
+// TODO Add tests for when both handlers provided
 runTests('.spread()', function(u) {
-	u.testGroupProtoAsyncArrayHandler(function(p, handler) {
-		return p.spread(handler);
-	}, {noUndefinedValue: true, noUndefinedHandler: true, oneCallback: true});
+	describe('resolve handler', function() {
+		u.testGroupProtoAsyncArrayHandler(function(p, handler) {
+			return p.spread(handler);
+		}, {noUndefinedValue: true, noUndefinedHandler: true, oneCallback: true});
+	});
+
+	(u.bluebirdVersion === 2 ? describe : describe.skip)('reject handler', function() {
+		u.testGroupProtoAsyncArrayHandler(function(p, handler) {
+			return p.spread(undefined, handler);
+		}, {catches: true, noUndefinedValue: true, noUndefinedHandler: true, oneCallback: true});
+	});
 });
