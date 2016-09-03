@@ -66,9 +66,18 @@ runTests('API', function() {
 			clsBluebird(ns, Bluebird3);
 		});
 
-		it('throws if provided native JS promise constructor', function() {
+		// NB skip this test on Node v0.10.x as global.Promise does not exist
+		(process.version.slice(0, 6) === 'v0.10.' ? it.skip : it)('throws if provided native JS promise constructor', function() {
 			expect(function() {
-				clsBluebird(ns, new global.Promise(function() {}));
+				clsBluebird(ns, global.Promise);
+			}).to.throw('Promise implementation provided must be Bluebird');
+		});
+
+		it('throws if provided other promise constructor', function() {
+			expect(function() {
+				var FakePromise = function() {};
+				FakePromise.prototype.then = function() {};
+				clsBluebird(ns, FakePromise);
 			}).to.throw('Promise implementation provided must be Bluebird');
 		});
 
