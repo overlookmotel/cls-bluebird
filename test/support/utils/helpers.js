@@ -90,6 +90,7 @@ module.exports = {
 
 	/**
 	 * Suppress unhandled rejections on a promise in a static method that receives a promise of an array.
+	 * Due to bug in bluebird: https://github.com/petkaantonov/bluebird/issues/1158
 	 *
 	 * This is a workaround for bug in bluebird where a promise from another constructor
 	 * which is rejected synchronously results in an unhandled rejection on `Promise.map()`.
@@ -98,7 +99,6 @@ module.exports = {
 	 * @param {Function} makeValue - Function that creates values
 	 * @returns {undefined}
 	 *
-	 * TODO Raise issue on bluebird for this or include link to existing issue
 	 * TODO Remove this when bug is fixed
 	 * TODO Check this is required for methods other than `Promise.map()`
 	 */
