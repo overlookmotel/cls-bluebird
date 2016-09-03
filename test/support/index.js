@@ -59,10 +59,10 @@ var utils = new Utils(Promise, UnpatchedPromise, ns, altPromises, bluebirdVersio
 
 // Exports
 
-/*
+/**
  * Run tests.
  * Expects to be provided function that runs group of tests.
- * Tests function is called with arguments (Promise, ns, utils).
+ * Tests function is called with arguments (utils, Promise).
  *
  * @param {string} name - Name of test group
  * @param {Function} testFn - Function that runs tests
@@ -88,7 +88,7 @@ module.exports = function(name, testFn, skipConditionFn) {
 	}, true);
 };
 
-/*
+/**
  * Patch bluebird constructor with cls-bluebird.
  * Also registers `onPossiblyUnhandledRejection` to exit immediately with error if unhandled promise rejection.
  *
