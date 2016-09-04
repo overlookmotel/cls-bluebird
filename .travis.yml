@@ -1,5 +1,5 @@
 script:
-  - "npm run travis"
+  - "travis_wait npm run travis"
 
 language: node_js
 
