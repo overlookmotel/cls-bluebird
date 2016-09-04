@@ -9,8 +9,6 @@
 
 // Export function to run tests
 
-// TODO Add tests for indirect binding
-
 module.exports = function(u, co) {
 	describe('returns instance of patched Promise constructor when generator', function() {
 		describe('returns value', function() {
@@ -101,8 +99,27 @@ module.exports = function(u, co) {
 		});
 	});
 
-	// TODO Find better way to do this with `handler` being passed into preFn
+	describe('generator methods bound to CLS context', function() {
+		u.testHandlerCalled(function(handler, t, cb) {
+			var fn = co(function*() {
+				handler();
+			}); // jshint ignore:line
 
+			u.runInContext(function(context) {
+				var p = fn();
+
+				if (u.ns._bound.length !== 3) t.error(new Error('Total bindings wrong (' + u.ns._bound.length + ')'));
+
+				u.ns._bound.forEach(function(bound) {
+					if (bound.context !== context) t.error(new Error('Bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound.context) + ')'));
+				});
+
+				cb(p);
+			});
+		});
+	});
+
+	// TODO Find better way to do this with `handler` being passed into preFn
 	describe('generator code runs in context', function() {
 		describe('prior to yield', function() {
 			u.testRunContext(function(handler, fn, cb) {
