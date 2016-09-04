@@ -69,6 +69,7 @@ module.exports = {
 	 * @param {boolean} [options.noUndefined] - true if method does not accept undefined handler (default `false`)
 	 * @param {boolean} [options.noPromiseTest] - Skip returns promise test if true (default `false`)
 	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
+	 * @param {boolean} [options.bindIndirect] - true if binding to CLS context is indirect (default `false`)
 	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */

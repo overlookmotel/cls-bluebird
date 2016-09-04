@@ -11,8 +11,6 @@ var runTests = require('../../support');
 // Run tests
 
 runTests('.call()', function(u) {
-	// NB No test for binding as is bound indirectly and at time of promise resolution, not when `.call()` called
-
 	describe('returns instance of patched Promise constructor when called on promise', function() {
 		describeSetWithHandlers(function(makePromise, handler, attach, expectedCalls) {
 			u.testIsPromiseFromHandler(function(handler, cb) {
@@ -30,6 +28,16 @@ runTests('.call()', function(u) {
 		});
 	});
 
+	// Test for binding indirectly only, as patch binds callback indirectly
+	describe('binds callback on promise', function() {
+		u.describeMainPromisesAttach(function(makePromise, attach) {
+			var expectedCalls = u.getRejectStatus(makePromise) ? 0 : 1;
+			u.testBound(function(handler, ignore, cb) { // jshint ignore:line
+				testFn(makePromise, handler, attach, expectedCalls, cb);
+			}, undefined, undefined, {expectedCalls: expectedCalls, bindIndirect: true});
+		});
+	});
+
 	// TODO Split creation of promise to be chained onto into a `preFn`
 	describe('callback runs in context on promise', function() {
 		u.describeMainPromisesAttach(function(makePromise, attach) {
@@ -39,8 +47,6 @@ runTests('.call()', function(u) {
 			}, undefined, undefined, {expectedCalls: expectedCalls});
 		});
 	});
-
-	// TODO Add tests for indirect binding
 
 	/**
 	 * Create promise that resolves to an object and then attaches `.call()` method to it.

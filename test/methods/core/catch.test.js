@@ -23,10 +23,10 @@ runTests('.catch()', function(u) {
 	describe('with 2nd arg', function() {
 		// NB In bluebird v3 handler is not bound when on 2nd arg.
 		// `.catch()` calls `.then()` synchronously but with proxy handler.
-		// TODO Add tests for indirect binding
+		// So test only for indirect binding.
 		u.testGroupProtoAsyncHandler(function(p, handler) {
 			return p.catch(Error, handler);
-		}, {catches: true, noUndefined: true, noBindTest: (u.bluebirdVersion === 3)});
+		}, {catches: true, noUndefined: true, bindIndirect: (u.bluebirdVersion === 3)});
 	});
 });
 

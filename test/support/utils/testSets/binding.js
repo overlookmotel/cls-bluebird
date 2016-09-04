@@ -24,6 +24,7 @@ module.exports = {
 	 * @param {boolean} options.catches - true if handler fires on rejected promise
 	 * @param {boolean} options.passThrough - true if method passes through errors even if handler fires
 	 * @param {boolean} options.skipUncalled - true if should skip cases where handler not called
+	 * @param {boolean} [options.bindIndirect] - true if binding to CLS context is indirect (default `false`)
 	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
 	 */
@@ -41,7 +42,7 @@ module.exports = {
 						if (options.passThrough || !handlerShouldBeCalled) u.inheritRejectStatus(newP, p);
 						cb(newP);
 					}, p);
-				}, makePromise, undefined, {expectedCalls: expectedCalls, expectedBindings: options.expectedBindings});
+				}, makePromise, undefined, {expectedCalls: expectedCalls, expectedBindings: options.expectedBindings, bindIndirect: options.bindIndirect});
 			});
 		});
 	},

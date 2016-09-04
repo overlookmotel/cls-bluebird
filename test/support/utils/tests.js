@@ -193,6 +193,7 @@ module.exports = {
 	 * @param {Object} [options] - Options object
 	 * @param {number} [options.expectedCalls=1] - Number of times expect handler to be called
 	 * @param {number} [options.expectedBindings=1] - Number of times handler should be bound to CLS context
+	 * @param {boolean} [options.bindIndirect=false] - true if binding to CLS context is indirect
 	 * @returns {undefined}
 	 */
 	testBound: function(fn, preFn, handler, options) {
