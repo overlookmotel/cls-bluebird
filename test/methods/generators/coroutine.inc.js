@@ -100,23 +100,19 @@ module.exports = function(u, co) {
 	});
 
 	describe('generator methods bound to CLS context', function() {
-		u.testHandlerCalled(function(handler, t, cb) {
-			var fn = co(function*() {
+		// Generators in node v4.x lack the `return` method, so only 2 methods bound
+		// on node v4 versus 3 methods on mode v6.
+		var expectedBindings = (u.nodeVersion === '4' ? 2 : 3);
+
+		u.testBound(function(handler, fn, cb) {
+			var p = fn(handler);
+			cb(p);
+		}, function() {
+			// preFn to create coroutine
+			return co(function*(handler) {
 				handler();
 			}); // jshint ignore:line
-
-			u.runInContext(function(context) {
-				var p = fn();
-
-				if (u.ns._bound.length !== 3) t.error(new Error('Total bindings wrong (' + u.ns._bound.length + ')'));
-
-				u.ns._bound.forEach(function(bound) {
-					if (bound.context !== context) t.error(new Error('Bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound.context) + ')'));
-				});
-
-				cb(p);
-			});
-		});
+		}, undefined, {bindIndirect: true, expectedBindings: expectedBindings});
 	});
 
 	// TODO Find better way to do this with `handler` being passed into preFn
