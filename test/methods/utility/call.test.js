@@ -31,7 +31,7 @@ runTests('.call()', function(u) {
 	});
 
 	// TODO Split creation of promise to be chained onto into a `preFn`
-	describe('callback runs in context on a promise', function() {
+	describe('callback runs in context on promise', function() {
 		u.describeMainPromisesAttach(function(makePromise, attach) {
 			var expectedCalls = u.getRejectStatus(makePromise) ? 0 : 1;
 			u.testRunContext(function(handler, ignore, cb) { // jshint ignore:line

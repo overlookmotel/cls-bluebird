@@ -52,7 +52,7 @@ module.exports = {
 	 */
 	testSetCallbackContextProto: function(fn, options) {
 		var u = this;
-		describe('callback runs in context on a promise', function() {
+		describe('callback runs in context on promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
 				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 				if (options.skipUncalled && !handlerShouldBeCalled) return;
@@ -90,7 +90,7 @@ module.exports = {
 	 */
 	testSetCallbackContextStaticArray: function(fn, options) {
 		var u = this;
-		describe('callback runs in context on a promise', function() {
+		describe('callback runs in context on promise', function() {
 			u[options.literal ? 'describeArrays' : 'describeArrayOrPromiseOfArrays'](function(makeValue) {
 				// If handler should not be fired on this promise, check is not fired
 				var handlerShouldBeCalled = u.getRejectStatus(makeValue) ? options.catches : options.continues;
@@ -127,7 +127,7 @@ module.exports = {
 	 */
 	testSetCallbackContextProtoArray: function(fn, options) {
 		var u = this;
-		describe('callback runs in context on a promise', function() {
+		describe('callback runs in context on promise', function() {
 			u.describeMainPromisesArrayAttach(function(makePromise, attach) {
 				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 				var expectedCalls = handlerShouldBeCalled ? (options.oneCallback ? 1 : 3) : 0;

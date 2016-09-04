@@ -29,7 +29,7 @@ module.exports = {
 	 */
 	testSetBoundProto: function(fn, options) {
 		var u = this;
-		describe('binds callback on a promise', function() {
+		describe('binds callback on promise', function() {
 			u.describeMainPromisesAttach(function(makePromise, attach) {
 				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 				if (options.skipUncalled && !handlerShouldBeCalled) return;
@@ -65,7 +65,7 @@ module.exports = {
 	 */
 	testSetBoundStaticArray: function(fn, options) {
 	    var u = this;
-	    describe('binds callback on a promise', function() {
+	    describe('binds callback on promise', function() {
 			u[options.literal ? 'describeArrays' : 'describeArrayOrPromiseOfArrays'](function(makeValue) {
 				// If handler should not be fired on this promise, check is not fired
 				var handlerShouldBeCalled = u.getRejectStatus(makeValue) ? options.catches : options.continues;
@@ -101,7 +101,7 @@ module.exports = {
 	 */
 	testSetBoundProtoArray: function(fn, options) {
 	    var u = this;
-	    describe('binds callback on a promise', function() {
+	    describe('binds callback on promise', function() {
 	        u.describeMainPromisesArrayAttach(function(makePromise, attach) {
 				var handlerShouldBeCalled = u.getRejectStatus(makePromise) ? options.catches : options.continues;
 	            var expectedCalls = handlerShouldBeCalled ? (options.oneCallback ? 1 : 3) : 0;
