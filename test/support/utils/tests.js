@@ -206,13 +206,13 @@ module.exports = {
 			u.runInContext(function(context) {
 				// Create handler
 				handler = u.wrapHandler(handler, function() {
-					t.error(u.checkBound(handler, context, options.expectedBindings));
+					t.error(u.checkBound(handler, context, options));
 				});
 
 				// Run test function with handler
 				fn(handler, preResult, function(p) {
 					// Check that bound synchronously
-					t.error(u.checkBound(handler, context, options.expectedBindings));
+					t.error(u.checkBound(handler, context, options));
 					cb(p);
 				});
 			});

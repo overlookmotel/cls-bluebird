@@ -5,6 +5,9 @@
 
 /* global describe */
 
+// Modules
+var _ = require('lodash');
+
 // Imports
 var runTests = require('../../support');
 
@@ -264,14 +267,17 @@ function testUsingBound(fn, makePromise, handler, attach, expectedCalls, u, Prom
 
 		u.runInContext(function(context) {
 			handler = u.wrapHandler(handler, function() {
-				t.error(u.checkBound(handler, context));
+				t.error(u.checkBound(handler, context, {noIndirect: true}));
+				checkIndirectBinding(handler, disposerHandlers, u, t);
 			});
 
 			attach(function() {
 				var p = fn(disposers, handler);
 				u.inheritRejectStatus(p, expectedCalls ? handler : makePromise);
 
-				t.error(u.checkBound(handler, context));
+				t.error(u.checkBound(handler, context, {noIndirect: true}));
+				checkIndirectBinding(handler, disposerHandlers, u, t);
+				checkUnalteredMethods(p, Promise, t);
 
 				cb(p);
 			}, disposers._promise);
@@ -286,23 +292,53 @@ function testDisposerBound(fn, makePromise, handler, attach, expectedCalls, u, P
 		var disposers = promises.map(function(p, i) {
 			return u.runInContext(function(context) {
 				var handler = u.wrapHandler(disposerHandlers[i], function() {
-					t.error(u.checkBound(handler, context));
+					t.error(u.checkBound(handler, context, {noIndirect: true}));
 				});
+
+				disposerHandlers[i] = handler;
 
 				var disposer = p.disposer(handler);
 
-				t.error(u.checkBound(handler, context));
+				t.error(u.checkBound(handler, context, {noIndirect: true}));
 
 				return disposer;
 			});
 		});
 
+		// Wrap `using` handler to check no indirect binding performed
+		handler = u.wrapHandler(handler, function() {
+			checkIndirectBinding(handler, disposerHandlers, u, t);
+		});
+
 		attach(function() {
 			var p = fn(disposers, handler);
 			u.inheritRejectStatus(p, expectedCalls ? handler : makePromise);
+			checkIndirectBinding(handler, disposerHandlers, u, t);
+			checkUnalteredMethods(p, Promise, t);
 			cb(p);
 		}, promises._promise);
 	}, handler, [undefined, undefined, undefined], expectedCalls, u);
+}
+
+function checkIndirectBinding(handler, disposerHandlers, u, t) {
+	// Check total bindings as expected
+	if (u.ns._bound.length !== disposerHandlers.length + 1) t.error(new Error('Total bindings wrong (' + u.ns._bound.length + ')'));
+
+	// Check bindings to correct functions
+	var wrongBound = _.find(u.ns._bound, function(bound) {
+		return bound.fn !== handler && disposerHandlers.indexOf(bound.fn) === -1;
+	});
+	if (wrongBound) t.error(new Error('Unnecessary indirect binding performed'));
+}
+
+function checkUnalteredMethods(p, Promise, t) {
+	// Check patch leaves `Promise.all`, `Promise.settle` as was
+	if (Promise.all.__wrapped) t.error(new Error('Patch left Promise.all modified'));
+	if (Promise.settle.__wrapped) t.error(new Error('Patch left Promise.settle modified'));
+
+	// Check `.then()` and `.lastly()` methods on resulting promise are patched
+	if (!p.then.__wrapped) t.error(new Error('Patch disabled `.then` patch'));
+	if (!p.lastly.__wrapped) t.error(new Error('Patch disabled `.lastly` patch'));
 }
 
 function testUsingContext(fn, makePromise, handler, attach, expectedCalls, u, Promise) {

@@ -5,6 +5,9 @@
  * Mixin to Utils prototype.
  */
 
+// Modules
+var _ = require('lodash');
+
 // Exports
 
 module.exports = {
@@ -27,30 +30,35 @@ module.exports = {
 	 *
 	 * @param {Function} fn - Function to check
 	 * @param {Object} context - CLS context object which `fn` should be bound to
-	 * @param {number} expectedBindings=1 - Number of times `fn` should be bound to CLS context
+	 * @param {Object} [options] - Options object
+	 * @param {number} [options.expectedBindings=1] - Number of times `fn` should be bound to CLS context
+	 * @param {boolean} [options.noIndirect=false] - If true, skip test for correct indirect binding
 	 * @returns {Error|undefined} - Error if not bound correctly, undefined if fine
 	 */
-	checkBound: function(fn, context, expectedBindings) {
+	checkBound: function(fn, context, options) {
 		var u = this;
-		if (!expectedBindings) expectedBindings = 1;
+		options = options || {};
+		var expectedBindings = options.expectedBindings || 1;
 
 		var bound = fn._bound;
 		if (!bound || !bound.length) return new Error('Function not bound');
 		if (bound.length !== expectedBindings) return new Error('Function bound wrong number of times (' + bound.length + ')');
 
-		var wrongBound = bound.filter(function(bound) {
+		var wrongBound = _.find(bound, function(bound) {
 			return bound.context !== context;
 		});
-		if (wrongBound.length) return new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
+		if (wrongBound) return new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(wrongBound.context) + ')');
+
+		if (options.noIndirect) return;
 
 		bound = u.ns._bound;
 		if (!bound || !bound.length) return new Error('No binding occured');
 		if (bound.length !== expectedBindings) return new Error('Wrong number of bindings (' + bound.length + ')');
 
-		wrongBound = bound.filter(function(bound) {
+		wrongBound = _.find(bound, function(bound) {
 			return bound.context !== context || bound.fn !== fn;
 		});
-		if (wrongBound.length) return new Error('Bound to wrong function or context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
+		if (wrongBound) return new Error('Bound to wrong function or context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(wrongBound.context) + ')');
 	},
 
 	/**
