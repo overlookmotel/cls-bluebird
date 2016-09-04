@@ -9,8 +9,8 @@ set -e -o pipefail;
 # `tail` outputs only last 2MB of test output - workaround for Travis 4MB log limit
 if [ $COVERAGE ];
     # Coveralls
-    then echo 'Running Coveralls' && (npm run coveralls | tail -c 2097152);
+    then echo 'Running Coveralls' && (travis_wait npm run coveralls | tail -c 2097152);
 
     # Tests
-    else npm run jshint && echo 'Running Tests' && (npm run test-main | tail -c 2097152);
+    else npm run jshint && echo 'Running Tests' && (travis_wait npm run test-main | tail -c 2097152);
 fi
