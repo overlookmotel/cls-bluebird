@@ -68,7 +68,6 @@ module.exports = {
 	 * @param {boolean} [options.skipUncalled] - true if should skip cases where handler not called
 	 * @param {boolean} [options.noUndefined] - true if method does not accept undefined handler (default `false`)
 	 * @param {boolean} [options.noPromiseTest] - Skip returns promise test if true (default `false`)
-	 * @param {boolean} [options.noBindTest] - Skip handler bound test if true (default `false`)
 	 * @param {boolean} [options.bindIndirect] - true if binding to CLS context is indirect (default `false`)
 	 * @param {number} [options.expectedBindings] - Number of times handler should be bound to CLS context
 	 * @returns {undefined}
@@ -82,8 +81,7 @@ module.exports = {
 			passThrough: false,
 			skipUncalled: false,
 			noUndefined: false,
-			noPromiseTest: false,
-			noBindTest: false
+			noPromiseTest: false
 		}, options);
 
 		_.defaults(options, {continues: !options.catches});
@@ -91,7 +89,7 @@ module.exports = {
 		// Run tests
 		if (!options.noPromiseTest) u.testSetReturnsPromiseProtoReceivingHandler(fn, options);
 		u.testSetCallbackAsyncProto(fn, options);
-		if (!options.noBindTest) u.testSetBoundProto(fn, options);
+		u.testSetBoundProto(fn, options);
 		u.testSetCallbackContextProto(fn, options);
 	},
 
