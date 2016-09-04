@@ -31,6 +31,7 @@ module.exports = {
 	 * @returns {Error|undefined} - Error if not bound correctly, undefined if fine
 	 */
 	checkBound: function(fn, context, expectedBindings) {
+		var u = this;
 		if (!expectedBindings) expectedBindings = 1;
 
 		var bound = fn._bound;
@@ -40,8 +41,16 @@ module.exports = {
 		var wrongBound = bound.filter(function(bound) {
 			return bound.context !== context;
 		});
-
 		if (wrongBound.length) return new Error('Function bound to wrong context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
+
+		bound = u.ns._bound;
+		if (!bound || !bound.length) return new Error('No binding occured');
+		if (bound.length !== expectedBindings) return new Error('Wrong number of bindings (' + bound.length + ')');
+
+		wrongBound = bound.filter(function(bound) {
+			return bound.context !== context || bound.fn !== fn;
+		});
+		if (wrongBound.length) return new Error('Bound to wrong function or context (expected: ' + JSON.stringify(context) + ', got: ' + JSON.stringify(bound[0].context) + ')');
 	},
 
 	/**

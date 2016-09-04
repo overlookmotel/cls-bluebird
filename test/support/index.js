@@ -26,6 +26,11 @@ var nodeVersion = process.version.match(/^v(\d\d+|[1-9]|0\.\d+)\./)[1];
 var PatchedBluebird2 = patch(Bluebird2);
 var PatchedBluebird3 = patch(Bluebird3);
 
+// Save original `.then` method as `._thenOriginal`
+// (used for chaining to promises at end of tests without binding callbacks)
+PatchedBluebird2.prototype._thenOriginal = PatchedBluebird2.prototype.then.__original;
+PatchedBluebird3.prototype._thenOriginal = PatchedBluebird3.prototype.then.__original;
+
 // Get bluebird version to use for these tests
 var Promise, UnpatchedPromise, versionName, altPromises;
 if (bluebirdVersion === 2) {

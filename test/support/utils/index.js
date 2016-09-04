@@ -165,7 +165,8 @@ Utils.prototype = {
 	 */
 	suppressUnhandledRejections: function(promise) {
 		var u = this;
-		promise.catch(function(err) {
+		var thenMethodName = (promise._thenOriginal ? '_thenOriginal' : 'then');
+		promise[thenMethodName](undefined, function(err) {
 			if (!(err instanceof u.TestError)) throw err;
 		});
 	}

@@ -64,7 +64,9 @@ module.exports = function(u) {
 		 */
 		done: function(promise, final) {
 			var test = this;
-			promise.then(function() {
+
+			var thenMethodName = (promise._thenOriginal ? '_thenOriginal' : 'then');
+			promise[thenMethodName](function() {
 				if (final) final();
 				if (u.getRejectStatus(promise)) test.error(new Error('Promise should not be resolved'));
 				test._done(test._err);
