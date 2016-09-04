@@ -53,49 +53,37 @@ module.exports = {
 	 * Promises are created from specified Promise constructor.
 	 */
 	resolveSync: function(Promise, makeValue) {
-		var u = this;
 		if (!makeValue) makeValue = this.valueCreator();
 		var p = new Promise(function(resolve) {
-			u.runInContext(function() {
+			resolve(makeValue());
+		});
+		return this.inheritRejectStatus(p, makeValue);
+	},
+
+	resolveAsync: function(Promise, makeValue) {
+		if (!makeValue) makeValue = this.valueCreator();
+		var p = new Promise(function(resolve) {
+			setImmediate(function() {
 				resolve(makeValue());
 			});
 		});
 		return this.inheritRejectStatus(p, makeValue);
 	},
 
-	resolveAsync: function(Promise, makeValue) {
-		var u = this;
-		if (!makeValue) makeValue = this.valueCreator();
-		var p = new Promise(function(resolve) {
-			setImmediate(function() {
-				u.runInContext(function() {
-					resolve(makeValue());
-				});
-			});
-		});
-		return this.inheritRejectStatus(p, makeValue);
-	},
-
 	rejectSync: function(Promise) {
-		var u = this;
 		var err = this.makeError();
 		var p = new Promise(function(resolve, reject) { // jshint ignore:line
-			u.runInContext(function() {
-				reject(err);
-			});
+			reject(err);
 		});
 		this.setRejectStatus(p);
 		return p;
 	},
 
 	rejectAsync: function(Promise) {
-		var u = this;
 		var err = this.makeError();
 		var p = new Promise(function(resolve, reject) { // jshint ignore:line
 			setImmediate(function() {
-				u.runInContext(function() {
-					reject(err);
-				});
+				reject(err);
 			});
 		});
 		this.setRejectStatus(p);
