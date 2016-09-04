@@ -4,7 +4,7 @@
  * File required by coroutine.test.js + spawn.test.js
  */
 
-/* global describe */
+/* global describe, it */
 // jshint esversion:6
 
 // Export function to run tests
@@ -113,6 +113,17 @@ module.exports = function(u, co) {
 				handler();
 			}); // jshint ignore:line
 		}, undefined, {bindIndirect: true, expectedBindings: expectedBindings});
+	});
+
+	describe('patch leaves Promise.prototype.lastly patch in place', function() {
+		it(function() {
+			var fn = co(function*() {}); // jshint ignore:line
+			var p = fn();
+
+			if (!u.Promise.prototype.lastly.__wrapped) throw new Error('Patch has interfered with `.lastly` patch');
+
+			return p;
+		});
 	});
 
 	// TODO Find better way to do this with `handler` being passed into preFn
