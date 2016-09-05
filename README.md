@@ -42,9 +42,20 @@ clsBluebird( ns, Promise );
 
 This is a more robust approach.
 
+So as not to alter the "global" instance of bluebird, it's recommended to first create a independent instance of the Bluebird constructor before patching.
+
+```js
+var Promise = require('bluebird').getNewLibraryCopy();
+var clsBluebird = require('cls-bluebird');
+
+clsBluebird( ns, Promise );
+```
+
+(see [Promise.getNewLibraryCopy()](http://bluebirdjs.com/docs/api/promise.getnewlibrarycopy.html]) docs on Bluebird website)
+
 ### Nature of patching
 
-Combining CLS and promises is a slightly tricky business. There are 3 different conventions one could use (see [this issue](https://github.com/TimBeyer/cls-bluebird/issues/6) for more detail).
+Combining CLS and promises is a slightly tricky business. There are 3 different conventions one could use (see [this issue](https://github.com/othiym23/node-continuation-local-storage/issues/64) for more detail).
 
 `cls-bluebird` follows the convention of binding `.then()` callbacks **to the context in which `.then()` is called**.
 
@@ -67,13 +78,50 @@ function print() {
 // this outputs '456' (the value of `foo` at the time `.then()` was called)
 ```
 
-### Global error handlers
+### Notes
+
+#### Coroutines
+
+The patch ensures that when execution in a coroutines continues after a `yield` statement, it always does so in the CLS context *in which the coroutine was run*.
+
+```js
+var fn = Promise.coroutine(function* () {
+    console.log('Context 1:', ns.get('foo'));
+    yield Promise.resolve();
+    console.log('Context 2:', ns.get('foo'));
+});
+
+ns.run(function(ctx) {
+    ns.set('foo', 123);
+    fn();
+});
+```
+
+outputs:
+
+```
+Context 1: 123
+Context 2: 123
+```
+
+This means:
+
+1. If the `yield`-ed expression loses CLS context, the original CLS context will be restored after the `yield`
+2. Any code before the `yield` which changes CLS context will only be effective until the next `yield`.
+
+#### Global error handlers
 
 `Promise.onPossiblyUnhandledRejection()` and `Promise.onUnhandledRejectionHandled()` allow you to attach global handlers to intercept unhandled rejections.
 
 The CLS context in which callbacks are called is unknown. It's probably unwise to rely on the CLS context in the callback being that when the rejection occurred - use `.catch()` on the end of the promise chain that's created within `namespace.run()` instead.
 
+#### Progression
+
+Bluebird v2.x contains a deprecated API for handling progression (`.progressed()`) etc. These methods are patched and *should* work fine but they're not covered by the tests.
+
 ## Tests
+
+The tests cover every possible combination of input promises and callbacks that the Bluebird API allows. There's around 100,000 tests in total and the aim is to ensure cls-bluebird is as robust and reliable as possible.
 
 Use `npm test` to run the tests. Use `npm run cover` to check coverage.
 
@@ -81,9 +129,11 @@ Use `npm test` to run the tests. Use `npm run cover` to check coverage.
 
 See [changelog.md](https://github.com/TimBeyer/cls-bluebird/blob/master/changelog.md)
 
-## Issues
+## Issues/bugs
 
 If you discover a bug, please raise an issue on Github. https://github.com/TimBeyer/cls-bluebird/issues
+
+We are very keen to ensure cls-bluebird is completely bug-free and any bugs discovered will be fixed as soon as possible.
 
 ## Contribution
 
