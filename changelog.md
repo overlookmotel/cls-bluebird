@@ -4,6 +4,7 @@
 
 * Travis CI run tests on Node versions 10 + 11
 * Travis CI does not run tests on Node versions before v6
+* Pin JSHint to ~2.9.5 to avoid bug in JSHint 2.10.1
 
 ## 2.1.0
 
