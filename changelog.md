@@ -3,6 +3,7 @@
 ## Next
 
 * Travis CI run tests on Node versions 10 + 11
+* Travis CI does not run tests on Node versions before v6
 
 ## 2.1.0
 
