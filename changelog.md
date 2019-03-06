@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+
+* Travis CI run tests on Node versions 10 + 11
+
 ## 2.1.0
 
 * Fix: `Promise.coroutine.addYieldHandler()` is maintained
